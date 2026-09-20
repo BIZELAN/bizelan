@@ -1,0 +1,385 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: ui-serif, Georgia, 'Times New Roman', serif;
+}
+
+@layer base {
+  * {
+    @apply border-surface-700;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Fait dessiner au navigateur ses propres interfaces en sombre :
+       barres de défilement, champs natifs, sélecteurs de date. */
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-surface-950 text-onDark-md antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-semibold tracking-tight text-onDark-hi;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Anneau de focus pensé pour le fond sombre : le vert de marque y ressort,
+     et le décalage empêche de le confondre avec la bordure de l'élément. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-400 ring-offset-2 ring-offset-surface-950;
+  }
+
+  ::selection {
+    @apply bg-brand-400/30 text-onDark-hi;
+  }
+
+  /* Barre de défilement discrète, accordée au sol sombre. */
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    @apply rounded-pill bg-surface-700;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-600;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8;
+  }
+
+  /* Deux rythmes seulement : une section courante, une section majeure. */
+  .section {
+    @apply py-16 sm:py-20;
+  }
+  .section-lg {
+    @apply py-20 sm:py-24 lg:py-28;
+  }
+
+  .eyebrow {
+    @apply text-meta font-semibold uppercase tracking-[0.18em] text-brand-400;
+  }
+
+  /* Filet lumineux : sépare deux sections sombres sans trait dur. */
+  .hairline {
+    @apply h-px w-full border-0 bg-gradient-to-r from-transparent via-surface-600 to-transparent;
+  }
+
+  /* ---------------------------------------------------------------------
+     Lecture longue sur fond SOMBRE
+     (pages de vente, leçons, blocs de texte, éditeur)
+     --------------------------------------------------------------------- */
+  .prose-dark {
+    @apply text-body-lg text-onDark-md;
+  }
+  .prose-dark > * + * {
+    @apply mt-5;
+  }
+  .prose-dark h2 {
+    @apply mb-4 mt-12 text-h2 text-onDark-hi;
+  }
+  .prose-dark h3 {
+    @apply mb-3 mt-9 text-h3 text-onDark-hi;
+  }
+  .prose-dark h4 {
+    @apply mb-2 mt-7 text-lg font-semibold text-onDark-hi;
+  }
+  .prose-dark ul {
+    @apply list-disc space-y-2 pl-6 marker:text-brand-400;
+  }
+  .prose-dark ol {
+    @apply list-decimal space-y-2 pl-6 marker:text-brand-400;
+  }
+  .prose-dark a {
+    @apply font-medium text-brand-300 underline decoration-brand-400/40 underline-offset-4 transition-colors hover:text-brand-200;
+  }
+  .prose-dark strong {
+    @apply font-semibold text-onDark-hi;
+  }
+  .prose-dark blockquote {
+    @apply my-7 rounded-r-card border-l-2 border-brand-400 bg-surface-800/60 py-4 pl-6 pr-5 italic text-onDark-hi;
+  }
+  .prose-dark code {
+    @apply rounded bg-surface-800 px-1.5 py-0.5 text-[0.9em] text-brand-200;
+  }
+  .prose-dark pre {
+    @apply my-7 overflow-x-auto rounded-card bg-surface-950 p-5 text-sm ring-1 ring-surface-700;
+  }
+  .prose-dark pre code {
+    @apply bg-transparent p-0 text-onDark-md;
+  }
+  .prose-dark img {
+    @apply my-7 rounded-card;
+  }
+  .prose-dark hr {
+    @apply my-12 border-surface-700;
+  }
+  .prose-dark table {
+    @apply my-7 w-full border-collapse text-body;
+  }
+  .prose-dark th {
+    @apply border border-surface-700 bg-surface-800 px-4 py-2.5 text-left font-semibold text-onDark-hi;
+  }
+  .prose-dark td {
+    @apply border border-surface-700 px-4 py-2.5 align-top;
+  }
+
+  /* ---------------------------------------------------------------------
+     Lecture longue sur fond CLAIR — conservée pour les corps d'articles,
+     seule zone claire du site public.
+     --------------------------------------------------------------------- */
+  .prose-bizelan {
+    @apply text-body-lg text-ink-700;
+  }
+  .prose-bizelan > * + * {
+    @apply mt-5;
+  }
+  .prose-bizelan h2 {
+    @apply mb-4 mt-12 text-h2 text-ink-950;
+  }
+  .prose-bizelan h3 {
+    @apply mb-3 mt-9 text-h3 text-ink-950;
+  }
+  .prose-bizelan h4 {
+    @apply mb-2 mt-7 text-lg font-semibold text-ink-950;
+  }
+  .prose-bizelan ul {
+    @apply list-disc space-y-2 pl-6 marker:text-brand-600;
+  }
+  .prose-bizelan ol {
+    @apply list-decimal space-y-2 pl-6 marker:text-brand-600;
+  }
+  .prose-bizelan a {
+    @apply font-medium text-brand-700 underline underline-offset-4 hover:text-brand-800;
+  }
+  .prose-bizelan strong {
+    @apply font-semibold text-ink-950;
+  }
+  .prose-bizelan blockquote {
+    @apply my-7 rounded-r-card border-l-2 border-brand-500 bg-brand-50 py-4 pl-6 pr-5 italic text-ink-800;
+  }
+  .prose-bizelan code {
+    @apply rounded bg-ink-100 px-1.5 py-0.5 text-[0.9em] text-ink-900;
+  }
+  .prose-bizelan pre {
+    @apply my-7 overflow-x-auto rounded-card bg-ink-950 p-5 text-sm text-ink-100;
+  }
+  .prose-bizelan pre code {
+    @apply bg-transparent p-0 text-inherit;
+  }
+  .prose-bizelan img {
+    @apply my-7 rounded-card;
+  }
+  .prose-bizelan hr {
+    @apply my-12 border-ink-200;
+  }
+  .prose-bizelan table {
+    @apply my-7 w-full border-collapse text-body;
+  }
+  .prose-bizelan th {
+    @apply border border-ink-200 bg-ink-50 px-4 py-2.5 text-left font-semibold text-ink-950;
+  }
+  .prose-bizelan td {
+    @apply border border-ink-200 px-4 py-2.5 align-top;
+  }
+
+  /* Masques latéraux des défileurs horizontaux */
+  .scroll-fade {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 2.5rem,
+      black calc(100% - 2.5rem),
+      transparent
+    );
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ===========================================================================
+   Surface de l'éditeur riche (TipTap) — back-office sombre.
+   Elle reprend les jetons de `.prose-dark` : ce que l'admin voit en rédigeant
+   est ce que le visiteur verra, puisque le site public est sombre lui aussi.
+   =========================================================================== */
+@layer components {
+  .rich-surface {
+    @apply text-body-lg text-onDark-md;
+  }
+  .rich-surface > * + * {
+    @apply mt-4;
+  }
+  .rich-surface h2 {
+    @apply mb-3 mt-8 text-h2 text-onDark-hi;
+  }
+  .rich-surface h3 {
+    @apply mb-2 mt-7 text-h3 text-onDark-hi;
+  }
+  .rich-surface h4 {
+    @apply mb-2 mt-6 text-lg font-semibold text-onDark-hi;
+  }
+  .rich-surface ul {
+    @apply list-disc space-y-1.5 pl-6 marker:text-brand-400;
+  }
+  .rich-surface ol {
+    @apply list-decimal space-y-1.5 pl-6 marker:text-brand-400;
+  }
+  .rich-surface a {
+    @apply font-medium text-brand-300 underline underline-offset-4;
+  }
+  .rich-surface strong {
+    @apply text-onDark-hi;
+  }
+  .rich-surface blockquote {
+    @apply rounded-r-card border-l-2 border-brand-400 bg-surface-800/60 py-3 pl-5 pr-4 italic text-onDark-hi;
+  }
+  .rich-surface code {
+    @apply rounded bg-surface-800 px-1.5 py-0.5 text-[0.9em] text-brand-200;
+  }
+  .rich-surface pre {
+    @apply overflow-x-auto rounded-card bg-surface-950 p-4 text-sm ring-1 ring-surface-700;
+  }
+  .rich-surface pre code {
+    @apply bg-transparent p-0 text-onDark-md;
+  }
+  .rich-surface hr {
+    @apply my-8 border-surface-700;
+  }
+
+  .rich-surface img {
+    @apply h-auto max-w-full rounded-card;
+  }
+  .rich-surface img[data-align='center'] {
+    @apply mx-auto block;
+  }
+  .rich-surface img[data-align='right'] {
+    @apply ml-auto block;
+  }
+  .rich-surface img[data-align='left'] {
+    @apply mr-auto block;
+  }
+  .rich-surface img.ProseMirror-selectednode {
+    @apply ring-2 ring-brand-400 ring-offset-2 ring-offset-surface-850;
+  }
+
+  .rich-surface div[data-youtube-video] {
+    @apply overflow-hidden rounded-card bg-surface-950;
+  }
+  .rich-surface div[data-youtube-video] iframe {
+    @apply aspect-video h-auto w-full border-0;
+  }
+
+  .rich-surface div[data-callout] {
+    @apply rounded-card border-l-2 px-5 py-4;
+  }
+  .rich-surface div[data-callout] > * + * {
+    @apply mt-3;
+  }
+  .rich-surface div[data-callout][data-tone='info'] {
+    @apply border-brand-400 bg-brand-400/10;
+  }
+  .rich-surface div[data-callout][data-tone='success'] {
+    @apply border-emerald-400 bg-emerald-400/10;
+  }
+  .rich-surface div[data-callout][data-tone='warning'] {
+    @apply border-accent-400 bg-accent-400/10;
+  }
+  .rich-surface div[data-callout][data-tone='danger'] {
+    @apply border-red-400 bg-red-400/10;
+  }
+
+  .rich-surface a[data-cta] {
+    @apply mx-auto inline-flex w-fit items-center justify-center rounded-control px-7 py-3.5 text-base font-semibold no-underline;
+  }
+  .rich-surface a[data-cta][data-variant='primary'] {
+    @apply bg-brand-500 text-white;
+  }
+  .rich-surface a[data-cta][data-variant='accent'] {
+    @apply bg-accent-400 text-surface-950;
+  }
+  .rich-surface a[data-cta][data-variant='outline'] {
+    @apply border border-brand-400 bg-transparent text-brand-300;
+  }
+  .rich-surface a[data-cta][data-align='left'] {
+    @apply ml-0 mr-auto;
+  }
+  .rich-surface a[data-cta][data-align='right'] {
+    @apply ml-auto mr-0;
+  }
+  .rich-surface a[data-cta].ProseMirror-selectednode {
+    @apply ring-2 ring-brand-400 ring-offset-2 ring-offset-surface-850;
+  }
+
+  .rich-surface table {
+    @apply w-full table-fixed border-collapse;
+  }
+  .rich-surface th,
+  .rich-surface td {
+    @apply relative border border-surface-700 px-3 py-2 align-top;
+  }
+  .rich-surface th {
+    @apply bg-surface-800 font-semibold text-onDark-hi;
+  }
+  .rich-surface .selectedCell::after {
+    @apply pointer-events-none absolute inset-0 z-10 bg-brand-400/20;
+    content: '';
+  }
+  .rich-surface .column-resize-handle {
+    @apply absolute -right-0.5 bottom-0 top-0 z-20 w-1 cursor-col-resize bg-brand-400;
+  }
+  .rich-surface .tableWrapper {
+    @apply overflow-x-auto;
+  }
+}
+
+/* Texte d'invite du premier paragraphe vide */
+.rich-surface p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  @apply text-onDark-lo;
+}
+
+/* Masque les flèches des champs numériques dans l'admin */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Toute animation cède devant la préférence système. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

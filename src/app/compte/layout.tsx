@@ -1,0 +1,72 @@
+import Link from 'next/link'
+import { BookOpen, LogOut, Receipt, User } from 'lucide-react'
+import { requireUser } from '@/lib/auth'
+import { getSiteSettings } from '@/lib/queries'
+import { signOut } from '@/app/actions/auth'
+import { Button } from '@/components/ui/button'
+import { initials } from '@/lib/utils'
+
+const NAV = [
+  { href: '/compte', label: 'Mes formations', icon: BookOpen },
+  { href: '/compte/commandes', label: 'Mes commandes', icon: Receipt },
+  { href: '/compte/profil', label: 'Mon profil', icon: User },
+]
+
+export default async function AccountLayout({ children }: { children: React.ReactNode }) {
+  const [user, settings] = await Promise.all([requireUser(), getSiteSettings()])
+  const isAdmin = ['admin', 'editor'].includes(user.profile.role)
+
+  return (
+    <div className="flex min-h-screen flex-col bg-surface-900">
+      <header className="border-b border-surface-700 bg-surface-800">
+        <div className="container-page flex h-16 items-center justify-between gap-4">
+          <Link href="/" className="text-lg font-bold tracking-[0.12em] text-brand-300">
+            {settings.site_name}
+          </Link>
+
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="hidden rounded-control border border-brand-400/40 px-3 py-1.5 text-sm font-medium text-brand-300 transition-colors hover:bg-brand-400/10 sm:block"
+              >
+                Administration
+              </Link>
+            )}
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-400/15 text-sm font-semibold text-brand-300">
+              {initials(user.profile.full_name ?? user.email)}
+            </span>
+            <form action={signOut}>
+              <Button type="submit" variant="ghost" size="sm" aria-label="Se déconnecter">
+                <LogOut className="h-4 w-4" aria-hidden />
+                <span className="hidden sm:inline">Déconnexion</span>
+              </Button>
+            </form>
+          </div>
+        </div>
+      </header>
+
+      <div className="container-page flex-1 py-8">
+        <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
+          <nav aria-label="Navigation de l’espace membre">
+            <ul className="flex gap-1 overflow-x-auto lg:flex-col lg:gap-1">
+              {NAV.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-2.5 whitespace-nowrap rounded-control px-3.5 py-2.5 text-[0.9375rem] font-medium text-onDark-md transition-colors hover:bg-surface-700 hover:text-brand-200"
+                  >
+                    <item.icon className="h-[1.125rem] w-[1.125rem]" aria-hidden />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <main className="min-w-0">{children}</main>
+        </div>
+      </div>
+    </div>
+  )
+}

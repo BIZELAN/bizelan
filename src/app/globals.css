@@ -64,6 +64,10 @@
   --shadow-3: 0 16px 40px -12px rgb(13 20 17 / 0.18);
 
   /* --- Mouvement -------------------------------------------------------- */
+  /* Largeur de la barre latérale — surchargée avant peinture si l'admin
+     a replié la barre (voir lib/sidebar.ts). */
+  --sidebar-w: 16rem;
+
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { getSiteSettings } from '@/lib/queries'
 import { env } from '@/lib/env'
+import { THEME_SCRIPT } from '@/lib/theme'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
@@ -25,14 +26,25 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#1c5d46',
+  // La barre système du navigateur suit le thème : une barre verte foncée
+  // au-dessus d'une interface claire jure, et inversement.
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f6f8f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a100d' },
+  ],
   width: 'device-width',
   initialScale: 1,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    // `suppressHydrationWarning` est requis : le script ci-dessous pose
+    // `data-theme` sur cet élément avant que React n'hydrate, créant un écart
+    // attendu entre le HTML du serveur et celui du navigateur.
+    <html lang="fr" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>{children}</body>
     </html>
   )

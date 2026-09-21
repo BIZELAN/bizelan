@@ -23,6 +23,7 @@ import { SectionHeading, Stars } from '@/components/ui/misc'
 import { Avatar } from '@/components/ui/avatar'
 import { Pill } from '@/components/ui/pill'
 import { Scroller } from '@/components/ui/scroller'
+import { VideoPlayer } from '@/components/ui/video-player'
 import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
 import { ContactForm } from '@/components/public/contact-form'
 import { QuoteForm } from '@/components/public/quote-form'
@@ -797,21 +798,28 @@ function VideoBlock({ data }: { data: Record<string, unknown> }) {
     <section className="section bg-surface-950">
       <div className="container-page">
         {f.str('title') && <SectionHeading title={f.str('title')} />}
-        <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-surface-950 shadow-dark-lg">
-          <div className="aspect-video">
-            {embed ? (
+        <div className="mx-auto max-w-4xl">
+          {embed ? (
+            <div className="aspect-video overflow-hidden rounded-panel bg-surface-950 shadow-dark-lg ring-1 ring-surface-700">
               <iframe
                 src={embed}
                 title={f.str('title', 'Vidéo')}
-                className="h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                loading="lazy"
+                className="h-full w-full border-0"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-            ) : (
-              /* eslint-disable-next-line jsx-a11y/media-has-caption */
-              <video src={url} controls className="h-full w-full" />
-            )}
-          </div>
+            </div>
+          ) : (
+            /* Lien direct : rien n'est téléchargé avant que le visiteur ne
+               clique — voir le commentaire de VideoPlayer. */
+            <VideoPlayer
+              src={url}
+              poster={f.str('poster') || null}
+              title={f.str('title', 'Vidéo de présentation')}
+              className="shadow-dark-lg"
+            />
+          )}
         </div>
         {f.str('caption') && (
           <p className="mx-auto mt-3 max-w-4xl text-center text-sm text-onDark-lo">

@@ -577,9 +577,15 @@ export const BLOCK_DEFS: BlockDef[] = [
     fields: [
       { key: 'title', label: 'Titre', type: 'text' },
       { key: 'url', label: 'URL de la vidéo', type: 'text', placeholder: 'https://www.youtube.com/watch?v=…' },
+      {
+        key: 'poster',
+        label: 'Image d’affiche',
+        type: 'image',
+        help: 'Affichée avant la lecture. Pour un lien direct (.mp4), la vidéo n’est téléchargée qu’au clic — une affiche évite un grand rectangle vide.',
+      },
       { key: 'caption', label: 'Légende', type: 'text' },
     ],
-    defaults: { url: '' },
+    defaults: { url: '', poster: '' },
   },
   {
     type: 'image',

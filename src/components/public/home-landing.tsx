@@ -278,37 +278,61 @@ const STEPS = [
   },
 ] as const
 
+/** Photographie de terrain — remplaçable sans toucher au code. */
+const FIELD_IMAGE = '/media/agriculture.webp'
+
 function Method() {
   return (
     <Section tone="base" size="lg">
       <div className="container-page">
-        <SectionHeader
-          align="center"
-          eyebrow="Comment ça se passe"
-          title="Trois étapes, un résultat concret"
-        />
+        <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr]">
+          {/* Une photographie de terrain ancre le propos : sans elle, trois
+              encarts de texte flottent sans rien dire du métier. */}
+          <Reveal className="relative">
+            <div className="overflow-hidden rounded-panel ring-1 ring-surface-700">
+              <img
+                src={FIELD_IMAGE}
+                alt="Exploitant agricole au travail dans son champ"
+                width={941}
+                height={941}
+                loading="lazy"
+                decoding="async"
+                className="aspect-square w-full object-cover"
+              />
+            </div>
+            {/* Dégradé bas : raccorde la photo au fond sombre de la section */}
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-28 rounded-b-panel bg-gradient-to-t from-surface-950 to-transparent"
+              aria-hidden
+            />
+          </Reveal>
 
-        <div className="relative grid gap-10 md:grid-cols-3">
-          {/* Fil conducteur entre les étapes, sur grand écran uniquement */}
-          <div
-            className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-surface-600 to-transparent md:block"
-            aria-hidden
-          />
+          <div>
+            <SectionHeader
+              eyebrow="Comment ça se passe"
+              title="Trois étapes, un résultat concret"
+              className="mb-9"
+            />
 
-          {STEPS.map(({ icon: Icon, title, text }, index) => (
-            <Reveal key={title} delay={index * 90} className="relative text-center">
-              <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-surface-900 text-brand-300 ring-1 ring-surface-600">
-                <Icon className="h-6 w-6" aria-hidden />
-              </span>
-              <p className="mt-5 text-meta font-bold uppercase tracking-[0.18em] text-accent-400">
-                Étape {String(index + 1).padStart(2, '0')}
-              </p>
-              <h3 className="mt-2 text-h3 text-onDark-hi">{title}</h3>
-              <p className="mx-auto mt-2.5 max-w-xs text-body leading-relaxed text-onDark-md">
-                {text}
-              </p>
-            </Reveal>
-          ))}
+            <ol className="space-y-8">
+              {STEPS.map(({ icon: Icon, title, text }, index) => (
+                <Reveal key={title} delay={index * 90}>
+                  <li className="flex gap-5">
+                    <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-surface-900 text-brand-300 ring-1 ring-surface-600">
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-meta font-bold uppercase tracking-[0.18em] text-accent-400">
+                        Étape {String(index + 1).padStart(2, '0')}
+                      </p>
+                      <h3 className="mt-1 text-h3 text-onDark-hi">{title}</h3>
+                      <p className="mt-2 text-body leading-relaxed text-onDark-md">{text}</p>
+                    </div>
+                  </li>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
         </div>
       </div>
     </Section>
@@ -436,40 +460,60 @@ function Journal({ posts }: { posts: Post[] }) {
 /* Appel à l'action final                                              */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Visuel d'équipe détouré (fond transparent).
+ * Remplacer ce fichier dans `public/media/` suffit à changer l'image —
+ * aucune modification de code n'est nécessaire.
+ */
+const TEAM_IMAGE = '/media/equipe.webp'
+
 function FinalCta({ settings }: { settings: SiteSettings }) {
   return (
     <Section tone="raised" size="lg">
       <div className="container-page">
-        <Panel
-          elevation="floating"
-          className="relative overflow-hidden px-6 py-16 text-center sm:px-12 sm:py-20"
-        >
+        <Panel elevation="floating" className="relative overflow-hidden">
           <Glow tone="brand" />
 
-          <div className="relative">
-            <h2 className="mx-auto max-w-2xl text-h2 text-onDark-hi sm:text-h1">
-              Prêt à donner une structure à votre projet ?
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-body-lg text-onDark-md">
-              Commencez par une formation, ou parlez-nous directement de votre situation. La
-              première prise de contact est gratuite.
-            </p>
+          <div className="relative grid items-end gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="px-6 pb-4 pt-14 text-center sm:px-12 sm:pt-16 lg:pb-16 lg:text-left">
+              <h2 className="text-h2 text-onDark-hi sm:text-h1">
+                Prêt à donner une structure à votre projet ?
+              </h2>
+              <p className="mt-5 max-w-xl text-body-lg text-onDark-md lg:mx-0">
+                Commencez par une formation, ou parlez-nous directement de votre situation. La
+                première prise de contact est gratuite.
+              </p>
 
-            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/formations" size="lg" variant="accent">
-                Choisir une formation
-                <ArrowRight className="h-5 w-5" aria-hidden />
-              </ButtonLink>
-              <ButtonLink href="/contact" size="lg" variant="outline">
-                Nous écrire
-              </ButtonLink>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row lg:justify-start">
+                <ButtonLink href="/formations" size="lg" variant="accent">
+                  Choisir une formation
+                  <ArrowRight className="h-5 w-5" aria-hidden />
+                </ButtonLink>
+                <ButtonLink href="/contact" size="lg" variant="outline">
+                  Nous écrire
+                </ButtonLink>
+              </div>
+
+              {settings.phone && (
+                <p className="mt-8 text-body text-onDark-lo">
+                  Une question rapide ? {settings.phone}
+                </p>
+              )}
             </div>
 
-            {settings.phone && (
-              <p className="mt-8 text-body text-onDark-lo">
-                Une question rapide ? {settings.phone}
-              </p>
-            )}
+            {/* Le détourage est aligné sur le bas du panneau : les personnes
+                reposent sur son arête au lieu de flotter dans un cadre. */}
+            <div className="relative hidden self-end lg:block">
+              <img
+                src={TEAM_IMAGE}
+                alt=""
+                width={1448}
+                height={1086}
+                loading="lazy"
+                decoding="async"
+                className="ml-auto block w-full max-w-lg select-none object-contain object-bottom"
+              />
+            </div>
           </div>
         </Panel>
       </div>

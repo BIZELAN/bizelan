@@ -1,93 +1,94 @@
 import * as React from 'react'
 import Link from 'next/link'
+import { Slot } from '@radix-ui/react-slot'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { Loader2 } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 
 /**
- * Boutons du système sombre.
+ * Bouton unique du système.
  *
- * Les variantes sont pensées pour un fond sombre, qui est celui de presque
- * tout le site. Deux variantes `*OnLight` restent disponibles pour les rares
- * zones claires — corps d'articles de blog, pages légales.
- *
- * Sur fond sombre, l'ocre et le vert clair sont si lumineux qu'un texte blanc
- * dessus passe sous le seuil de contraste : ces deux variantes portent donc un
- * texte sombre, ce qui donne au passage le contraste le plus fort de la page
- * sur l'action principale.
+ * Les variantes passent par `cva` plutôt que par un objet écrit à la main :
+ * les combinaisons taille × variante × état deviennent déclaratives, et le
+ * type des props se déduit de la définition — impossible de passer une
+ * variante inexistante.
  */
-type Variant =
-  | 'primary'
-  | 'accent'
-  | 'secondary'
-  | 'outline'
-  | 'ghost'
-  | 'danger'
-  | 'primaryOnLight'
-  | 'outlineOnLight'
+export const buttonVariants = cva(
+  [
+    'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium',
+    'rounded-md transition-colors duration-fast',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+    'focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+    'disabled:pointer-events-none disabled:opacity-50',
+  ],
+  {
+    variants: {
+      variant: {
+        primary: 'bg-primary text-primary-fg hover:bg-primary-hover shadow-e1',
+        secondary: 'bg-canvas-subtle text-fg hover:bg-line border border-line',
+        outline: 'border border-line-control text-fg hover:bg-canvas-subtle',
+        ghost: 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
+        danger: 'bg-danger text-danger-fg hover:opacity-90 shadow-e1',
+        /** Réservé aux appels à l'action du site public — voir DESIGN_SYSTEM.md. */
+        accent: 'bg-accent text-accent-fg hover:bg-accent-hover shadow-e1',
+      },
+      size: {
+        sm: 'h-8 px-3 text-sm',
+        md: 'h-9 px-4 text-base',
+        lg: 'h-11 px-6 text-md',
+      },
+      fullWidth: {
+        true: 'w-full',
+      },
+    },
+    defaultVariants: { variant: 'primary', size: 'md' },
+  },
+)
 
-type Size = 'sm' | 'md' | 'lg'
+type Variants = VariantProps<typeof buttonVariants>
 
-const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-brand-500 text-white hover:bg-brand-400 active:bg-brand-600 shadow-dark-sm',
-  accent: 'bg-accent-400 text-surface-950 hover:bg-accent-300 active:bg-accent-500 shadow-dark-sm',
-  secondary: 'bg-surface-700 text-onDark-hi hover:bg-surface-600 active:bg-surface-700',
-  outline:
-    'border border-surface-600 text-onDark-hi hover:border-brand-400/50 hover:bg-surface-800 active:bg-surface-700',
-  ghost: 'text-onDark-md hover:bg-surface-800 hover:text-onDark-hi',
-  danger: 'bg-red-500 text-white hover:bg-red-400 active:bg-red-600 shadow-dark-sm',
-
-  primaryOnLight: 'bg-brand-700 text-white hover:bg-brand-800 active:bg-brand-900 shadow-sm',
-  outlineOnLight:
-    'border border-ink-300 bg-white text-ink-900 hover:bg-ink-50 active:bg-ink-100',
-}
-
-const SIZES: Record<Size, string> = {
-  sm: 'h-9 px-3.5 text-meta gap-1.5',
-  md: 'h-11 px-5 text-body gap-2',
-  lg: 'h-13 px-7 py-3.5 text-base gap-2.5',
-}
-
-const BASE =
-  'inline-flex items-center justify-center rounded-control font-semibold transition-colors ' +
-  'disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap'
-
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant
-  size?: Size
-  fullWidth?: boolean
+export interface ButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'color'>,
+    Variants {
+  /** Affiche un indicateur et neutralise le bouton, sans changer sa largeur. */
+  loading?: boolean
+  /** Rend l'élément enfant plutôt qu'un `<button>` — utile pour un lien stylé. */
+  asChild?: boolean
 }
 
 export function Button({
   className,
-  variant = 'primary',
-  size = 'md',
+  variant,
+  size,
   fullWidth,
+  loading,
+  asChild,
+  disabled,
+  children,
   ...props
 }: ButtonProps) {
+  const Comp = asChild ? Slot : 'button'
+
   return (
-    <button
-      className={cn(BASE, VARIANTS[variant], SIZES[size], fullWidth && 'w-full', className)}
+    <Comp
+      className={cn(buttonVariants({ variant, size, fullWidth }), className)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {/* Le libellé reste monté et devient transparent : le remplacer par le
+          seul indicateur ferait rétrécir le bouton et sauter la mise en page. */}
+      {loading && <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />}
+      {children}
+    </Comp>
   )
 }
 
-export interface ButtonLinkProps extends React.ComponentProps<typeof Link> {
-  variant?: Variant
-  size?: Size
-  fullWidth?: boolean
-}
+export interface ButtonLinkProps extends React.ComponentProps<typeof Link>, Variants {}
 
-export function ButtonLink({
-  className,
-  variant = 'primary',
-  size = 'md',
-  fullWidth,
-  ...props
-}: ButtonLinkProps) {
+export function ButtonLink({ className, variant, size, fullWidth, ...props }: ButtonLinkProps) {
   return (
-    <Link
-      className={cn(BASE, VARIANTS[variant], SIZES[size], fullWidth && 'w-full', className)}
-      {...props}
-    />
+    <Link className={cn(buttonVariants({ variant, size, fullWidth }), className)} {...props} />
   )
 }

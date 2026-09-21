@@ -16,45 +16,52 @@
   --font-display: ui-serif, Georgia, 'Times New Roman', serif;
 
   /* --- Fonds ------------------------------------------------------------ */
-  --bg: #f6f8f7;
-  --bg-subtle: #eceff0;
-  --surface: #ffffff;
-  --surface-raised: #ffffff;
+  --bg: 246 248 247;
+  --bg-subtle: 236 239 240;
+  --surface: 255 255 255;
+  --surface-raised: 255 255 255;
 
   /* --- Traits ----------------------------------------------------------- */
-  --border: #dfe5e2;
-  --border-strong: #bdc7c2;
+  --border: 223 229 226;
+  --border-strong: 189 199 194;
   /* Bordure des CONTRÔLES (champ, case, interrupteur). Doit tenir 3:1 contre
      la surface — exigence WCAG 1.4.11, qui vise ce qui permet d'identifier un
      contrôle. Les deux jetons au-dessus sont décoratifs et y échappent :
      les soumettre au même seuil donnerait une interface en cage. */
-  --control-border: #85918b;
+  --control-border: 133 145 139;
 
   /* --- Texte ------------------------------------------------------------ */
-  --text: #0d1411;
-  --text-muted: #4d5a54;
-  --text-subtle: #66736d;
+  --text: 13 20 17;
+  --text-muted: 77 90 84;
+  --text-subtle: 102 115 109;
 
   /* --- Marque ----------------------------------------------------------- */
-  --primary: #14543e;
-  --primary-hover: #0f4130;
-  --primary-fg: #ffffff;
-  --primary-subtle: #e6f2ec;
-  --ring: #1c7a58;
+  --primary: 20 84 62;
+  --primary-hover: 15 65 48;
+  --primary-fg: 255 255 255;
+  --primary-subtle: 230 242 236;
+  --ring: 28 122 88;
+
+  /* Accent ocre — RÉSERVÉ aux appels à l'action du site public. Le back-office
+     n'a qu'une couleur de marque : y ajouter une seconde teinte vive ferait
+     perdre au primaire sa valeur de signal. */
+  --accent: 163 90 0;
+  --accent-hover: 138 75 0;
+  --accent-fg: 255 255 255;
 
   /* --- Sémantique ------------------------------------------------------- */
-  --success: #0f6b42;
-  --success-fg: #ffffff;
-  --success-subtle: #e4f4ea;
-  --warning: #8a4b00;
-  --warning-fg: #ffffff;
-  --warning-subtle: #fdf0dd;
-  --danger: #a4231a;
-  --danger-fg: #ffffff;
-  --danger-subtle: #fbe9e7;
-  --info: #14509e;
-  --info-fg: #ffffff;
-  --info-subtle: #e6eefb;
+  --success: 15 107 66;
+  --success-fg: 255 255 255;
+  --success-subtle: 228 244 234;
+  --warning: 138 75 0;
+  --warning-fg: 255 255 255;
+  --warning-subtle: 253 240 221;
+  --danger: 164 35 26;
+  --danger-fg: 255 255 255;
+  --danger-subtle: 251 233 231;
+  --info: 20 80 158;
+  --info-fg: 255 255 255;
+  --info-subtle: 230 238 251;
 
   /* --- Élévation : trois niveaux, discrets --------------------------------
      Sur fond clair une ombre se voit ; sur fond sombre elle disparaît et
@@ -78,37 +85,40 @@
 /* Sombre : appliqué par préférence système, sauf si le clair est imposé. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0a100d;
-    --bg-subtle: #0e1512;
-    --surface: #131b17;
-    --surface-raised: #1b241f;
+    --bg: 10 16 13;
+    --bg-subtle: 14 21 18;
+    --surface: 19 27 23;
+    --surface-raised: 27 36 31;
 
-    --border: #24302a;
-    --border-strong: #38463f;
-    --control-border: #63736b;
+    --border: 36 48 42;
+    --border-strong: 56 70 63;
+    --control-border: 99 115 107;
 
-    --text: #eaf2ed;
-    --text-muted: #9fb0a8;
-    --text-subtle: #7d8c85;
+    --text: 234 242 237;
+    --text-muted: 159 176 168;
+    --text-subtle: 125 140 133;
 
-    --primary: #55ae87;
-    --primary-hover: #7cc7a3;
-    --primary-fg: #06120c;
-    --primary-subtle: #14302440;
-    --ring: #55ae87;
+    --primary: 85 174 135;
+    --primary-hover: 124 199 163;
+    --primary-fg: 6 18 12;
+    --primary-subtle: 20 48 36;
+    --ring: 85 174 135;
+    --accent: 228 160 47;
+    --accent-hover: 234 187 91;
+    --accent-fg: 26 17 3;
 
-    --success: #4ec38a;
-    --success-fg: #04160d;
-    --success-subtle: #12301f66;
-    --warning: #e0a53a;
-    --warning-fg: #1a1103;
-    --warning-subtle: #3a2a0a66;
-    --danger: #f08279;
-    --danger-fg: #1c0705;
-    --danger-subtle: #3a141166;
-    --info: #7ba9f2;
-    --info-fg: #050d1c;
-    --info-subtle: #13244066;
+    --success: 78 195 138;
+    --success-fg: 4 22 13;
+    --success-subtle: 18 48 31;
+    --warning: 224 165 58;
+    --warning-fg: 26 17 3;
+    --warning-subtle: 58 42 10;
+    --danger: 240 130 121;
+    --danger-fg: 28 7 5;
+    --danger-subtle: 58 20 17;
+    --info: 123 169 242;
+    --info-fg: 5 13 28;
+    --info-subtle: 19 36 64;
 
     --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
     --shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.55);
@@ -118,37 +128,40 @@
 
 /* Sombre imposé par l'utilisateur — mêmes valeurs, priorité supérieure. */
 [data-theme='dark'] {
-  --bg: #0a100d;
-  --bg-subtle: #0e1512;
-  --surface: #131b17;
-  --surface-raised: #1b241f;
+  --bg: 10 16 13;
+  --bg-subtle: 14 21 18;
+  --surface: 19 27 23;
+  --surface-raised: 27 36 31;
 
-  --border: #24302a;
-  --border-strong: #38463f;
-  --control-border: #63736b;
+  --border: 36 48 42;
+  --border-strong: 56 70 63;
+  --control-border: 99 115 107;
 
-  --text: #eaf2ed;
-  --text-muted: #9fb0a8;
-  --text-subtle: #7d8c85;
+  --text: 234 242 237;
+  --text-muted: 159 176 168;
+  --text-subtle: 125 140 133;
 
-  --primary: #55ae87;
-  --primary-hover: #7cc7a3;
-  --primary-fg: #06120c;
-  --primary-subtle: #14302440;
-  --ring: #55ae87;
+  --primary: 85 174 135;
+  --primary-hover: 124 199 163;
+  --primary-fg: 6 18 12;
+  --primary-subtle: 20 48 36;
+  --ring: 85 174 135;
+  --accent: 228 160 47;
+  --accent-hover: 234 187 91;
+  --accent-fg: 26 17 3;
 
-  --success: #4ec38a;
-  --success-fg: #04160d;
-  --success-subtle: #12301f66;
-  --warning: #e0a53a;
-  --warning-fg: #1a1103;
-  --warning-subtle: #3a2a0a66;
-  --danger: #f08279;
-  --danger-fg: #1c0705;
-  --danger-subtle: #3a141166;
-  --info: #7ba9f2;
-  --info-fg: #050d1c;
-  --info-subtle: #13244066;
+  --success: 78 195 138;
+  --success-fg: 4 22 13;
+  --success-subtle: 18 48 31;
+  --warning: 224 165 58;
+  --warning-fg: 26 17 3;
+  --warning-subtle: 58 42 10;
+  --danger: 240 130 121;
+  --danger-fg: 28 7 5;
+  --danger-subtle: 58 20 17;
+  --info: 123 169 242;
+  --info-fg: 5 13 28;
+  --info-subtle: 19 36 64;
 
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.55);
@@ -157,18 +170,33 @@
 
 @layer base {
   * {
-    @apply border-surface-700;
+    @apply border-line;
   }
 
   html {
     scroll-behavior: smooth;
-    /* Fait dessiner au navigateur ses propres interfaces en sombre :
-       barres de défilement, champs natifs, sélecteurs de date. */
+  }
+
+  /* Indique au navigateur quel thème dessiner pour SES propres interfaces —
+     barres de défilement, champs natifs, sélecteurs de date. Doit suivre le
+     thème réel, sinon un calendrier natif blanc surgit sur fond sombre. */
+  :root {
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      color-scheme: dark;
+    }
+  }
+  [data-theme='dark'] {
     color-scheme: dark;
+  }
+  [data-theme='light'] {
+    color-scheme: light;
   }
 
   body {
-    @apply bg-surface-950 text-onDark-md antialiased;
+    @apply bg-canvas text-fg-muted antialiased;
     font-family: var(--font-sans);
   }
 
@@ -176,7 +204,7 @@
   h2,
   h3,
   h4 {
-    @apply font-semibold tracking-tight text-onDark-hi;
+    @apply font-semibold tracking-tight text-fg;
     text-wrap: balance;
   }
 
@@ -184,17 +212,17 @@
     text-wrap: pretty;
   }
 
-  /* Anneau de focus pensé pour le fond sombre : le vert de marque y ressort,
-     et le décalage empêche de le confondre avec la bordure de l'élément. */
+  /* Le décalage se prend sur le fond courant : sans `ring-offset-canvas`,
+     l'anneau se détacherait sur une couleur figée et paraîtrait sale dès que
+     le thème change. */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-400 ring-offset-2 ring-offset-surface-950;
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-canvas;
   }
 
   ::selection {
-    @apply bg-brand-400/30 text-onDark-hi;
+    @apply bg-primary/25 text-fg;
   }
 
-  /* Barre de défilement discrète, accordée au sol sombre. */
   *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -203,10 +231,10 @@
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
-    @apply rounded-pill bg-surface-700;
+    @apply rounded-pill bg-line-strong;
   }
   *::-webkit-scrollbar-thumb:hover {
-    @apply bg-surface-600;
+    @apply bg-fg-subtle;
   }
 }
 

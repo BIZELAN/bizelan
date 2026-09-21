@@ -13,44 +13,44 @@ const config: Config = {
            conservées le temps de la migration, puis supprimées.
            ------------------------------------------------------------------ */
         canvas: {
-          DEFAULT: 'var(--bg)',
-          subtle: 'var(--bg-subtle)',
+          DEFAULT: 'rgb(var(--bg) / <alpha-value>)',
+          subtle: 'rgb(var(--bg-subtle) / <alpha-value>)',
         },
         line: {
-          DEFAULT: 'var(--border)',
-          strong: 'var(--border-strong)',
-          control: 'var(--control-border)',
+          DEFAULT: 'rgb(var(--border) / <alpha-value>)',
+          strong: 'rgb(var(--border-strong) / <alpha-value>)',
+          control: 'rgb(var(--control-border) / <alpha-value>)',
         },
         fg: {
-          DEFAULT: 'var(--text)',
-          muted: 'var(--text-muted)',
-          subtle: 'var(--text-subtle)',
+          DEFAULT: 'rgb(var(--text) / <alpha-value>)',
+          muted: 'rgb(var(--text-muted) / <alpha-value>)',
+          subtle: 'rgb(var(--text-subtle) / <alpha-value>)',
         },
         primary: {
-          DEFAULT: 'var(--primary)',
-          hover: 'var(--primary-hover)',
-          fg: 'var(--primary-fg)',
-          subtle: 'var(--primary-subtle)',
+          DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
+          hover: 'rgb(var(--primary-hover) / <alpha-value>)',
+          fg: 'rgb(var(--primary-fg) / <alpha-value>)',
+          subtle: 'rgb(var(--primary-subtle) / <alpha-value>)',
         },
         success: {
-          DEFAULT: 'var(--success)',
-          fg: 'var(--success-fg)',
-          subtle: 'var(--success-subtle)',
+          DEFAULT: 'rgb(var(--success) / <alpha-value>)',
+          fg: 'rgb(var(--success-fg) / <alpha-value>)',
+          subtle: 'rgb(var(--success-subtle) / <alpha-value>)',
         },
         warning: {
-          DEFAULT: 'var(--warning)',
-          fg: 'var(--warning-fg)',
-          subtle: 'var(--warning-subtle)',
+          DEFAULT: 'rgb(var(--warning) / <alpha-value>)',
+          fg: 'rgb(var(--warning-fg) / <alpha-value>)',
+          subtle: 'rgb(var(--warning-subtle) / <alpha-value>)',
         },
         danger: {
-          DEFAULT: 'var(--danger)',
-          fg: 'var(--danger-fg)',
-          subtle: 'var(--danger-subtle)',
+          DEFAULT: 'rgb(var(--danger) / <alpha-value>)',
+          fg: 'rgb(var(--danger-fg) / <alpha-value>)',
+          subtle: 'rgb(var(--danger-subtle) / <alpha-value>)',
         },
         info: {
-          DEFAULT: 'var(--info)',
-          fg: 'var(--info-fg)',
-          subtle: 'var(--info-subtle)',
+          DEFAULT: 'rgb(var(--info) / <alpha-value>)',
+          fg: 'rgb(var(--info-fg) / <alpha-value>)',
+          subtle: 'rgb(var(--info-subtle) / <alpha-value>)',
         },
 
         /* --- Héritage : à supprimer en fin de migration ------------------- */
@@ -108,8 +108,8 @@ const config: Config = {
          * fin de migration ; DEFAULT et `raised` resteront.
          */
         surface: {
-          DEFAULT: 'var(--surface)',
-          raised: 'var(--surface-raised)',
+          DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
+          raised: 'rgb(var(--surface-raised) / <alpha-value>)',
 
           600: '#27503b', // filets, séparateurs
           700: '#1b3a2b', // bordures, panneaux surélevés

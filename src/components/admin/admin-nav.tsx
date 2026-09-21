@@ -112,7 +112,9 @@ export function AdminNav({
                           className="z-50 rounded-md border border-line bg-surface-raised px-2.5 py-1.5 text-sm text-fg shadow-e2"
                         >
                           {item.label}
-                          <Tooltip.Arrow className="fill-[var(--surface-raised)]" />
+                          {/* Les jetons portent désormais des canaux RVB :
+                              un `var()` nu ne serait plus une couleur valide. */}
+                          <Tooltip.Arrow className="fill-[rgb(var(--surface-raised))]" />
                         </Tooltip.Content>
                       </Tooltip.Portal>
                     </Tooltip.Root>

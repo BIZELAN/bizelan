@@ -5,6 +5,55 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* ------------------------------------------------------------------
+           JETONS DE RÔLE — la seule famille à utiliser désormais.
+           Ils pointent sur les variables CSS de `globals.css`, ce qui rend le
+           basculement clair/sombre gratuit : aucune classe conditionnelle,
+           aucun `dark:` à écrire. Les échelles par teinte plus bas sont
+           conservées le temps de la migration, puis supprimées.
+           ------------------------------------------------------------------ */
+        canvas: {
+          DEFAULT: 'var(--bg)',
+          subtle: 'var(--bg-subtle)',
+        },
+        line: {
+          DEFAULT: 'var(--border)',
+          strong: 'var(--border-strong)',
+          control: 'var(--control-border)',
+        },
+        fg: {
+          DEFAULT: 'var(--text)',
+          muted: 'var(--text-muted)',
+          subtle: 'var(--text-subtle)',
+        },
+        primary: {
+          DEFAULT: 'var(--primary)',
+          hover: 'var(--primary-hover)',
+          fg: 'var(--primary-fg)',
+          subtle: 'var(--primary-subtle)',
+        },
+        success: {
+          DEFAULT: 'var(--success)',
+          fg: 'var(--success-fg)',
+          subtle: 'var(--success-subtle)',
+        },
+        warning: {
+          DEFAULT: 'var(--warning)',
+          fg: 'var(--warning-fg)',
+          subtle: 'var(--warning-subtle)',
+        },
+        danger: {
+          DEFAULT: 'var(--danger)',
+          fg: 'var(--danger-fg)',
+          subtle: 'var(--danger-subtle)',
+        },
+        info: {
+          DEFAULT: 'var(--info)',
+          fg: 'var(--info-fg)',
+          subtle: 'var(--info-subtle)',
+        },
+
+        /* --- Héritage : à supprimer en fin de migration ------------------- */
         // Palette Bizelan — vert profond (agriculture / croissance) + ocre (terre)
         brand: {
           50: '#f0f9f4',
@@ -51,7 +100,17 @@ const config: Config = {
          * Teintée de vert plutôt que neutre : sans cette teinte, le vert de
          * marque paraît rapporté au lieu d'appartenir à la même famille.
          */
+        /**
+         * `surface` porte à la fois le jeton de rôle et l'échelle héritée.
+         * Les deux ne peuvent pas cohabiter sous des clés séparées : une clé
+         * répétée écrase la précédente en JavaScript, et `bg-surface` cessait
+         * silencieusement d'exister. Les entrées numériques disparaîtront en
+         * fin de migration ; DEFAULT et `raised` resteront.
+         */
         surface: {
+          DEFAULT: 'var(--surface)',
+          raised: 'var(--surface-raised)',
+
           600: '#27503b', // filets, séparateurs
           700: '#1b3a2b', // bordures, panneaux surélevés
           800: '#13291e', // panneaux, cartes
@@ -83,6 +142,24 @@ const config: Config = {
        * éditorial, dense et tenu.
        */
       fontSize: {
+        /* --- Échelle d'interface : 12 / 13 / 14 / 16 / 20 / 24 / 30 -------
+           Fermée volontairement. `base` vaut 14 px et non 16 : une interface
+           dense se lit mieux ainsi, et 16 px reste disponible sous `md` pour
+           les textes de lecture. */
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.8125rem', { lineHeight: '1.25rem' }],
+        base: ['0.875rem', { lineHeight: '1.375rem' }],
+        md: ['1rem', { lineHeight: '1.5rem' }],
+        lg: ['1.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.006em' }],
+        xl: ['1.5rem', { lineHeight: '1.875rem', letterSpacing: '-0.012em' }],
+        '2xl': ['1.875rem', { lineHeight: '2.25rem', letterSpacing: '-0.016em' }],
+
+        /* --- Display : site public uniquement ---------------------------- */
+        '3xl': ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.02em' }],
+        '4xl': ['2.75rem', { lineHeight: '3rem', letterSpacing: '-0.022em' }],
+        '5xl': ['3.5rem', { lineHeight: '3.625rem', letterSpacing: '-0.024em' }],
+
+        /* --- Héritage : à supprimer en fin de migration ------------------- */
         display: ['3rem', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '700' }],
         h1: ['2.5rem', { lineHeight: '1.1', letterSpacing: '-0.018em', fontWeight: '700' }],
         h2: ['2rem', { lineHeight: '1.15', letterSpacing: '-0.014em', fontWeight: '650' }],
@@ -92,11 +169,28 @@ const config: Config = {
         meta: ['0.8125rem', { lineHeight: '1.5' }],
       },
 
+      /* Trois rayons, pas davantage : au-delà, l'œil cesse de percevoir la
+         hiérarchie et les écarts passent pour des erreurs. */
       borderRadius: {
-        control: '0.75rem', // 12px — champs, petits boutons
-        card: '1.25rem', // 20px — cartes
-        panel: '1.5rem', // 24px — grands panneaux
+        sm: '0.375rem', // 6px  — cases, puces, petits contrôles
+        md: '0.625rem', // 10px — boutons, champs, menus
+        lg: '0.875rem', // 14px — cartes, panneaux, modales
         pill: '999px',
+
+        /* --- Héritage : à supprimer en fin de migration ------------------- */
+        control: '0.75rem',
+        card: '1.25rem',
+        panel: '1.5rem',
+      },
+
+      transitionDuration: {
+        fast: '120ms',
+        base: '200ms',
+        slow: '320ms',
+      },
+      transitionTimingFunction: {
+        out: 'var(--ease-out)',
+        spring: 'var(--ease-spring)',
       },
 
       maxWidth: {
@@ -105,8 +199,13 @@ const config: Config = {
       },
 
       boxShadow: {
-        // Sur fond sombre une ombre claire ne se voit pas : on assombrit
-        // davantage et on diffuse plus largement.
+        /* Trois niveaux, pilotés par les variables : le thème sombre les
+           assombrit et les diffuse davantage, sans quoi elles disparaissent. */
+        e1: 'var(--shadow-1)',
+        e2: 'var(--shadow-2)',
+        e3: 'var(--shadow-3)',
+
+        /* --- Héritage : à supprimer en fin de migration ------------------- */
         'dark-sm': '0 1px 2px rgba(0, 0, 0, 0.4)',
         dark: '0 8px 24px -8px rgba(0, 0, 0, 0.6)',
         'dark-lg': '0 24px 60px -20px rgba(0, 0, 0, 0.75)',

@@ -2,9 +2,153 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===========================================================================
+   JETONS DE DESIGN — nommés par RÔLE, jamais par teinte.
+   Voir DESIGN_SYSTEM.md. Aucune valeur littérale ne doit apparaître ailleurs.
+
+   Le thème clair est la valeur par défaut sur :root. Le sombre s'applique
+   selon la préférence système, et `data-theme` sur <html> permet de forcer
+   l'un ou l'autre — d'où la triple déclaration ci-dessous.
+   =========================================================================== */
+
 :root {
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: ui-serif, Georgia, 'Times New Roman', serif;
+
+  /* --- Fonds ------------------------------------------------------------ */
+  --bg: #f6f8f7;
+  --bg-subtle: #eceff0;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+
+  /* --- Traits ----------------------------------------------------------- */
+  --border: #dfe5e2;
+  --border-strong: #bdc7c2;
+  /* Bordure des CONTRÔLES (champ, case, interrupteur). Doit tenir 3:1 contre
+     la surface — exigence WCAG 1.4.11, qui vise ce qui permet d'identifier un
+     contrôle. Les deux jetons au-dessus sont décoratifs et y échappent :
+     les soumettre au même seuil donnerait une interface en cage. */
+  --control-border: #85918b;
+
+  /* --- Texte ------------------------------------------------------------ */
+  --text: #0d1411;
+  --text-muted: #4d5a54;
+  --text-subtle: #66736d;
+
+  /* --- Marque ----------------------------------------------------------- */
+  --primary: #14543e;
+  --primary-hover: #0f4130;
+  --primary-fg: #ffffff;
+  --primary-subtle: #e6f2ec;
+  --ring: #1c7a58;
+
+  /* --- Sémantique ------------------------------------------------------- */
+  --success: #0f6b42;
+  --success-fg: #ffffff;
+  --success-subtle: #e4f4ea;
+  --warning: #8a4b00;
+  --warning-fg: #ffffff;
+  --warning-subtle: #fdf0dd;
+  --danger: #a4231a;
+  --danger-fg: #ffffff;
+  --danger-subtle: #fbe9e7;
+  --info: #14509e;
+  --info-fg: #ffffff;
+  --info-subtle: #e6eefb;
+
+  /* --- Élévation : trois niveaux, discrets --------------------------------
+     Sur fond clair une ombre se voit ; sur fond sombre elle disparaît et
+     c'est le liseré qui porte la séparation. D'où deux jeux distincts. */
+  --shadow-1: 0 1px 2px rgb(13 20 17 / 0.06);
+  --shadow-2: 0 4px 12px -2px rgb(13 20 17 / 0.1), 0 2px 4px -2px rgb(13 20 17 / 0.06);
+  --shadow-3: 0 16px 40px -12px rgb(13 20 17 / 0.18);
+
+  /* --- Mouvement -------------------------------------------------------- */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* Sombre : appliqué par préférence système, sauf si le clair est imposé. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0a100d;
+    --bg-subtle: #0e1512;
+    --surface: #131b17;
+    --surface-raised: #1b241f;
+
+    --border: #24302a;
+    --border-strong: #38463f;
+    --control-border: #63736b;
+
+    --text: #eaf2ed;
+    --text-muted: #9fb0a8;
+    --text-subtle: #7d8c85;
+
+    --primary: #55ae87;
+    --primary-hover: #7cc7a3;
+    --primary-fg: #06120c;
+    --primary-subtle: #14302440;
+    --ring: #55ae87;
+
+    --success: #4ec38a;
+    --success-fg: #04160d;
+    --success-subtle: #12301f66;
+    --warning: #e0a53a;
+    --warning-fg: #1a1103;
+    --warning-subtle: #3a2a0a66;
+    --danger: #f08279;
+    --danger-fg: #1c0705;
+    --danger-subtle: #3a141166;
+    --info: #7ba9f2;
+    --info-fg: #050d1c;
+    --info-subtle: #13244066;
+
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.55);
+    --shadow-3: 0 20px 48px -16px rgb(0 0 0 / 0.7);
+  }
+}
+
+/* Sombre imposé par l'utilisateur — mêmes valeurs, priorité supérieure. */
+[data-theme='dark'] {
+  --bg: #0a100d;
+  --bg-subtle: #0e1512;
+  --surface: #131b17;
+  --surface-raised: #1b241f;
+
+  --border: #24302a;
+  --border-strong: #38463f;
+  --control-border: #63736b;
+
+  --text: #eaf2ed;
+  --text-muted: #9fb0a8;
+  --text-subtle: #7d8c85;
+
+  --primary: #55ae87;
+  --primary-hover: #7cc7a3;
+  --primary-fg: #06120c;
+  --primary-subtle: #14302440;
+  --ring: #55ae87;
+
+  --success: #4ec38a;
+  --success-fg: #04160d;
+  --success-subtle: #12301f66;
+  --warning: #e0a53a;
+  --warning-fg: #1a1103;
+  --warning-subtle: #3a2a0a66;
+  --danger: #f08279;
+  --danger-fg: #1c0705;
+  --danger-subtle: #3a141166;
+  --info: #7ba9f2;
+  --info-fg: #050d1c;
+  --info-subtle: #13244066;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.55);
+  --shadow-3: 0 20px 48px -16px rgb(0 0 0 / 0.7);
 }
 
 @layer base {

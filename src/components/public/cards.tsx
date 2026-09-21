@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ArrowRight, Clock, PlayCircle } from 'lucide-react'
 
-import { Pill } from '@/components/ui/pill'
+import { Badge } from '@/components/ui/badge'
 import type { Course, Post, Service } from '@/lib/types'
 import { cn, discountPercent, formatDate, formatPrice, truncate } from '@/lib/utils'
 
@@ -71,14 +71,14 @@ export function CourseCard({ course }: { course: Course }) {
     <Link href={`/formations/${course.slug}`} className={SHELL}>
       <Cover src={course.cover_url}>
         {discount && (
-          <Pill tone="accent" size="sm" className="absolute left-4 top-4 font-bold">
+          <Badge tone="accent" size="sm" className="absolute left-4 top-4 font-bold">
             −{discount} %
-          </Pill>
+          </Badge>
         )}
         {course.level && (
-          <Pill tone="neutral" size="sm" className="absolute bottom-4 left-4 backdrop-blur">
+          <Badge tone="neutral" size="sm" className="absolute bottom-4 left-4 backdrop-blur">
             {course.level}
-          </Pill>
+          </Badge>
         )}
       </Cover>
 
@@ -198,9 +198,9 @@ export function FeaturedCourseCard({
       >
         <Cover src={course.cover_url} ratio="aspect-[16/10]">
           {discount && (
-            <Pill tone="accent" size="sm" className="absolute left-4 top-4 font-bold">
+            <Badge tone="accent" size="sm" className="absolute left-4 top-4 font-bold">
               −{discount} % en ce moment
-            </Pill>
+            </Badge>
           )}
         </Cover>
 

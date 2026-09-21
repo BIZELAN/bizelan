@@ -1,41 +1,48 @@
 import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+
 import { cn } from '@/lib/utils'
 
 /**
- * Étiquette de statut.
+ * Étiquette de statut — composant unique du système.
  *
- * Transposée sur fond sombre : un aplat pastel y deviendrait une tache
- * lumineuse. Chaque ton est donc un voile translucide de sa propre couleur,
- * avec le texte dans une teinte claire de la même famille — la couleur reste
- * lisible comme signal sans attirer l'œil plus que le contenu.
+ * Remplace l'ancien couple `Badge` / `Pill`, qui remplissaient le même rôle
+ * avec deux échelles de tons presque identiques.
+ *
+ * Chaque ton est un fond doux surmonté d'un texte de la même famille, jamais
+ * un aplat saturé : une étiquette signale un état, elle ne doit pas capter
+ * l'œil plus que le contenu qu'elle qualifie.
  */
-type Tone = 'neutral' | 'brand' | 'accent' | 'success' | 'warning' | 'danger' | 'info'
+export const badgeVariants = cva(
+  'inline-flex items-center gap-1.5 rounded-pill font-medium ring-1 ring-inset',
+  {
+    variants: {
+      tone: {
+        neutral: 'bg-canvas-subtle text-fg-muted ring-line',
+        primary: 'bg-primary-subtle text-primary ring-primary/25',
+        accent: 'bg-accent/10 text-accent ring-accent/25',
+        success: 'bg-success-subtle text-success ring-success/25',
+        warning: 'bg-warning-subtle text-warning ring-warning/25',
+        danger: 'bg-danger-subtle text-danger ring-danger/25',
+        info: 'bg-info-subtle text-info ring-info/25',
+      },
+      size: {
+        sm: 'px-2 py-0.5 text-xs',
+        md: 'px-2.5 py-1 text-sm',
+      },
+    },
+    defaultVariants: { tone: 'neutral', size: 'sm' },
+  },
+)
 
-const TONES: Record<Tone, string> = {
-  neutral: 'bg-surface-700/70 text-onDark-md ring-surface-600',
-  brand: 'bg-brand-400/12 text-brand-300 ring-brand-400/30',
-  accent: 'bg-accent-400/12 text-accent-300 ring-accent-400/30',
-  success: 'bg-emerald-400/12 text-emerald-300 ring-emerald-400/30',
-  warning: 'bg-amber-400/12 text-amber-300 ring-amber-400/30',
-  danger: 'bg-red-400/12 text-red-300 ring-red-400/30',
-  info: 'bg-sky-400/12 text-sky-300 ring-sky-400/30',
-}
+type Tone = NonNullable<VariantProps<typeof badgeVariants>['tone']>
 
-export function Badge({
-  tone = 'neutral',
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement> & { tone?: Tone }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-pill px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset',
-        TONES[tone],
-        className,
-      )}
-      {...props}
-    />
-  )
+export interface BadgeProps
+  extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'>,
+    VariantProps<typeof badgeVariants> {}
+
+export function Badge({ tone, size, className, ...props }: BadgeProps) {
+  return <span className={cn(badgeVariants({ tone, size }), className)} {...props} />
 }
 
 /* --- Correspondances statut → apparence, réutilisées dans tout l'admin --- */

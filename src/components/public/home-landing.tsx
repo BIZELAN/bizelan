@@ -15,7 +15,7 @@ import {
 import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
 import { ButtonLink } from '@/components/ui/button'
 import { Card, Glow, Panel } from '@/components/ui/surface'
-import { Pill } from '@/components/ui/pill'
+import { Badge } from '@/components/ui/badge'
 import { Reveal } from '@/components/ui/reveal'
 import { Scroller } from '@/components/ui/scroller'
 import { Section, SectionHeader } from '@/components/ui/section'
@@ -78,10 +78,10 @@ function Hero({ settings, course }: { settings: SiteSettings; course: Course | n
       <div className="container-page relative pb-20 pt-14 sm:pb-24 sm:pt-20 lg:pb-28">
         <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
-            <Pill tone="brand" size="md">
+            <Badge tone="primary" size="md">
               <Sparkles className="h-3.5 w-3.5" aria-hidden />
               Cabinet d’accompagnement des entreprises
-            </Pill>
+            </Badge>
 
             <h1 className="mt-7 text-h1 text-onDark-hi sm:text-display">
               {settings.tagline ?? (

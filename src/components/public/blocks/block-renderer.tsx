@@ -21,7 +21,7 @@ import { RichContentView } from '@/components/ui/rich-content'
 import { parseRichContent } from '@/lib/rich-content'
 import { SectionHeading, Stars } from '@/components/ui/misc'
 import { Avatar } from '@/components/ui/avatar'
-import { Pill } from '@/components/ui/pill'
+import { Badge } from '@/components/ui/badge'
 import { Scroller } from '@/components/ui/scroller'
 import { VideoPlayer } from '@/components/ui/video-player'
 import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
@@ -1074,9 +1074,9 @@ function FreeContentBlock({ data }: { data: Record<string, unknown> }) {
                     <div className="h-full w-full bg-gradient-to-br from-brand-700 to-surface-900" />
                   )}
                   {item.label && (
-                    <Pill tone="brand" size="sm" className="absolute left-3 top-3 backdrop-blur">
+                    <Badge tone="primary" size="sm" className="absolute left-3 top-3 backdrop-blur">
                       {item.label}
-                    </Pill>
+                    </Badge>
                   )}
                 </div>
                 <div className="flex flex-1 flex-col p-5">

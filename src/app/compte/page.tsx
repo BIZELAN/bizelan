@@ -76,7 +76,7 @@ export default async function AccountPage({
                   {enrollment.state === 'completed' ? (
                     <Badge tone="success">Terminée</Badge>
                   ) : enrollment.progress_percent > 0 ? (
-                    <Badge tone="brand">En cours</Badge>
+                    <Badge tone="primary">En cours</Badge>
                   ) : (
                     <Badge tone="neutral">À commencer</Badge>
                   )}

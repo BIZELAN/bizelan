@@ -75,7 +75,7 @@ export default async function AdminPagesPage() {
                   <span className="flex items-center gap-1.5 font-mono text-xs text-onDark-lo">
                     /{page.slug}
                     {page.is_home && (
-                      <Badge tone="brand" className="font-sans">
+                      <Badge tone="primary" className="font-sans">
                         <Home className="h-3 w-3" aria-hidden />
                         Accueil
                       </Badge>

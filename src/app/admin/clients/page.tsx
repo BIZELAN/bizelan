@@ -13,9 +13,9 @@ import type { Profile } from '@/lib/types'
 export const metadata: Metadata = { title: 'Clients' }
 export const dynamic = 'force-dynamic'
 
-const ROLE_LABELS: Record<string, { label: string; tone: 'neutral' | 'brand' | 'accent' }> = {
+const ROLE_LABELS: Record<string, { label: string; tone: 'neutral' | 'primary' | 'accent' }> = {
   client: { label: 'Client', tone: 'neutral' },
-  editor: { label: 'Éditeur', tone: 'brand' },
+  editor: { label: 'Éditeur', tone: 'primary' },
   admin: { label: 'Administrateur', tone: 'accent' },
 }
 

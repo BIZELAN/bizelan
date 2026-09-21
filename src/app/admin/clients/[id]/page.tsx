@@ -77,7 +77,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                   <div key={e.id} className="rounded-card border border-surface-700 bg-surface-800 p-4">
                     <div className="mb-2 flex items-center justify-between gap-3">
                       <span className="font-medium text-onDark-hi">{e.course?.title}</span>
-                      <Badge tone={e.state === 'revoked' ? 'danger' : 'brand'}>
+                      <Badge tone={e.state === 'revoked' ? 'danger' : 'primary'}>
                         {e.state === 'revoked'
                           ? 'Accès retiré'
                           : e.state === 'completed'

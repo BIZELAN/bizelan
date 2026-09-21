@@ -77,7 +77,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         <div className="container-page grid gap-10 py-16 lg:grid-cols-[1.4fr_1fr] lg:items-start lg:py-20">
           <div>
             {course.level && (
-              <Badge tone="brand" className="mb-4">
+              <Badge tone="primary" className="mb-4">
                 {course.level}
               </Badge>
             )}

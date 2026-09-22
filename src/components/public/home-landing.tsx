@@ -246,7 +246,7 @@ function Courses({ courses }: { courses: Course[] }) {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {courses.slice(0, 6).map((course, index) => (
-            <Reveal key={course.id} delay={index * 70}>
+            <Reveal key={course.id} delay={index * 70} className="h-full">
               <CourseCard course={course} />
             </Reveal>
           ))}
@@ -365,7 +365,7 @@ function Services({ services }: { services: Service[] }) {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.slice(0, 3).map((service, index) => (
-            <Reveal key={service.id} delay={index * 70}>
+            <Reveal key={service.id} delay={index * 70} className="h-full">
               <ServiceCard service={service} />
             </Reveal>
           ))}
@@ -446,7 +446,7 @@ function Journal({ posts }: { posts: Post[] }) {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.slice(0, 3).map((post, index) => (
-            <Reveal key={post.id} delay={index * 70}>
+            <Reveal key={post.id} delay={index * 70} className="h-full">
               <PostCard post={post} />
             </Reveal>
           ))}

@@ -55,12 +55,12 @@ export function ImageInput({
           <img
             src={url}
             alt=""
-            className="h-32 w-auto max-w-full rounded-control border border-surface-700 object-cover"
+            className="h-32 w-auto max-w-full rounded-md border border-line object-cover"
           />
           <button
             type="button"
             onClick={() => setUrl('')}
-            className="absolute -right-2 -top-2 rounded-full bg-ink-900 p-1 text-white shadow-dark-sm transition-colors hover:bg-red-600"
+            className="absolute -right-2 -top-2 rounded-full bg-canvas p-1 text-primary-fg shadow-e1 transition-colors hover:bg-red-600"
             aria-label="Retirer l’image"
           >
             <X className="h-3.5 w-3.5" aria-hidden />
@@ -71,7 +71,7 @@ export function ImageInput({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex h-32 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-control border-2 border-dashed border-surface-600 bg-surface-900 text-sm text-onDark-lo transition-colors hover:border-brand-400 hover:bg-brand-400/10 hover:text-brand-300 disabled:opacity-60"
+          className="flex h-32 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-canvas-subtle text-sm text-fg-subtle transition-colors hover:border-primary hover:bg-primary-subtle hover:text-primary disabled:opacity-60"
         >
           {uploading ? (
             <>
@@ -113,7 +113,7 @@ export function ImageInput({
         )}
       </div>
 
-      {error && <p className="mt-1.5 text-xs text-red-300">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
     </div>
   )
 }

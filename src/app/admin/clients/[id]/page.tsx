@@ -74,9 +74,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             ) : (
               <div className="space-y-3">
                 {enrollmentList.map((e) => (
-                  <div key={e.id} className="rounded-card border border-surface-700 bg-surface-800 p-4">
+                  <div key={e.id} className="rounded-lg border border-line bg-surface p-4">
                     <div className="mb-2 flex items-center justify-between gap-3">
-                      <span className="font-medium text-onDark-hi">{e.course?.title}</span>
+                      <span className="font-medium text-fg">{e.course?.title}</span>
                       <Badge tone={e.state === 'revoked' ? 'danger' : 'primary'}>
                         {e.state === 'revoked'
                           ? 'Accès retiré'
@@ -108,11 +108,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 </thead>
                 <tbody>
                   {orderList.map((order) => (
-                    <tr key={order.id} className="hover:bg-surface-800">
+                    <tr key={order.id} className="hover:bg-surface">
                       <Td>
                         <Link
                           href={`/admin/commandes/${order.id}`}
-                          className="font-mono text-xs font-semibold text-brand-300 hover:underline"
+                          className="font-mono text-xs font-semibold text-primary hover:underline"
                         >
                           {order.reference}
                         </Link>
@@ -121,7 +121,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       <Td>
                         <StatusBadge status={order.status} map={ORDER_STATUS_LABELS} />
                       </Td>
-                      <Td className="whitespace-nowrap text-xs text-onDark-lo">
+                      <Td className="whitespace-nowrap text-xs text-fg-subtle">
                         {formatDateTime(order.created_at)}
                       </Td>
                     </tr>
@@ -133,21 +133,21 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </div>
 
         <aside className="space-y-6">
-          <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+          <section className="rounded-lg border border-line bg-surface p-6">
             <h2 className="mb-4 text-lg font-semibold">Coordonnées</h2>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
-                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-onDark-lo" aria-hidden />
-                <a href={`mailto:${profile.email}`} className="break-all text-brand-300 hover:underline">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
+                <a href={`mailto:${profile.email}`} className="break-all text-primary hover:underline">
                   {profile.email}
                 </a>
               </li>
               {profile.phone && (
                 <li className="flex items-start gap-2.5">
-                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-onDark-lo" aria-hidden />
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
                   <a
                     href={`tel:${profile.phone.replace(/\s/g, '')}`}
-                    className="text-brand-300 hover:underline"
+                    className="text-primary hover:underline"
                   >
                     {profile.phone}
                   </a>
@@ -155,37 +155,37 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               )}
               {profile.city && (
                 <li className="flex items-start gap-2.5">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-onDark-lo" aria-hidden />
-                  <span className="text-onDark-hi">{profile.city}</span>
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
+                  <span className="text-fg">{profile.city}</span>
                 </li>
               )}
             </ul>
 
             {profile.activity && (
-              <p className="mt-4 border-t border-surface-700 pt-4 text-sm">
-                <span className="block text-xs font-medium text-onDark-lo">Activité</span>
-                <span className="text-onDark-hi">{profile.activity}</span>
+              <p className="mt-4 border-t border-line pt-4 text-sm">
+                <span className="block text-xs font-medium text-fg-subtle">Activité</span>
+                <span className="text-fg">{profile.activity}</span>
               </p>
             )}
           </section>
 
-          <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+          <section className="rounded-lg border border-line bg-surface p-6">
             <h2 className="mb-3 text-lg font-semibold">Valeur client</h2>
-            <p className="text-2xl font-bold tabular-nums text-brand-300">
+            <p className="text-2xl font-bold tabular-nums text-primary">
               {formatPrice(totalSpent)}
             </p>
-            <p className="mt-1 text-xs text-onDark-lo">
+            <p className="mt-1 text-xs text-fg-subtle">
               {orderList.filter((o) => o.status === 'paid').length} commande(s) payée(s)
             </p>
           </section>
 
           {admin.profile.role === 'admin' && (
-            <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+            <section className="rounded-lg border border-line bg-surface p-6">
               <h2 className="mb-3 text-lg font-semibold">Rôle</h2>
-              <p className="mb-3 text-sm text-onDark-md">
+              <p className="mb-3 text-sm text-fg-muted">
                 Rôle actuel : <strong className="capitalize">{profile.role}</strong>
               </p>
-              <p className="text-xs leading-relaxed text-onDark-lo">
+              <p className="text-xs leading-relaxed text-fg-subtle">
                 Un éditeur peut gérer le contenu. Un administrateur peut en plus gérer les rôles et
                 les paramètres. Modifiez le rôle depuis la liste des clients.
               </p>

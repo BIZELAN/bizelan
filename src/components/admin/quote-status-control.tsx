@@ -38,7 +38,7 @@ export function QuoteStatusControl({
   return (
     <div className="flex flex-wrap items-end gap-3">
       <div className="min-w-40">
-        <label className="mb-1 block text-xs font-medium text-onDark-md">Statut</label>
+        <label className="mb-1 block text-xs font-medium text-fg-muted">Statut</label>
         <Select value={current} onChange={(e) => setCurrent(e.target.value as QuoteStatus)}>
           <option value="new">Nouvelle</option>
           <option value="in_progress">En cours</option>
@@ -48,7 +48,7 @@ export function QuoteStatusControl({
       </div>
 
       <div className="min-w-56 flex-1">
-        <label className="mb-1 block text-xs font-medium text-onDark-md">Note interne</label>
+        <label className="mb-1 block text-xs font-medium text-fg-muted">Note interne</label>
         <Textarea rows={2} value={text} onChange={(e) => setText(e.target.value)} />
       </div>
 

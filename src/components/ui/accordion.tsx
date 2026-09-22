@@ -17,7 +17,7 @@ export function Accordion({ items, className }: { items: AccordionItem[]; classN
   return (
     <div
       className={cn(
-        'divide-y divide-surface-700 overflow-hidden rounded-card bg-surface-800 ring-1 ring-surface-700',
+        'divide-y divide-line overflow-hidden rounded-lg bg-surface ring-1 ring-line',
         className,
       )}
     >
@@ -29,20 +29,20 @@ export function Accordion({ items, className }: { items: AccordionItem[]; classN
               type="button"
               onClick={() => setOpen(isOpen ? null : index)}
               aria-expanded={isOpen}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-surface-700/50"
+              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-canvas-subtle"
             >
               <span
                 className={cn(
-                  'text-body font-medium transition-colors',
-                  isOpen ? 'text-brand-300' : 'text-onDark-hi',
+                  'text-base font-medium transition-colors',
+                  isOpen ? 'text-primary' : 'text-fg',
                 )}
               >
                 {item.question}
               </span>
               <ChevronDown
                 className={cn(
-                  'h-5 w-5 shrink-0 text-onDark-lo transition-transform duration-200',
-                  isOpen && 'rotate-180 text-brand-300',
+                  'h-5 w-5 shrink-0 text-fg-subtle transition-transform duration-200',
+                  isOpen && 'rotate-180 text-primary',
                 )}
                 aria-hidden
               />
@@ -56,7 +56,7 @@ export function Accordion({ items, className }: { items: AccordionItem[]; classN
               )}
             >
               <div className="overflow-hidden">
-                <p className="px-5 pb-5 text-body leading-relaxed text-onDark-md">{item.answer}</p>
+                <p className="px-5 pb-5 text-base leading-relaxed text-fg-muted">{item.answer}</p>
               </div>
             </div>
           </div>

@@ -47,7 +47,7 @@ export function PostForm({ post, categories }: { post: Post | null; categories: 
         </Field>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-onDark-hi">Contenu</label>
+          <label className="mb-1.5 block text-sm font-medium text-fg">Contenu</label>
           <RichEditor
             name="content"
             defaultValue={parseRichContent(post?.content)}

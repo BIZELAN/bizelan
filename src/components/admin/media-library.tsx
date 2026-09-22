@@ -71,7 +71,7 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
       )}
 
       <div className="mb-6">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-control border border-surface-600 bg-surface-800 px-4 py-2 text-sm font-semibold text-onDark-hi transition-colors hover:bg-surface-800">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-line-strong bg-surface px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface">
           <Upload className="h-4 w-4" aria-hidden />
           {uploading ? 'Téléversement…' : 'Téléverser des images'}
           <input
@@ -93,9 +93,9 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
         {items.map((item) => (
           <figure
             key={item.id}
-            className="group overflow-hidden rounded-card border border-surface-700 bg-surface-800"
+            className="group overflow-hidden rounded-lg border border-line bg-surface"
           >
-            <div className="aspect-[4/3] bg-surface-800">
+            <div className="aspect-[4/3] bg-surface">
               {item.public_url && (
                 <img
                   src={item.public_url}
@@ -107,10 +107,10 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
             </div>
 
             <figcaption className="p-3">
-              <p className="truncate text-xs font-medium text-onDark-hi" title={item.file_name}>
+              <p className="truncate text-xs font-medium text-fg" title={item.file_name}>
                 {item.file_name}
               </p>
-              <p className="mt-0.5 text-xs text-onDark-lo">
+              <p className="mt-0.5 text-xs text-fg-subtle">
                 {formatFileSize(item.file_size)} · {formatDate(item.created_at)}
               </p>
 
@@ -123,7 +123,7 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
                   onClick={() => item.public_url && copy(item.public_url, item.id)}
                 >
                   {copied === item.id ? (
-                    <Check className="h-3.5 w-3.5 text-brand-400" aria-hidden />
+                    <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
                   ) : (
                     <Copy className="h-3.5 w-3.5" aria-hidden />
                   )}

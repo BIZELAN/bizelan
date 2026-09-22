@@ -37,7 +37,7 @@ export function OrderActions({
   }
 
   return (
-    <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+    <section className="rounded-lg border border-line bg-surface p-6">
       <h2 className="mb-4 text-lg font-semibold">Actions</h2>
 
       {feedback && (
@@ -66,13 +66,13 @@ export function OrderActions({
             )}
             Valider le paiement et ouvrir l’accès
           </Button>
-          <p className="mt-2 text-xs text-onDark-lo">
+          <p className="mt-2 text-xs text-fg-subtle">
             Le client recevra automatiquement son e-mail de confirmation.
           </p>
         </div>
       )}
 
-      <div className="space-y-4 border-t border-surface-700 pt-5">
+      <div className="space-y-4 border-t border-line pt-5">
         <Field label="Note interne" help="Visible uniquement dans l’administration.">
           <Textarea
             rows={3}
@@ -94,7 +94,7 @@ export function OrderActions({
         </Button>
       </div>
 
-      <div className="mt-5 space-y-3 border-t border-surface-700 pt-5">
+      <div className="mt-5 space-y-3 border-t border-line pt-5">
         <Field label="Changer le statut manuellement">
           <Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
             <option value="">Choisir…</option>

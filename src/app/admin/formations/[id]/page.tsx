@@ -33,14 +33,14 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
           <>
             <Link
               href={`/admin/formations/${course.id}/programme`}
-              className="inline-flex items-center gap-2 rounded-control border border-surface-600 bg-surface-800 px-4 py-2 text-sm font-semibold text-onDark-hi transition-colors hover:bg-surface-800"
+              className="inline-flex items-center gap-2 rounded-md border border-line-strong bg-surface px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface"
             >
               <ListOrdered className="h-4 w-4" aria-hidden />
               Programme
             </Link>
             <Link
               href={`/admin/formations/${course.id}/supports`}
-              className="inline-flex items-center gap-2 rounded-control border border-surface-600 bg-surface-800 px-4 py-2 text-sm font-semibold text-onDark-hi transition-colors hover:bg-surface-800"
+              className="inline-flex items-center gap-2 rounded-md border border-line-strong bg-surface px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface"
             >
               <FileStack className="h-4 w-4" aria-hidden />
               Supports

@@ -57,20 +57,20 @@ export default async function AdminBlogPage() {
           </thead>
           <tbody>
             {posts.map((post) => (
-              <tr key={post.id} className="hover:bg-surface-800">
+              <tr key={post.id} className="hover:bg-surface">
                 <Td>
                   <Link
                     href={`/admin/blog/${post.id}`}
-                    className="block font-medium text-onDark-hi hover:text-brand-300"
+                    className="block font-medium text-fg hover:text-primary"
                   >
                     {post.title}
                   </Link>
-                  <span className="font-mono text-xs text-onDark-lo">/blog/{post.slug}</span>
+                  <span className="font-mono text-xs text-fg-subtle">/blog/{post.slug}</span>
                 </Td>
                 <Td>
                   <StatusBadge status={post.status} map={CONTENT_STATUS_LABELS} />
                 </Td>
-                <Td className="whitespace-nowrap text-xs text-onDark-lo">
+                <Td className="whitespace-nowrap text-xs text-fg-subtle">
                   {post.published_at ? formatDate(post.published_at) : '—'}
                 </Td>
                 <Td>
@@ -79,7 +79,7 @@ export default async function AdminBlogPage() {
                       <Link
                         href={`/blog/${post.slug}`}
                         target="_blank"
-                        className="rounded-control p-2 text-onDark-lo transition-colors hover:bg-surface-700 hover:text-brand-300"
+                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
                         title="Voir l’article"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />

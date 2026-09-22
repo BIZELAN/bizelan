@@ -10,7 +10,7 @@ export function CouponForm({ courses }: { courses: { id: string; title: string }
   const [type, setType] = useState<'percent' | 'amount'>('percent')
 
   return (
-    <form action={action} className="rounded-card border border-surface-700 bg-surface-800 p-6 lg:sticky lg:top-6">
+    <form action={action} className="rounded-lg border border-line bg-surface p-6 lg:sticky lg:top-6">
       <h2 className="mb-5 text-lg font-semibold">Nouveau code promo</h2>
 
       <ActionFeedback state={state} />

@@ -81,7 +81,7 @@ export function DeleteButton({
         )}
         {label}
       </Button>
-      {error && <span className="text-xs text-red-300">{error}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
     </span>
   )
 }
@@ -126,7 +126,7 @@ export function ActionButton({
         {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
         {children}
       </Button>
-      {error && <span className="text-xs text-red-300">{error}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
     </span>
   )
 }
@@ -229,9 +229,9 @@ export function ObjectListEditor({
 
       <div className="space-y-4">
         {items.map((item, index) => (
-          <div key={index} className="rounded-control border border-surface-700 bg-surface-900/60 p-4">
+          <div key={index} className="rounded-md border border-line bg-canvas-subtle/60 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm font-semibold text-onDark-md">
+              <span className="text-sm font-semibold text-fg-muted">
                 {itemLabel} {index + 1}
               </span>
               <div className="flex gap-1">
@@ -284,7 +284,7 @@ export function ObjectListEditor({
             <div className="space-y-3">
               {fields.map((field) => (
                 <div key={field.key}>
-                  <label className="mb-1 block text-xs font-medium text-onDark-md">
+                  <label className="mb-1 block text-xs font-medium text-fg-muted">
                     {field.label}
                   </label>
                   {field.type === 'textarea' ? (

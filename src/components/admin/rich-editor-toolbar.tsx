@@ -66,8 +66,8 @@ function ToolButton({
         'inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors',
         'disabled:cursor-not-allowed disabled:opacity-40',
         active
-          ? 'bg-brand-400/15 text-brand-300'
-          : 'text-onDark-md hover:bg-surface-700 hover:text-onDark-hi',
+          ? 'bg-primary-subtle text-primary'
+          : 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
       )}
     >
       {children}
@@ -94,8 +94,8 @@ function TextButton({
       className={cn(
         'rounded-md px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-40',
         tone === 'danger'
-          ? 'text-red-300 hover:bg-red-400/10'
-          : 'text-onDark-md hover:bg-surface-700 hover:text-onDark-hi',
+          ? 'text-danger hover:bg-danger-subtle'
+          : 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
       )}
     >
       {children}
@@ -104,7 +104,7 @@ function TextButton({
 }
 
 function Divider() {
-  return <span className="mx-0.5 h-6 w-px shrink-0 bg-surface-700" aria-hidden />
+  return <span className="mx-0.5 h-6 w-px shrink-0 bg-canvas-subtle" aria-hidden />
 }
 
 /** Petit menu ancré, fermé au clic extérieur ou à la touche Échap. */
@@ -151,8 +151,8 @@ function Popover({
         className={cn(
           'inline-flex h-8 items-center gap-1 rounded-md px-1.5 transition-colors',
           active || open
-            ? 'bg-brand-400/15 text-brand-300'
-            : 'text-onDark-md hover:bg-surface-700 hover:text-onDark-hi',
+            ? 'bg-primary-subtle text-primary'
+            : 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
         )}
       >
         {label}
@@ -162,7 +162,7 @@ function Popover({
       {open && (
         <div
           className={cn(
-            'absolute left-0 top-full z-30 mt-1 rounded-card border border-surface-700 bg-surface-800 p-3 shadow-dark-lg',
+            'absolute left-0 top-full z-30 mt-1 rounded-lg border border-line bg-surface p-3 shadow-e3',
             width,
           )}
         >
@@ -200,12 +200,12 @@ function UrlForm({
           }
         }}
         placeholder={placeholder}
-        className="min-w-0 flex-1 rounded-control border border-surface-600 bg-surface-950 px-2.5 py-1.5 text-sm text-onDark-hi placeholder:text-onDark-lo outline-none focus:border-brand-400"
+        className="min-w-0 flex-1 rounded-md border border-line-strong bg-canvas px-2.5 py-1.5 text-sm text-fg placeholder:text-fg-subtle outline-none focus:border-primary"
       />
       <button
         type="button"
         onClick={() => onSubmit(value.trim())}
-        className="shrink-0 rounded-control bg-brand-500 px-2.5 text-white hover:bg-brand-400"
+        className="shrink-0 rounded-md bg-primary px-2.5 text-primary-fg hover:bg-primary"
         title={submitLabel}
         aria-label={submitLabel}
       >
@@ -233,7 +233,7 @@ function ColorGrid({ onPick, onClear }: { onPick: (color: string) => void; onCle
             onClick={() => onPick(color)}
             title={color}
             aria-label={color}
-            className="h-6 w-6 rounded-md border border-surface-700 transition-transform hover:scale-110"
+            className="h-6 w-6 rounded-md border border-line transition-transform hover:scale-110"
             style={{ backgroundColor: color }}
           />
         ))}
@@ -242,13 +242,13 @@ function ColorGrid({ onPick, onClear }: { onPick: (color: string) => void; onCle
         <input
           type="color"
           onChange={(e) => onPick(e.target.value)}
-          className="h-7 w-10 cursor-pointer rounded border border-surface-700 bg-surface-800 p-0.5"
+          className="h-7 w-10 cursor-pointer rounded border border-line bg-surface p-0.5"
           title="Couleur personnalisée"
         />
         <button
           type="button"
           onClick={onClear}
-          className="text-xs font-medium text-onDark-md hover:text-onDark-hi"
+          className="text-xs font-medium text-fg-muted hover:text-fg"
         >
           Retirer la couleur
         </button>
@@ -295,7 +295,7 @@ export function RichEditorToolbar({
   const currentSize = (editor.getAttributes('textStyle').fontSize as string) ?? ''
 
   return (
-    <div className="sticky top-0 z-20 rounded-t-xl border-b border-surface-700 bg-surface-900/95 backdrop-blur">
+    <div className="sticky top-0 z-20 rounded-t-xl border-b border-line bg-canvas-subtle/95 backdrop-blur">
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5">
         {/* Historique */}
         <ToolButton
@@ -320,7 +320,7 @@ export function RichEditorToolbar({
           value={blockValue}
           onChange={(e) => setBlock(e.target.value)}
           title="Niveau de texte"
-          className="h-8 rounded-md border border-surface-700 bg-surface-800 px-2 text-sm text-onDark-hi outline-none hover:border-surface-600 focus:border-brand-500"
+          className="h-8 rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary"
         >
           <option value="p">Paragraphe</option>
           <option value="h2">Titre 1</option>
@@ -338,7 +338,7 @@ export function RichEditorToolbar({
             else editor.chain().focus().unsetFontFamily().run()
           }}
           title="Police"
-          className="h-8 max-w-[10rem] rounded-md border border-surface-700 bg-surface-800 px-2 text-sm text-onDark-hi outline-none hover:border-surface-600 focus:border-brand-500"
+          className="h-8 max-w-[10rem] rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary"
         >
           {FONT_FAMILIES.map((font) => (
             <option key={font.label} value={font.value}>
@@ -356,7 +356,7 @@ export function RichEditorToolbar({
             else editor.chain().focus().unsetFontSize().run()
           }}
           title="Taille du texte"
-          className="h-8 rounded-md border border-surface-700 bg-surface-800 px-2 text-sm text-onDark-hi outline-none hover:border-surface-600 focus:border-brand-500"
+          className="h-8 rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary"
         >
           {FONT_SIZES.map((size) => (
             <option key={size || 'auto'} value={size}>
@@ -541,15 +541,15 @@ export function RichEditorToolbar({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="flex w-full items-center justify-center gap-2 rounded-control border border-dashed border-surface-600 px-3 py-2.5 text-sm font-medium text-onDark-md hover:border-brand-400 hover:bg-brand-400/10"
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-line-strong px-3 py-2.5 text-sm font-medium text-fg-muted hover:border-primary hover:bg-primary-subtle"
               >
                 <Upload className="h-4 w-4" aria-hidden />
                 Téléverser une image
               </button>
-              <div className="flex items-center gap-2 text-xs text-onDark-lo">
-                <span className="h-px flex-1 bg-surface-700" />
+              <div className="flex items-center gap-2 text-xs text-fg-subtle">
+                <span className="h-px flex-1 bg-canvas-subtle" />
                 ou par adresse
-                <span className="h-px flex-1 bg-surface-700" />
+                <span className="h-px flex-1 bg-canvas-subtle" />
               </div>
               <UrlForm
                 placeholder="https://…/image.jpg"
@@ -567,7 +567,7 @@ export function RichEditorToolbar({
         <Popover title="Insérer une vidéo" label={<Youtube className="h-4 w-4" aria-hidden />}>
           {(close) => (
             <div className="space-y-2">
-              <p className="text-xs text-onDark-lo">Collez l’adresse d’une vidéo YouTube.</p>
+              <p className="text-xs text-fg-subtle">Collez l’adresse d’une vidéo YouTube.</p>
               <UrlForm
                 placeholder="https://www.youtube.com/watch?v=…"
                 submitLabel="Insérer la vidéo"
@@ -612,7 +612,7 @@ export function RichEditorToolbar({
                     }
                     close()
                   }}
-                  className="block w-full rounded-control px-2.5 py-1.5 text-left text-sm text-onDark-md hover:bg-surface-800"
+                  className="block w-full rounded-md px-2.5 py-1.5 text-left text-sm text-fg-muted hover:bg-surface"
                 >
                   {tone.label}
                 </button>
@@ -624,7 +624,7 @@ export function RichEditorToolbar({
                     editor.chain().focus().toggleCallout().run()
                     close()
                   }}
-                  className="block w-full rounded-control px-2.5 py-1.5 text-left text-sm text-red-300 hover:bg-red-400/10"
+                  className="block w-full rounded-md px-2.5 py-1.5 text-left text-sm text-danger hover:bg-danger-subtle"
                 >
                   Retirer l’encadré
                 </button>
@@ -680,8 +680,8 @@ function ContextualBar({ editor }: { editor: Editor }) {
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-1 border-t border-surface-700 bg-surface-900 px-3 py-1.5">
-      <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-onDark-lo">
+    <div className="flex flex-wrap items-center gap-1 border-t border-line bg-canvas-subtle px-3 py-1.5">
+      <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-fg-subtle">
         {label}
       </span>
       {children}
@@ -698,7 +698,7 @@ function ImageOptions({ editor }: { editor: Editor }) {
     <Row label="Image">
       {[25, 50, 75, 100].map((width) => (
         <TextButton key={width} onClick={() => update({ width })}>
-          <span className={cn(attrs.width === width && 'font-bold text-brand-300')}>{width} %</span>
+          <span className={cn(attrs.width === width && 'font-bold text-primary')}>{width} %</span>
         </TextButton>
       ))}
       <Divider />
@@ -710,7 +710,7 @@ function ImageOptions({ editor }: { editor: Editor }) {
         ] as const
       ).map(([value, label]) => (
         <TextButton key={value} onClick={() => update({ align: value })}>
-          <span className={cn(attrs.align === value && 'font-bold text-brand-300')}>{label}</span>
+          <span className={cn(attrs.align === value && 'font-bold text-primary')}>{label}</span>
         </TextButton>
       ))}
       <Divider />
@@ -718,13 +718,13 @@ function ImageOptions({ editor }: { editor: Editor }) {
         value={(attrs.alt as string) ?? ''}
         onChange={(e) => update({ alt: e.target.value })}
         placeholder="Texte alternatif (accessibilité)"
-        className="h-7 w-52 rounded-md border border-surface-700 px-2 text-xs outline-none focus:border-brand-500"
+        className="h-7 w-52 rounded-md border border-line px-2 text-xs outline-none focus:border-primary"
       />
       <input
         value={(attrs.title as string) ?? ''}
         onChange={(e) => update({ title: e.target.value })}
         placeholder="Légende affichée"
-        className="h-7 w-44 rounded-md border border-surface-700 px-2 text-xs outline-none focus:border-brand-500"
+        className="h-7 w-44 rounded-md border border-line px-2 text-xs outline-none focus:border-primary"
       />
       <TextButton tone="danger" onClick={() => editor.chain().focus().deleteSelection().run()}>
         Supprimer
@@ -742,7 +742,7 @@ function CtaOptions({ editor }: { editor: Editor }) {
         value={(attrs.href as string) ?? ''}
         onChange={(e) => editor.chain().focus().updateCtaButton({ href: e.target.value }).run()}
         placeholder="Lien du bouton (/commande/…)"
-        className="h-7 w-56 rounded-md border border-surface-700 px-2 text-xs outline-none focus:border-brand-500"
+        className="h-7 w-56 rounded-md border border-line px-2 text-xs outline-none focus:border-primary"
       />
       <Divider />
       {CTA_VARIANTS.map((variant) => (
@@ -750,7 +750,7 @@ function CtaOptions({ editor }: { editor: Editor }) {
           key={variant.value}
           onClick={() => editor.chain().focus().updateCtaButton({ variant: variant.value }).run()}
         >
-          <span className={cn(attrs.variant === variant.value && 'font-bold text-brand-300')}>
+          <span className={cn(attrs.variant === variant.value && 'font-bold text-primary')}>
             {variant.label}
           </span>
         </TextButton>
@@ -767,7 +767,7 @@ function CtaOptions({ editor }: { editor: Editor }) {
           key={value}
           onClick={() => editor.chain().focus().updateCtaButton({ align: value }).run()}
         >
-          <span className={cn(attrs.align === value && 'font-bold text-brand-300')}>{label}</span>
+          <span className={cn(attrs.align === value && 'font-bold text-primary')}>{label}</span>
         </TextButton>
       ))}
     </Row>

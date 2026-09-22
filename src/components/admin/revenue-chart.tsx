@@ -41,7 +41,7 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
 
   if (!hasRevenue) {
     return (
-      <div className="flex h-56 items-center justify-center rounded-control bg-surface-900 text-body text-onDark-lo">
+      <div className="flex h-56 items-center justify-center rounded-md bg-canvas-subtle text-base text-fg-subtle">
         Aucune vente enregistrée sur cette période.
       </div>
     )

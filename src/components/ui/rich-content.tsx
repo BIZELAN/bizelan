@@ -176,13 +176,13 @@ function renderImage(node: RichNode, tone: Tone): ReactNode {
         loading="lazy"
         decoding="async"
         style={width ? { width: `${width}%` } : undefined}
-        className="my-0 h-auto max-w-full rounded-card"
+        className="my-0 h-auto max-w-full rounded-lg"
       />
       {caption && (
         <figcaption
           className={cn(
-            'mt-2.5 text-center text-meta',
-            tone === 'light' ? 'text-ink-500' : 'text-onDark-lo',
+            'mt-2.5 text-center text-xs',
+            tone === 'light' ? 'text-ink-500' : 'text-fg-subtle',
           )}
         >
           {caption}
@@ -199,8 +199,8 @@ function renderYoutube(node: RichNode, tone: Tone): ReactNode {
   return (
     <div
       className={cn(
-        'my-7 overflow-hidden rounded-card',
-        tone === 'light' ? 'bg-ink-950' : 'bg-surface-950 ring-1 ring-surface-700',
+        'my-7 overflow-hidden rounded-lg',
+        tone === 'light' ? 'bg-ink-950' : 'bg-canvas ring-1 ring-line',
       )}
     >
       <div className="relative aspect-video">
@@ -226,7 +226,7 @@ function renderCell(node: RichNode, tone: Tone): ReactNode {
     rowSpan: Number.isFinite(rowSpan) && rowSpan > 1 ? rowSpan : undefined,
   }
 
-  const border = tone === 'light' ? 'border-ink-200' : 'border-surface-700'
+  const border = tone === 'light' ? 'border-ink-200' : 'border-line'
 
   return isHeader ? (
     <th
@@ -234,7 +234,7 @@ function renderCell(node: RichNode, tone: Tone): ReactNode {
       className={cn(
         'border px-3.5 py-2.5 font-semibold',
         border,
-        tone === 'light' ? 'bg-ink-50 text-ink-950' : 'bg-surface-800 text-onDark-hi',
+        tone === 'light' ? 'bg-ink-50 text-ink-950' : 'bg-surface text-fg',
       )}
     >
       {renderNodes(node.content, tone)}
@@ -248,11 +248,14 @@ function renderCell(node: RichNode, tone: Tone): ReactNode {
 
 const CALLOUT_STYLES: Record<Tone, Record<string, string>> = {
   dark: {
-    info: 'border-brand-400 bg-brand-400/10 text-onDark-hi',
-    success: 'border-emerald-400 bg-emerald-400/10 text-emerald-100',
-    warning: 'border-accent-400 bg-accent-400/10 text-accent-100',
-    danger: 'border-red-400 bg-red-400/10 text-red-100',
+    info: 'border-primary bg-primary-subtle text-fg',
+    success: 'border-success bg-success-subtle text-success',
+    warning: 'border-warning bg-warning-subtle text-warning',
+    danger: 'border-danger bg-danger-subtle text-danger',
   },
+  /* Branche volontairement LITTÉRALE : ce rendu vit sur le panneau blanc des
+     articles, quel que soit le thème. Un jeton de rôle y basculerait avec le
+     thème et poserait de l'ocre sombre sur du blanc. */
   light: {
     info: 'border-brand-500 bg-brand-50 text-ink-800',
     success: 'border-emerald-500 bg-emerald-50 text-emerald-950',
@@ -264,7 +267,7 @@ const CALLOUT_STYLES: Record<Tone, Record<string, string>> = {
 function renderCallout(node: RichNode, tone: Tone): ReactNode {
   const calloutTone = safeCalloutTone(node.attrs?.tone)
   return (
-    <div className={cn('my-7 rounded-card border-l-2 px-5 py-4', CALLOUT_STYLES[tone][calloutTone])}>
+    <div className={cn('my-7 rounded-lg border-l-2 px-5 py-4', CALLOUT_STYLES[tone][calloutTone])}>
       <div className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
         {renderNodes(node.content, tone)}
       </div>
@@ -274,10 +277,11 @@ function renderCallout(node: RichNode, tone: Tone): ReactNode {
 
 const CTA_STYLES: Record<Tone, Record<string, string>> = {
   dark: {
-    primary: 'bg-brand-500 text-white hover:bg-brand-400',
-    accent: 'bg-accent-400 text-surface-950 hover:bg-accent-300',
-    outline: 'border border-brand-400 text-brand-300 hover:bg-brand-400/10',
+    primary: 'bg-primary text-primary-fg hover:bg-primary-hover',
+    accent: 'bg-accent text-accent-fg hover:bg-accent-hover',
+    outline: 'border border-primary text-primary hover:bg-primary-subtle',
   },
+  /* Littérale également — même raison que pour les encadrés. */
   light: {
     primary: 'bg-brand-700 text-white hover:bg-brand-800',
     accent: 'bg-accent-500 text-white hover:bg-accent-600',
@@ -304,7 +308,7 @@ function renderCta(node: RichNode, tone: Tone): ReactNode {
         href={href}
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         className={cn(
-          'inline-flex items-center justify-center rounded-control px-7 py-3.5 text-base font-semibold no-underline transition-colors',
+          'inline-flex items-center justify-center rounded-md px-7 py-3.5 text-base font-semibold no-underline transition-colors',
           CTA_STYLES[tone][variant],
         )}
       >

@@ -51,8 +51,8 @@ export function CurriculumEditor({
       {modules.map((courseModule, index) => {
         const isOpen = expanded.includes(courseModule.id)
         return (
-          <div key={courseModule.id} className="overflow-hidden rounded-card border border-surface-700 bg-surface-800">
-            <div className="flex items-center gap-3 border-b border-surface-700 bg-surface-900 px-5 py-4">
+          <div key={courseModule.id} className="overflow-hidden rounded-lg border border-line bg-surface">
+            <div className="flex items-center gap-3 border-b border-line bg-canvas-subtle px-5 py-4">
               <button
                 type="button"
                 onClick={() => toggle(courseModule.id)}
@@ -60,14 +60,14 @@ export function CurriculumEditor({
                 aria-expanded={isOpen}
               >
                 <ChevronDown
-                  className={cn('h-4 w-4 shrink-0 text-onDark-lo transition-transform', isOpen && 'rotate-180')}
+                  className={cn('h-4 w-4 shrink-0 text-fg-subtle transition-transform', isOpen && 'rotate-180')}
                   aria-hidden
                 />
                 <span className="min-w-0">
-                  <span className="block text-xs font-semibold uppercase tracking-wider text-brand-300">
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-primary">
                     Module {index + 1}
                   </span>
-                  <span className="block font-semibold text-onDark-hi">{courseModule.title}</span>
+                  <span className="block font-semibold text-fg">{courseModule.title}</span>
                 </span>
               </button>
 
@@ -92,7 +92,7 @@ export function CurriculumEditor({
             </div>
 
             {openModuleForm === courseModule.id && (
-              <div className="border-b border-surface-700 bg-brand-400/10/50 p-5">
+              <div className="border-b border-line bg-primary-subtle p-5">
                 <ModuleForm
                   courseId={courseId}
                   courseModule={courseModule}
@@ -103,16 +103,16 @@ export function CurriculumEditor({
 
             {isOpen && (
               <div>
-                <ul className="divide-y divide-surface-700">
+                <ul className="divide-y divide-line">
                   {courseModule.lessons.map((lesson, li) => (
                     <li key={lesson.id}>
                       <div className="flex items-center gap-3 px-5 py-3">
-                        <span className="w-6 shrink-0 text-xs tabular-nums text-onDark-lo">
+                        <span className="w-6 shrink-0 text-xs tabular-nums text-fg-subtle">
                           {li + 1}.
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block text-[0.9375rem] text-onDark-hi">{lesson.title}</span>
-                          <span className="block text-xs text-onDark-lo">
+                          <span className="block text-[0.9375rem] text-fg">{lesson.title}</span>
+                          <span className="block text-xs text-fg-subtle">
                             {lesson.duration_seconds > 0 && formatDuration(lesson.duration_seconds)}
                             {lesson.video_id || lesson.video_url ? ' · vidéo en ligne' : ' · pas de vidéo'}
                           </span>
@@ -138,7 +138,7 @@ export function CurriculumEditor({
                       </div>
 
                       {openLessonForm === lesson.id && (
-                        <div className="border-t border-surface-700 bg-brand-400/10/50 p-5">
+                        <div className="border-t border-line bg-primary-subtle p-5">
                           <LessonForm
                             courseId={courseId}
                             moduleId={courseModule.id}
@@ -153,7 +153,7 @@ export function CurriculumEditor({
                 </ul>
 
                 {openLessonForm === `new-${courseModule.id}` ? (
-                  <div className="border-t border-surface-700 bg-brand-400/10/50 p-5">
+                  <div className="border-t border-line bg-primary-subtle p-5">
                     <LessonForm
                       courseId={courseId}
                       moduleId={courseModule.id}
@@ -163,7 +163,7 @@ export function CurriculumEditor({
                     />
                   </div>
                 ) : (
-                  <div className="border-t border-surface-700 px-5 py-3">
+                  <div className="border-t border-line px-5 py-3">
                     <Button
                       type="button"
                       variant="outline"
@@ -182,8 +182,8 @@ export function CurriculumEditor({
       })}
 
       {openModuleForm === 'new' ? (
-        <div className="rounded-card border border-brand-400/40 bg-brand-400/10/50 p-5">
-          <h3 className="mb-4 font-semibold text-onDark-hi">Nouveau module</h3>
+        <div className="rounded-lg border border-primary/40 bg-primary-subtle p-5">
+          <h3 className="mb-4 font-semibold text-fg">Nouveau module</h3>
           <ModuleForm
             courseId={courseId}
             courseModule={null}

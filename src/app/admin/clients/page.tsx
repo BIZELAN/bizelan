@@ -75,22 +75,22 @@ export default async function AdminClientsPage({
             {profiles.map((profile) => {
               const role = ROLE_LABELS[profile.role] ?? ROLE_LABELS.client
               return (
-                <tr key={profile.id} className="hover:bg-surface-800">
+                <tr key={profile.id} className="hover:bg-surface">
                   <Td>
                     <Link
                       href={`/admin/clients/${profile.id}`}
-                      className="block font-medium text-onDark-hi hover:text-brand-300"
+                      className="block font-medium text-fg hover:text-primary"
                     >
                       {profile.full_name ?? '—'}
                     </Link>
-                    <span className="block text-xs text-onDark-lo">{profile.email}</span>
+                    <span className="block text-xs text-fg-subtle">{profile.email}</span>
                   </Td>
-                  <Td className="text-onDark-md">{profile.phone ?? '—'}</Td>
-                  <Td className="tabular-nums text-onDark-md">{counts.get(profile.id) ?? 0}</Td>
+                  <Td className="text-fg-muted">{profile.phone ?? '—'}</Td>
+                  <Td className="tabular-nums text-fg-muted">{counts.get(profile.id) ?? 0}</Td>
                   <Td>
                     <Badge tone={role.tone}>{role.label}</Badge>
                   </Td>
-                  <Td className="whitespace-nowrap text-xs text-onDark-lo">
+                  <Td className="whitespace-nowrap text-xs text-fg-subtle">
                     {formatDate(profile.created_at)}
                   </Td>
                 </tr>

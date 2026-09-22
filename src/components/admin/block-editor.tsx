@@ -125,13 +125,13 @@ export function BlockEditor({
               <div
                 key={block.id}
                 className={cn(
-                  'overflow-hidden rounded-card border bg-surface-800 transition-colors',
-                  isOpen ? 'border-brand-400 shadow-dark-sm' : 'border-surface-700',
+                  'overflow-hidden rounded-lg border bg-surface transition-colors',
+                  isOpen ? 'border-primary shadow-e1' : 'border-line',
                   block.hidden && 'opacity-60',
                 )}
               >
-                <div className="flex items-center gap-2 bg-surface-900 px-3 py-2.5">
-                  <GripVertical className="h-4 w-4 shrink-0 text-onDark-lo" aria-hidden />
+                <div className="flex items-center gap-2 bg-canvas-subtle px-3 py-2.5">
+                  <GripVertical className="h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
 
                   <button
                     type="button"
@@ -139,12 +139,12 @@ export function BlockEditor({
                     className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
                     aria-expanded={isOpen}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-brand-300" aria-hidden />
+                    <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden />
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold text-onDark-hi">
+                      <span className="block truncate text-sm font-semibold text-fg">
                         {def?.label ?? block.type}
                       </span>
-                      <span className="block truncate text-xs text-onDark-lo">
+                      <span className="block truncate text-xs text-fg-subtle">
                         {summarize(block)}
                       </span>
                     </span>
@@ -197,9 +197,9 @@ export function BlockEditor({
                 </div>
 
                 {isOpen && def && (
-                  <div className="space-y-4 border-t border-surface-700 p-5">
+                  <div className="space-y-4 border-t border-line p-5">
                     {def.description && (
-                      <p className="text-xs leading-relaxed text-onDark-lo">{def.description}</p>
+                      <p className="text-xs leading-relaxed text-fg-subtle">{def.description}</p>
                     )}
                     {def.fields.map((field) => (
                       <BlockField
@@ -227,18 +227,18 @@ export function BlockEditor({
       {/* Sélecteur de blocs */}
       {picker && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-surface-950/50 p-4 sm:p-8"
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-canvas/50 p-4 sm:p-8"
           role="dialog"
           aria-modal="true"
           aria-label="Choisir un bloc"
         >
-          <div className="w-full max-w-3xl rounded-card bg-surface-800 shadow-xl">
-            <div className="flex items-center justify-between border-b border-surface-700 px-5 py-4">
+          <div className="w-full max-w-3xl rounded-lg bg-surface shadow-xl">
+            <div className="flex items-center justify-between border-b border-line px-5 py-4">
               <h2 className="text-lg font-semibold">Ajouter un bloc</h2>
               <button
                 type="button"
                 onClick={() => setPicker(false)}
-                className="rounded-control p-2 text-onDark-lo hover:bg-surface-700"
+                className="rounded-md p-2 text-fg-subtle hover:bg-canvas-subtle"
                 aria-label="Fermer"
               >
                 <X className="h-5 w-5" aria-hidden />
@@ -248,7 +248,7 @@ export function BlockEditor({
             <div className="max-h-[70vh] space-y-6 overflow-y-auto p-5">
               {groups.map(([group, defs]) => (
                 <div key={group}>
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-onDark-lo">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-fg-subtle">
                     {group}
                   </h3>
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -257,10 +257,10 @@ export function BlockEditor({
                         key={def.type}
                         type="button"
                         onClick={() => add(def.type)}
-                        className="rounded-control border border-surface-700 p-3.5 text-left transition-colors hover:border-brand-400 hover:bg-brand-400/10"
+                        className="rounded-md border border-line p-3.5 text-left transition-colors hover:border-primary hover:bg-primary-subtle"
                       >
-                        <span className="block text-sm font-semibold text-onDark-hi">{def.label}</span>
-                        <span className="mt-0.5 block text-xs leading-relaxed text-onDark-lo">
+                        <span className="block text-sm font-semibold text-fg">{def.label}</span>
+                        <span className="mt-0.5 block text-xs leading-relaxed text-fg-subtle">
                           {def.description}
                         </span>
                       </button>
@@ -288,7 +288,7 @@ function BlockField({
   onChange: (value: unknown) => void
 }) {
   const label = (
-    <label className="mb-1.5 block text-sm font-medium text-onDark-hi">{field.label}</label>
+    <label className="mb-1.5 block text-sm font-medium text-fg">{field.label}</label>
   )
 
   switch (field.type) {
@@ -302,7 +302,7 @@ function BlockField({
             minHeight="min-h-[16rem]"
             placeholder={field.placeholder ?? 'Rédigez le contenu de ce bloc…'}
           />
-          {field.help && <p className="mt-1 text-xs text-onDark-lo">{field.help}</p>}
+          {field.help && <p className="mt-1 text-xs text-fg-subtle">{field.help}</p>}
         </div>
       )
 
@@ -316,7 +316,7 @@ function BlockField({
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
           />
-          {field.help && <p className="mt-1 text-xs text-onDark-lo">{field.help}</p>}
+          {field.help && <p className="mt-1 text-xs text-fg-subtle">{field.help}</p>}
         </div>
       )
 
@@ -341,7 +341,7 @@ function BlockField({
             onChange={(e) => onChange(e.target.checked)}
             label={field.label}
           />
-          {field.help && <p className="ml-6 mt-1 text-xs text-onDark-lo">{field.help}</p>}
+          {field.help && <p className="ml-6 mt-1 text-xs text-fg-subtle">{field.help}</p>}
         </div>
       )
 
@@ -417,9 +417,9 @@ function BlockField({
           {label}
           <div className="space-y-3">
             {items.map((item, index) => (
-              <div key={index} className="rounded-control border border-surface-700 bg-surface-900/60 p-3.5">
+              <div key={index} className="rounded-md border border-line bg-canvas-subtle/60 p-3.5">
                 <div className="mb-2.5 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-onDark-md">
+                  <span className="text-xs font-semibold text-fg-muted">
                     {field.itemLabel ?? 'Élément'} {index + 1}
                   </span>
                   <div className="flex gap-1">
@@ -503,7 +503,7 @@ function BlockField({
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
           />
-          {field.help && <p className="mt-1 text-xs text-onDark-lo">{field.help}</p>}
+          {field.help && <p className="mt-1 text-xs text-fg-subtle">{field.help}</p>}
         </div>
       )
   }
@@ -548,12 +548,12 @@ function InlineImage({ value, onChange }: { value: string; onChange: (v: string)
           <img
             src={value}
             alt=""
-            className="h-24 w-auto max-w-full rounded-control border border-surface-700 object-cover"
+            className="h-24 w-auto max-w-full rounded-md border border-line object-cover"
           />
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute -right-2 -top-2 rounded-full bg-ink-900 p-1 text-white transition-colors hover:bg-red-600"
+            className="absolute -right-2 -top-2 rounded-full bg-canvas p-1 text-primary-fg transition-colors hover:bg-red-600"
             aria-label="Retirer l’image"
           >
             <X className="h-3 w-3" aria-hidden />
@@ -564,7 +564,7 @@ function InlineImage({ value, onChange }: { value: string; onChange: (v: string)
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex h-24 w-full max-w-xs items-center justify-center gap-2 rounded-control border-2 border-dashed border-surface-600 bg-surface-900 text-sm text-onDark-lo transition-colors hover:border-brand-400 hover:bg-brand-400/10 hover:text-brand-300 disabled:opacity-60"
+          className="flex h-24 w-full max-w-xs items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-canvas-subtle text-sm text-fg-subtle transition-colors hover:border-primary hover:bg-primary-subtle hover:text-primary disabled:opacity-60"
         >
           {uploading ? (
             <>
@@ -599,7 +599,7 @@ function InlineImage({ value, onChange }: { value: string; onChange: (v: string)
         className="mt-2 text-xs"
       />
 
-      {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </div>
   )
 }
@@ -625,10 +625,10 @@ function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        'rounded-control p-1.5 transition-colors disabled:opacity-30',
+        'rounded-md p-1.5 transition-colors disabled:opacity-30',
         danger
-          ? 'text-onDark-lo hover:bg-red-400/10 hover:text-red-300'
-          : 'text-onDark-lo hover:bg-surface-700 hover:text-onDark-hi',
+          ? 'text-fg-subtle hover:bg-danger-subtle hover:text-danger'
+          : 'text-fg-subtle hover:bg-canvas-subtle hover:text-fg',
       )}
     >
       {children}

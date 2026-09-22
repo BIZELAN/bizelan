@@ -104,7 +104,7 @@ export default async function AdminStatsPage() {
         />
       </div>
 
-      <section className="mt-6 rounded-card border border-surface-700 bg-surface-800 p-6">
+      <section className="mt-6 rounded-lg border border-line bg-surface p-6">
         <h2 className="mb-5 text-lg font-semibold">Revenus sur 90 jours</h2>
         <RevenueChart data={chartData} />
       </section>
@@ -133,9 +133,9 @@ export default async function AdminStatsPage() {
                     ? Math.round(progress.total / progress.count)
                     : 0
                   return (
-                    <tr key={row.course_id} className="hover:bg-surface-800">
-                      <Td className="font-medium text-onDark-hi">{row.course_title}</Td>
-                      <Td className="tabular-nums text-onDark-md">{Number(row.units_sold)}</Td>
+                    <tr key={row.course_id} className="hover:bg-surface">
+                      <Td className="font-medium text-fg">{row.course_title}</Td>
+                      <Td className="tabular-nums text-fg-muted">{Number(row.units_sold)}</Td>
                       <Td className="font-semibold tabular-nums">
                         {formatPrice(Number(row.revenue_cents))}
                       </Td>
@@ -167,9 +167,9 @@ export default async function AdminStatsPage() {
             </thead>
             <tbody>
               {rankedPages.map(([path, count]) => (
-                <tr key={path} className="hover:bg-surface-800">
-                  <Td className="font-mono text-xs text-onDark-hi">{path}</Td>
-                  <Td className="tabular-nums text-onDark-md">{count}</Td>
+                <tr key={path} className="hover:bg-surface">
+                  <Td className="font-mono text-xs text-fg">{path}</Td>
+                  <Td className="tabular-nums text-fg-muted">{count}</Td>
                 </tr>
               ))}
             </tbody>

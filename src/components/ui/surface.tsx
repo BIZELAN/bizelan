@@ -11,9 +11,9 @@ import { cn } from '@/lib/utils'
 type Elevation = 'flat' | 'raised' | 'floating'
 
 const ELEVATIONS: Record<Elevation, string> = {
-  flat: 'bg-surface-900 ring-1 ring-surface-700',
-  raised: 'bg-surface-800 ring-1 ring-surface-700 shadow-dark-sm',
-  floating: 'bg-surface-800 ring-1 ring-surface-600 shadow-dark',
+  flat: 'bg-canvas-subtle ring-1 ring-line',
+  raised: 'bg-surface ring-1 ring-line shadow-e1',
+  floating: 'bg-surface ring-1 ring-line-strong shadow-e2',
 }
 
 export function Panel({
@@ -21,7 +21,7 @@ export function Panel({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { elevation?: Elevation }) {
-  return <div className={cn('rounded-panel', ELEVATIONS[elevation], className)} {...props} />
+  return <div className={cn('rounded-lg', ELEVATIONS[elevation], className)} {...props} />
 }
 
 export function Card({
@@ -33,10 +33,10 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-card',
+        'rounded-lg',
         ELEVATIONS[elevation],
         interactive &&
-          'transition-all duration-200 hover:-translate-y-1 hover:ring-brand-400/40 hover:shadow-dark-lg',
+          'transition-all duration-200 hover:-translate-y-1 hover:ring-primary/40 hover:shadow-e3',
         className,
       )}
       {...props}
@@ -59,10 +59,10 @@ export function Glow({
   return (
     <div className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)} aria-hidden>
       {(tone === 'brand' || tone === 'both') && (
-        <div className="absolute -top-56 left-1/3 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-brand-500/20 blur-3xl" />
+        <div className="absolute -top-56 left-1/3 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
       )}
       {(tone === 'accent' || tone === 'both') && (
-        <div className="absolute -bottom-40 right-0 h-[28rem] w-[28rem] rounded-full bg-accent-500/10 blur-3xl" />
+        <div className="absolute -bottom-40 right-0 h-[28rem] w-[28rem] rounded-full bg-accent/10 blur-3xl" />
       )}
     </div>
   )

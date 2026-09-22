@@ -54,33 +54,33 @@ export default async function AdminCouponsPage() {
               </thead>
               <tbody>
                 {list.map((coupon) => (
-                  <tr key={coupon.id} className="hover:bg-surface-800">
+                  <tr key={coupon.id} className="hover:bg-surface">
                     <Td>
-                      <span className="font-mono font-semibold text-onDark-hi">{coupon.code}</span>
+                      <span className="font-mono font-semibold text-fg">{coupon.code}</span>
                       {!coupon.active && (
                         <Badge tone="neutral" className="ml-2">
                           Inactif
                         </Badge>
                       )}
                       {coupon.description && (
-                        <span className="block text-xs text-onDark-lo">{coupon.description}</span>
+                        <span className="block text-xs text-fg-subtle">{coupon.description}</span>
                       )}
                     </Td>
-                    <Td className="whitespace-nowrap font-semibold text-brand-300">
+                    <Td className="whitespace-nowrap font-semibold text-primary">
                       {coupon.discount_type === 'percent'
                         ? `-${coupon.discount_value} %`
                         : `-${formatPrice(coupon.discount_value)}`}
                     </Td>
-                    <Td className="text-sm text-onDark-md">
+                    <Td className="text-sm text-fg-muted">
                       {coupon.course_id
                         ? (courseNames.get(coupon.course_id) ?? 'Formation')
                         : 'Toutes les formations'}
                     </Td>
-                    <Td className="tabular-nums text-onDark-md">
+                    <Td className="tabular-nums text-fg-muted">
                       {coupon.redemptions}
                       {coupon.max_redemptions ? ` / ${coupon.max_redemptions}` : ''}
                     </Td>
-                    <Td className="whitespace-nowrap text-xs text-onDark-lo">
+                    <Td className="whitespace-nowrap text-xs text-fg-subtle">
                       {coupon.ends_at ? `jusqu’au ${formatDate(coupon.ends_at)}` : 'illimitée'}
                     </Td>
                     <Td className="text-right">

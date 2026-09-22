@@ -31,21 +31,21 @@ export function ClientAccessPanel({
   const available = courses.filter((c) => !alreadyGranted.has(c.title))
 
   return (
-    <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+    <section className="rounded-lg border border-line bg-surface p-6">
       <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-        <KeyRound className="h-5 w-5 text-brand-300" aria-hidden />
+        <KeyRound className="h-5 w-5 text-primary" aria-hidden />
         Accès aux formations
       </h2>
 
       <ActionFeedback state={state} />
 
       {enrollments.length > 0 && (
-        <ul className="mb-5 divide-y divide-surface-700">
+        <ul className="mb-5 divide-y divide-line">
           {enrollments.map((enrollment) => (
             <li key={enrollment.id} className="flex items-center gap-3 py-3">
               <span className="min-w-0 flex-1">
-                <span className="block font-medium text-onDark-hi">{enrollment.courseTitle}</span>
-                <span className="block text-xs text-onDark-lo">
+                <span className="block font-medium text-fg">{enrollment.courseTitle}</span>
+                <span className="block text-xs text-fg-subtle">
                   {enrollment.source === 'admin_grant' ? 'Accès offert' : 'Achat'} ·{' '}
                   {enrollment.progress}% terminé
                 </span>
@@ -73,7 +73,7 @@ export function ClientAccessPanel({
       )}
 
       {available.length > 0 && (
-        <form action={action} className="flex flex-wrap items-end gap-3 border-t border-surface-700 pt-5">
+        <form action={action} className="flex flex-wrap items-end gap-3 border-t border-line pt-5">
           <input type="hidden" name="user_id" value={userId} />
           <Field label="Offrir l’accès à une formation" className="min-w-56 flex-1">
             <Select name="course_id" required defaultValue="">

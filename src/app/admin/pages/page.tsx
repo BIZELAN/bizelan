@@ -64,15 +64,15 @@ export default async function AdminPagesPage() {
           </thead>
           <tbody>
             {pages.map((page) => (
-              <tr key={page.id} className="hover:bg-surface-800">
+              <tr key={page.id} className="hover:bg-surface">
                 <Td>
                   <Link
                     href={`/admin/pages/${page.id}`}
-                    className="block font-medium text-onDark-hi hover:text-brand-300"
+                    className="block font-medium text-fg hover:text-primary"
                   >
                     {page.title}
                   </Link>
-                  <span className="flex items-center gap-1.5 font-mono text-xs text-onDark-lo">
+                  <span className="flex items-center gap-1.5 font-mono text-xs text-fg-subtle">
                     /{page.slug}
                     {page.is_home && (
                       <Badge tone="primary" className="font-sans">
@@ -82,11 +82,11 @@ export default async function AdminPagesPage() {
                     )}
                   </span>
                 </Td>
-                <Td className="tabular-nums text-onDark-md">{parseBlocks(page.blocks).length}</Td>
+                <Td className="tabular-nums text-fg-muted">{parseBlocks(page.blocks).length}</Td>
                 <Td>
                   <StatusBadge status={page.status} map={CONTENT_STATUS_LABELS} />
                 </Td>
-                <Td className="whitespace-nowrap text-xs text-onDark-lo">
+                <Td className="whitespace-nowrap text-xs text-fg-subtle">
                   {formatDateTime(page.updated_at)}
                 </Td>
                 <Td>
@@ -95,7 +95,7 @@ export default async function AdminPagesPage() {
                       <Link
                         href={page.is_home ? '/' : `/${page.slug}`}
                         target="_blank"
-                        className="rounded-control p-2 text-onDark-lo transition-colors hover:bg-surface-700 hover:text-brand-300"
+                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
                         title="Voir la page"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />

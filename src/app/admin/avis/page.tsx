@@ -83,11 +83,11 @@ export default async function AdminReviewsPage() {
 
 function ReviewCard({ review, courseTitle }: { review: Review; courseTitle?: string }) {
   return (
-    <article className="rounded-card border border-surface-700 bg-surface-800 p-5">
+    <article className="rounded-lg border border-line bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-onDark-hi">{review.author_name}</h3>
+            <h3 className="font-semibold text-fg">{review.author_name}</h3>
             {review.featured && <Badge tone="accent">Mis en avant</Badge>}
             <Badge
               tone={
@@ -105,7 +105,7 @@ function ReviewCard({ review, courseTitle }: { review: Review; courseTitle?: str
                   : 'À relire'}
             </Badge>
           </div>
-          <p className="mt-0.5 text-xs text-onDark-lo">
+          <p className="mt-0.5 text-xs text-fg-subtle">
             {formatDateTime(review.created_at)}
             {review.author_role && ` · ${review.author_role}`}
             {courseTitle && ` · ${courseTitle}`}
@@ -115,12 +115,12 @@ function ReviewCard({ review, courseTitle }: { review: Review; courseTitle?: str
       </div>
 
       {review.comment && (
-        <p className="mt-3 rounded-control bg-surface-900 p-4 text-sm leading-relaxed text-onDark-md">
+        <p className="mt-3 rounded-md bg-canvas-subtle p-4 text-sm leading-relaxed text-fg-muted">
           « {review.comment} »
         </p>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2 border-t border-surface-700 pt-4">
+      <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
         {review.status !== 'approved' && (
           <ActionButton action={moderateReview.bind(null, review.id, 'approved', undefined)}>
             Publier

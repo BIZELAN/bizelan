@@ -9,10 +9,10 @@ import { cn } from '@/lib/utils'
  * qu'une surface plus claire se lit comme un élément en relief, donc inerte.
  */
 const CONTROL =
-  'w-full rounded-control border border-surface-600 bg-surface-950 px-3.5 py-2.5 text-body ' +
-  'text-onDark-hi placeholder:text-onDark-lo transition-colors ' +
-  'focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400 ' +
-  'disabled:bg-surface-900 disabled:text-onDark-lo disabled:cursor-not-allowed'
+  'w-full rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base ' +
+  'text-fg placeholder:text-fg-subtle transition-colors ' +
+  'focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ' +
+  'disabled:bg-canvas-subtle disabled:text-fg-subtle disabled:cursor-not-allowed'
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   function Input({ className, ...props }, ref) {
@@ -45,7 +45,7 @@ export function Label({
   ...props
 }: React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }) {
   return (
-    <label className={cn('mb-1.5 block text-body font-medium text-onDark-hi', className)} {...props}>
+    <label className={cn('mb-1.5 block text-base font-medium text-fg', className)} {...props}>
       {children}
       {required && <span className="ml-0.5 text-red-400">*</span>}
     </label>
@@ -53,12 +53,12 @@ export function Label({
 }
 
 export function FieldHelp({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1.5 text-meta leading-relaxed text-onDark-lo">{children}</p>
+  return <p className="mt-1.5 text-xs leading-relaxed text-fg-subtle">{children}</p>
 }
 
 export function FieldError({ children }: { children?: React.ReactNode }) {
   if (!children) return null
-  return <p className="mt-1.5 text-meta font-medium text-red-300">{children}</p>
+  return <p className="mt-1.5 text-xs font-medium text-danger">{children}</p>
 }
 
 export function Field({
@@ -100,13 +100,13 @@ export function Checkbox({
   return (
     <label
       className={cn(
-        'flex cursor-pointer items-start gap-2.5 text-body text-onDark-md',
+        'flex cursor-pointer items-start gap-2.5 text-base text-fg-muted',
         className,
       )}
     >
       <input
         type="checkbox"
-        className="mt-0.5 h-4 w-4 shrink-0 rounded border-surface-600 bg-surface-950 text-brand-500 focus:ring-brand-400 focus:ring-offset-0"
+        className="mt-0.5 h-4 w-4 shrink-0 rounded border-line-strong bg-canvas text-primary focus:ring-primary focus:ring-offset-0"
         {...props}
       />
       <span className="leading-relaxed">{label}</span>

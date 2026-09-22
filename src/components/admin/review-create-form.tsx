@@ -10,9 +10,9 @@ export function ReviewCreateForm({ courses }: { courses: { id: string; title: st
   const [state, action] = useActionState<AdminResult | null, FormData>(createReview, null)
 
   return (
-    <form action={action} className="rounded-card border border-surface-700 bg-surface-800 p-6 lg:sticky lg:top-6">
+    <form action={action} className="rounded-lg border border-line bg-surface p-6 lg:sticky lg:top-6">
       <h2 className="mb-1 text-lg font-semibold">Ajouter un témoignage</h2>
-      <p className="mb-5 text-sm text-onDark-md">
+      <p className="mb-5 text-sm text-fg-muted">
         Pour publier un retour reçu par message ou à l’oral.
       </p>
 

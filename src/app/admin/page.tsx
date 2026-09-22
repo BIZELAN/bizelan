@@ -106,7 +106,7 @@ export default async function AdminDashboard() {
             <Link
               key={alert.href}
               href={alert.href}
-              className="flex items-center gap-3 rounded-control border border-amber-200 bg-amber-400/10 px-4 py-3 text-sm font-medium text-amber-900 transition-colors hover:bg-amber-100"
+              className="flex items-center gap-3 rounded-md border border-amber-200 bg-warning-subtle px-4 py-3 text-sm font-medium text-amber-900 transition-colors hover:bg-amber-100"
             >
               <alert.icon className="h-[1.125rem] w-[1.125rem] shrink-0" aria-hidden />
               <span className="flex-1">{alert.label}</span>
@@ -134,7 +134,7 @@ export default async function AdminDashboard() {
         <StatCard label="Formations publiées" value={courses.count ?? 0} icon={GraduationCap} />
       </div>
 
-      <section className="mt-6 rounded-card border border-surface-700 bg-surface-800 p-6">
+      <section className="mt-6 rounded-lg border border-line bg-surface p-6">
         <h2 className="mb-5 text-lg font-semibold">Revenus des 30 derniers jours</h2>
         <RevenueChart data={chartData} />
       </section>
@@ -144,7 +144,7 @@ export default async function AdminDashboard() {
           <h2 className="text-lg font-semibold">Dernières commandes</h2>
           <Link
             href="/admin/commandes"
-            className="text-sm font-medium text-brand-300 hover:text-brand-200"
+            className="text-sm font-medium text-primary hover:text-primary-hover"
           >
             Tout voir →
           </Link>
@@ -166,23 +166,23 @@ export default async function AdminDashboard() {
             <tbody>
               {((recentOrders.data ?? []) as Pick<Order, 'id' | 'reference' | 'customer_name' | 'total_cents' | 'currency' | 'status' | 'created_at'>[]).map(
                 (order) => (
-                  <tr key={order.id} className="hover:bg-surface-800">
+                  <tr key={order.id} className="hover:bg-surface">
                     <Td>
                       <Link
                         href={`/admin/commandes/${order.id}`}
-                        className="font-mono text-xs font-semibold text-brand-300 hover:underline"
+                        className="font-mono text-xs font-semibold text-primary hover:underline"
                       >
                         {order.reference}
                       </Link>
                     </Td>
-                    <Td className="text-onDark-hi">{order.customer_name}</Td>
+                    <Td className="text-fg">{order.customer_name}</Td>
                     <Td className="font-semibold tabular-nums">
                       {formatPrice(order.total_cents, order.currency)}
                     </Td>
                     <Td>
                       <StatusBadge status={order.status} map={ORDER_STATUS_LABELS} />
                     </Td>
-                    <Td className="whitespace-nowrap text-xs text-onDark-lo">
+                    <Td className="whitespace-nowrap text-xs text-fg-subtle">
                       {formatDateTime(order.created_at)}
                     </Td>
                   </tr>

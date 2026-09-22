@@ -11,9 +11,9 @@ import { cn } from '@/lib/utils'
 export type SectionTone = 'base' | 'raised' | 'panel' | 'light' | 'brand'
 
 const TONES: Record<SectionTone, string> = {
-  base: 'bg-surface-950 text-onDark-md',
-  raised: 'bg-surface-900 text-onDark-md',
-  panel: 'bg-surface-850 text-onDark-md',
+  base: 'bg-canvas text-fg-muted',
+  raised: 'bg-canvas-subtle text-fg-muted',
+  panel: 'bg-canvas-subtle text-fg-muted',
   light: 'bg-white text-ink-700',
   brand: 'bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900 text-brand-50',
 }
@@ -66,8 +66,8 @@ export function SectionHeader({
         {eyebrow && <p className="eyebrow">{eyebrow}</p>}
         <h2
           className={cn(
-            'mt-3 text-h2 sm:text-h1',
-            tone === 'light' ? 'text-ink-950' : 'text-onDark-hi',
+            'mt-3 text-xl sm:text-2xl',
+            tone === 'light' ? 'text-ink-950' : 'text-fg',
           )}
         >
           {title}
@@ -75,8 +75,8 @@ export function SectionHeader({
         {subtitle && (
           <p
             className={cn(
-              'mt-4 text-body-lg',
-              tone === 'light' ? 'text-ink-600' : 'text-onDark-md',
+              'mt-4 text-md',
+              tone === 'light' ? 'text-ink-600' : 'text-fg-muted',
             )}
           >
             {subtitle}

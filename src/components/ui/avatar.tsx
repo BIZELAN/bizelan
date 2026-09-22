@@ -3,9 +3,9 @@ import { initials } from '@/lib/utils'
 
 const SIZES = {
   sm: 'h-8 w-8 text-[0.7rem]',
-  md: 'h-11 w-11 text-meta',
-  lg: 'h-14 w-14 text-body',
-  xl: 'h-20 w-20 text-h3',
+  md: 'h-11 w-11 text-xs',
+  lg: 'h-14 w-14 text-base',
+  xl: 'h-20 w-20 text-lg',
 } as const
 
 /**
@@ -24,7 +24,7 @@ export function Avatar({
   className?: string
 }) {
   const base = cn(
-    'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ring-surface-600',
+    'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ring-line-strong',
     SIZES[size],
     className,
   )
@@ -39,7 +39,7 @@ export function Avatar({
 
   return (
     <span
-      className={cn(base, 'bg-surface-700 font-semibold uppercase tracking-wide text-brand-300')}
+      className={cn(base, 'bg-canvas-subtle font-semibold uppercase tracking-wide text-primary')}
       aria-hidden={!name}
     >
       {initials(name)}
@@ -69,11 +69,11 @@ export function AvatarStack({
             name={person.name}
             src={person.src}
             size="sm"
-            className="ring-2 ring-surface-950"
+            className="ring-2 ring-canvas"
           />
         ))}
       </div>
-      {rest > 0 && <span className="ml-3 text-meta text-onDark-lo">+{rest}</span>}
+      {rest > 0 && <span className="ml-3 text-xs text-fg-subtle">+{rest}</span>}
     </div>
   )
 }

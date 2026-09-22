@@ -80,10 +80,10 @@ export default async function AdminOrdersPage({
               key={filter.value}
               href={filter.value ? `/admin/commandes?statut=${filter.value}` : '/admin/commandes'}
               className={cn(
-                'rounded-control px-3.5 py-1.5 text-sm font-medium transition-colors',
+                'rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors',
                 active
-                  ? 'bg-brand-700 text-white'
-                  : 'border border-surface-700 bg-surface-800 text-onDark-md hover:bg-surface-700',
+                  ? 'bg-primary text-primary-fg'
+                  : 'border border-line bg-surface text-fg-muted hover:bg-canvas-subtle',
               )}
             >
               {filter.label}
@@ -108,29 +108,29 @@ export default async function AdminOrdersPage({
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-surface-800">
+              <tr key={order.id} className="hover:bg-surface">
                 <Td>
                   <Link
                     href={`/admin/commandes/${order.id}`}
-                    className="font-mono text-xs font-semibold text-brand-300 hover:underline"
+                    className="font-mono text-xs font-semibold text-primary hover:underline"
                   >
                     {order.reference}
                   </Link>
                 </Td>
                 <Td>
-                  <span className="block text-onDark-hi">{order.customer_name}</span>
-                  <span className="block text-xs text-onDark-lo">{order.customer_email}</span>
+                  <span className="block text-fg">{order.customer_name}</span>
+                  <span className="block text-xs text-fg-subtle">{order.customer_email}</span>
                 </Td>
                 <Td className="whitespace-nowrap font-semibold tabular-nums">
                   {formatPrice(order.total_cents, order.currency)}
                 </Td>
-                <Td className="whitespace-nowrap text-xs text-onDark-md">
+                <Td className="whitespace-nowrap text-xs text-fg-muted">
                   {PAYMENT_METHOD_LABELS[order.payment_method] ?? order.payment_method}
                 </Td>
                 <Td>
                   <StatusBadge status={order.status} map={ORDER_STATUS_LABELS} />
                 </Td>
-                <Td className="whitespace-nowrap text-xs text-onDark-lo">
+                <Td className="whitespace-nowrap text-xs text-fg-subtle">
                   {formatDateTime(order.created_at)}
                 </Td>
               </tr>

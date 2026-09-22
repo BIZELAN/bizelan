@@ -83,7 +83,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           <div className="grid gap-3 sm:grid-cols-2">
             {['facebook', 'linkedin', 'youtube', 'instagram'].map((network) => (
               <div key={network}>
-                <label className="mb-1 block text-xs font-medium capitalize text-onDark-md">
+                <label className="mb-1 block text-xs font-medium capitalize text-fg-muted">
                   {network}
                 </label>
                 <Input

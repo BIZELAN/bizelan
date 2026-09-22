@@ -7,10 +7,10 @@ import { cn } from '@/lib/utils'
 type AlertTone = 'info' | 'success' | 'warning' | 'error'
 
 const ALERT_STYLES: Record<AlertTone, { wrap: string; icon: React.ElementType }> = {
-  info: { wrap: 'bg-sky-400/10 text-sky-200 ring-sky-400/25', icon: Info },
-  success: { wrap: 'bg-emerald-400/10 text-emerald-200 ring-emerald-400/25', icon: CheckCircle2 },
-  warning: { wrap: 'bg-amber-400/10 text-amber-200 ring-amber-400/25', icon: TriangleAlert },
-  error: { wrap: 'bg-red-400/10 text-red-200 ring-red-400/25', icon: AlertCircle },
+  info: { wrap: 'bg-info-subtle text-info ring-info/25', icon: Info },
+  success: { wrap: 'bg-success-subtle text-emerald-200 ring-success/25', icon: CheckCircle2 },
+  warning: { wrap: 'bg-warning-subtle text-warning ring-warning/25', icon: TriangleAlert },
+  error: { wrap: 'bg-danger-subtle text-danger ring-danger/25', icon: AlertCircle },
 }
 
 export function Alert({
@@ -28,7 +28,7 @@ export function Alert({
   return (
     <div
       className={cn(
-        'flex gap-3 rounded-control px-4 py-3 text-body ring-1 ring-inset',
+        'flex gap-3 rounded-md px-4 py-3 text-base ring-1 ring-inset',
         wrap,
         className,
       )}
@@ -60,13 +60,13 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-card border border-dashed border-surface-600 bg-surface-900/50 px-6 py-14 text-center',
+        'flex flex-col items-center justify-center rounded-lg border border-dashed border-line-strong bg-canvas-subtle/50 px-6 py-14 text-center',
         className,
       )}
     >
-      {Icon && <Icon className="mb-3 h-9 w-9 text-onDark-lo" aria-hidden />}
-      <p className="font-medium text-onDark-hi">{title}</p>
-      {description && <p className="mt-1.5 max-w-md text-body text-onDark-md">{description}</p>}
+      {Icon && <Icon className="mb-3 h-9 w-9 text-fg-subtle" aria-hidden />}
+      <p className="font-medium text-fg">{title}</p>
+      {description && <p className="mt-1.5 max-w-md text-base text-fg-muted">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   )
@@ -87,19 +87,19 @@ export function ProgressBar({
   return (
     <div className={cn('flex items-center gap-3', className)}>
       <div
-        className="h-2 flex-1 overflow-hidden rounded-pill bg-surface-700"
+        className="h-2 flex-1 overflow-hidden rounded-pill bg-canvas-subtle"
         role="progressbar"
         aria-valuenow={clamped}
         aria-valuemin={0}
         aria-valuemax={100}
       >
         <div
-          className="h-full rounded-pill bg-brand-400 transition-all duration-500"
+          className="h-full rounded-pill bg-primary transition-all duration-500"
           style={{ width: `${clamped}%` }}
         />
       </div>
       {showLabel && (
-        <span className="w-10 shrink-0 text-right text-meta font-semibold tabular-nums text-onDark-md">
+        <span className="w-10 shrink-0 text-right text-xs font-semibold tabular-nums text-fg-muted">
           {clamped}%
         </span>
       )}
@@ -131,8 +131,8 @@ export function SectionHeading({
       )}
     >
       {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-      <h2 className="text-h2 sm:text-h1">{title}</h2>
-      {subtitle && <p className="mt-4 text-body-lg text-onDark-md">{subtitle}</p>}
+      <h2 className="text-xl sm:text-2xl">{title}</h2>
+      {subtitle && <p className="mt-4 text-md text-fg-muted">{subtitle}</p>}
     </div>
   )
 }

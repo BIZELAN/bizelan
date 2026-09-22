@@ -85,7 +85,7 @@ export function ResourceManager({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+      <section className="rounded-lg border border-line bg-surface p-6">
         <h2 className="mb-5 text-lg font-semibold">Ajouter un support</h2>
 
         {error && <Alert tone="error" className="mb-4">{error}</Alert>}
@@ -133,7 +133,7 @@ export function ResourceManager({
             }}
           />
 
-          <p className="text-xs text-onDark-lo">
+          <p className="text-xs text-fg-subtle">
             Formats acceptés : Excel, Word, PowerPoint, PDF, ZIP… — 100 Mo maximum par fichier.
           </p>
         </div>
@@ -151,13 +151,13 @@ export function ResourceManager({
             description="Ajoutez les tableurs et modèles que vos clients pourront télécharger."
           />
         ) : (
-          <ul className="divide-y divide-surface-700 rounded-card border border-surface-700 bg-surface-800">
+          <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
             {resources.map((resource) => (
               <li key={resource.id} className="flex items-center gap-4 px-5 py-4">
-                <FileText className="h-5 w-5 shrink-0 text-brand-400" aria-hidden />
+                <FileText className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-onDark-hi">{resource.title}</p>
-                  <p className="text-xs text-onDark-lo">
+                  <p className="font-medium text-fg">{resource.title}</p>
+                  <p className="text-xs text-fg-subtle">
                     {resource.file_name}
                     {resource.file_size ? ` · ${formatFileSize(resource.file_size)}` : ''}
                   </p>

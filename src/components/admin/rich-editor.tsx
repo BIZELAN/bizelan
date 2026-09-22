@@ -150,7 +150,7 @@ export function RichEditor({
   const words = editor?.storage.characterCount?.words?.() ?? 0
 
   return (
-    <div className="overflow-hidden rounded-card border border-surface-700 bg-surface-800 shadow-dark-sm focus-within:border-brand-400">
+    <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-e1 focus-within:border-primary">
       {name && <input type="hidden" name={name} value={serialized} />}
 
       {editor && (
@@ -158,7 +158,7 @@ export function RichEditor({
       )}
 
       {error && (
-        <div className="flex items-start gap-2 border-b border-red-400/30 bg-red-400/10 px-4 py-2.5 text-sm text-red-800">
+        <div className="flex items-start gap-2 border-b border-danger/25 bg-danger-subtle px-4 py-2.5 text-sm text-red-800">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <span>{error}</span>
         </div>
@@ -166,7 +166,7 @@ export function RichEditor({
 
       <EditorContent editor={editor} className="px-5 py-4" />
 
-      <div className="flex items-center justify-between border-t border-surface-700 bg-surface-900 px-4 py-1.5 text-xs text-onDark-lo">
+      <div className="flex items-center justify-between border-t border-line bg-canvas-subtle px-4 py-1.5 text-xs text-fg-subtle">
         <span>
           {words} mot{words > 1 ? 's' : ''} · ~{Math.max(1, Math.round(words / 200))} min de lecture
         </span>

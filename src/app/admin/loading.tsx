@@ -19,7 +19,7 @@ export default function AdminLoading() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="rounded-card border border-surface-700 bg-surface-800 p-5">
+          <div key={i} className="rounded-lg border border-line bg-surface p-5">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-3 h-8 w-20" />
             <Skeleton className="mt-2 h-3 w-16" />

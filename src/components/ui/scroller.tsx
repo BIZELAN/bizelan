@@ -99,8 +99,8 @@ function ScrollButton({
       tabIndex={hidden ? -1 : 0}
       className={cn(
         'absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full',
-        'bg-surface-800/90 text-onDark-hi ring-1 ring-surface-600 backdrop-blur transition-all',
-        'hover:bg-surface-700 md:inline-flex',
+        'bg-surface/90 text-fg ring-1 ring-line-strong backdrop-blur transition-all',
+        'hover:bg-canvas-subtle md:inline-flex',
         side === 'left' ? '-left-3' : '-right-3',
         hidden && 'pointer-events-none opacity-0',
       )}

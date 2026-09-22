@@ -75,7 +75,7 @@ export default async function AdminCoursesPage() {
           </thead>
           <tbody>
             {list.map((course) => (
-              <tr key={course.id} className="hover:bg-surface-800">
+              <tr key={course.id} className="hover:bg-surface">
                 <Td>
                   <div className="flex items-center gap-3">
                     {course.cover_url ? (
@@ -85,25 +85,25 @@ export default async function AdminCoursesPage() {
                         className="h-11 w-16 shrink-0 rounded object-cover"
                       />
                     ) : (
-                      <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded bg-surface-800">
-                        <GraduationCap className="h-4 w-4 text-onDark-lo" aria-hidden />
+                      <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded bg-surface">
+                        <GraduationCap className="h-4 w-4 text-fg-subtle" aria-hidden />
                       </span>
                     )}
                     <div className="min-w-0">
                       <Link
                         href={`/admin/formations/${course.id}`}
-                        className="block font-medium text-onDark-hi hover:text-brand-300"
+                        className="block font-medium text-fg hover:text-primary"
                       >
                         {course.title}
                       </Link>
-                      <span className="font-mono text-xs text-onDark-lo">/{course.slug}</span>
+                      <span className="font-mono text-xs text-fg-subtle">/{course.slug}</span>
                     </div>
                   </div>
                 </Td>
                 <Td className="whitespace-nowrap font-semibold tabular-nums">
                   {formatPrice(course.price_cents, course.currency)}
                 </Td>
-                <Td className="tabular-nums text-onDark-md">{counts.get(course.id) ?? 0}</Td>
+                <Td className="tabular-nums text-fg-muted">{counts.get(course.id) ?? 0}</Td>
                 <Td>
                   <StatusBadge status={course.status} map={CONTENT_STATUS_LABELS} />
                 </Td>
@@ -111,7 +111,7 @@ export default async function AdminCoursesPage() {
                   <div className="flex items-center justify-end gap-1.5">
                     <Link
                       href={`/admin/formations/${course.id}/programme`}
-                      className="rounded-control p-2 text-onDark-lo transition-colors hover:bg-surface-700 hover:text-brand-300"
+                      className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
                       title="Gérer le programme"
                     >
                       <Settings2 className="h-4 w-4" aria-hidden />
@@ -120,7 +120,7 @@ export default async function AdminCoursesPage() {
                       <Link
                         href={`/formations/${course.slug}`}
                         target="_blank"
-                        className="rounded-control p-2 text-onDark-lo transition-colors hover:bg-surface-700 hover:text-brand-300"
+                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
                         title="Voir sur le site"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />

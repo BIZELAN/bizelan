@@ -57,17 +57,17 @@ export default async function AdminServicesPage() {
           </thead>
           <tbody>
             {services.map((service) => (
-              <tr key={service.id} className="hover:bg-surface-800">
+              <tr key={service.id} className="hover:bg-surface">
                 <Td>
                   <Link
                     href={`/admin/services/${service.id}`}
-                    className="block font-medium text-onDark-hi hover:text-brand-300"
+                    className="block font-medium text-fg hover:text-primary"
                   >
                     {service.title}
                   </Link>
-                  <span className="font-mono text-xs text-onDark-lo">/services/{service.slug}</span>
+                  <span className="font-mono text-xs text-fg-subtle">/services/{service.slug}</span>
                 </Td>
-                <Td className="whitespace-nowrap text-onDark-md">
+                <Td className="whitespace-nowrap text-fg-muted">
                   {service.pricing === 'quote'
                     ? (service.price_label ?? 'Sur devis')
                     : formatPrice(service.price_cents, service.currency)}
@@ -81,7 +81,7 @@ export default async function AdminServicesPage() {
                       <Link
                         href={`/services/${service.slug}`}
                         target="_blank"
-                        className="rounded-control p-2 text-onDark-lo transition-colors hover:bg-surface-700 hover:text-brand-300"
+                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
                         title="Voir sur le site"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />

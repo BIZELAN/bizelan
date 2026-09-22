@@ -44,11 +44,11 @@ export default async function AdminRequestsPage() {
         ) : (
           <div className="space-y-4">
             {quoteList.map((quote) => (
-              <article key={quote.id} className="rounded-card border border-surface-700 bg-surface-800 p-5">
+              <article key={quote.id} className="rounded-lg border border-line bg-surface p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-onDark-hi">{quote.name}</h3>
-                    <p className="mt-0.5 text-xs text-onDark-lo">
+                    <h3 className="font-semibold text-fg">{quote.name}</h3>
+                    <p className="mt-0.5 text-xs text-fg-subtle">
                       {formatDateTime(quote.created_at)}
                       {quote.service_id && ` · ${serviceNames.get(quote.service_id) ?? 'Service'}`}
                       {quote.company && ` · ${quote.company}`}
@@ -60,7 +60,7 @@ export default async function AdminRequestsPage() {
                 <div className="mt-3 flex flex-wrap gap-4 text-sm">
                   <a
                     href={`mailto:${quote.email}`}
-                    className="flex items-center gap-1.5 text-brand-300 hover:underline"
+                    className="flex items-center gap-1.5 text-primary hover:underline"
                   >
                     <Mail className="h-4 w-4" aria-hidden />
                     {quote.email}
@@ -68,7 +68,7 @@ export default async function AdminRequestsPage() {
                   {quote.phone && (
                     <a
                       href={`tel:${quote.phone.replace(/\s/g, '')}`}
-                      className="flex items-center gap-1.5 text-brand-300 hover:underline"
+                      className="flex items-center gap-1.5 text-primary hover:underline"
                     >
                       <Phone className="h-4 w-4" aria-hidden />
                       {quote.phone}
@@ -77,18 +77,18 @@ export default async function AdminRequestsPage() {
                 </div>
 
                 {quote.budget && (
-                  <p className="mt-3 text-sm text-onDark-md">
+                  <p className="mt-3 text-sm text-fg-muted">
                     <span className="font-medium">Budget :</span> {quote.budget}
                   </p>
                 )}
 
                 {quote.message && (
-                  <p className="mt-3 whitespace-pre-wrap rounded-control bg-surface-900 p-4 text-sm leading-relaxed text-onDark-md">
+                  <p className="mt-3 whitespace-pre-wrap rounded-md bg-canvas-subtle p-4 text-sm leading-relaxed text-fg-muted">
                     {quote.message}
                   </p>
                 )}
 
-                <div className="mt-4 border-t border-surface-700 pt-4">
+                <div className="mt-4 border-t border-line pt-4">
                   <QuoteStatusControl
                     id={quote.id}
                     status={quote.status}
@@ -111,19 +111,19 @@ export default async function AdminRequestsPage() {
             {messageList.map((message) => (
               <article
                 key={message.id}
-                className={`rounded-card border bg-surface-800 p-5 ${
-                  message.handled ? 'border-surface-700 opacity-70' : 'border-brand-400/30'
+                className={`rounded-lg border bg-surface p-5 ${
+                  message.handled ? 'border-line opacity-70' : 'border-primary/25'
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-onDark-hi">
+                    <h3 className="font-semibold text-fg">
                       {message.name}
                       {message.subject && (
-                        <span className="ml-2 font-normal text-onDark-md">— {message.subject}</span>
+                        <span className="ml-2 font-normal text-fg-muted">— {message.subject}</span>
                       )}
                     </h3>
-                    <p className="mt-0.5 text-xs text-onDark-lo">
+                    <p className="mt-0.5 text-xs text-fg-subtle">
                       {formatDateTime(message.created_at)}
                     </p>
                   </div>
@@ -136,13 +136,13 @@ export default async function AdminRequestsPage() {
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                  <a href={`mailto:${message.email}`} className="text-brand-300 hover:underline">
+                  <a href={`mailto:${message.email}`} className="text-primary hover:underline">
                     {message.email}
                   </a>
-                  {message.phone && <span className="text-onDark-md">{message.phone}</span>}
+                  {message.phone && <span className="text-fg-muted">{message.phone}</span>}
                 </div>
 
-                <p className="mt-3 whitespace-pre-wrap rounded-control bg-surface-900 p-4 text-sm leading-relaxed text-onDark-md">
+                <p className="mt-3 whitespace-pre-wrap rounded-md bg-canvas-subtle p-4 text-sm leading-relaxed text-fg-muted">
                   {message.message}
                 </p>
               </article>

@@ -78,7 +78,7 @@ export function VideoPlayer({
           <span className="absolute inset-0 bg-canvas/40 transition-colors group-hover:bg-canvas/25" />
 
           <span className="absolute inset-0 flex items-center justify-center">
-            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/90 text-primary-fg shadow-e3 ring-1 ring-primary/40 backdrop-blur transition-transform duration-200 group-hover:scale-110">
+            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/90 text-primary-fg shadow-e3 ring-1 ring-primary-text/40 backdrop-blur transition-transform duration-200 group-hover:scale-110">
               <Play className="ml-1 h-8 w-8 fill-current" aria-hidden />
             </span>
           </span>

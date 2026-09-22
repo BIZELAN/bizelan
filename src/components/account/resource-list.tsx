@@ -57,7 +57,7 @@ export function ResourceList({ resources }: { resources: Resource[] }) {
                 disabled={busy}
                 className="flex w-full items-center gap-3.5 py-3 text-left transition-colors hover:text-primary-hover disabled:opacity-60"
               >
-                <Icon className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                <Icon className="h-5 w-5 shrink-0 text-primary-text" aria-hidden />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[0.9375rem] font-medium text-fg">
                     {resource.title}

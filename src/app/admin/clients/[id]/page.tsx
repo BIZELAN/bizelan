@@ -112,7 +112,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       <Td>
                         <Link
                           href={`/admin/commandes/${order.id}`}
-                          className="font-mono text-xs font-semibold text-primary hover:underline"
+                          className="font-mono text-xs font-semibold text-primary-text hover:underline"
                         >
                           {order.reference}
                         </Link>
@@ -138,7 +138,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
-                <a href={`mailto:${profile.email}`} className="break-all text-primary hover:underline">
+                <a href={`mailto:${profile.email}`} className="break-all text-primary-text hover:underline">
                   {profile.email}
                 </a>
               </li>
@@ -147,7 +147,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                   <Phone className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
                   <a
                     href={`tel:${profile.phone.replace(/\s/g, '')}`}
-                    className="text-primary hover:underline"
+                    className="text-primary-text hover:underline"
                   >
                     {profile.phone}
                   </a>
@@ -171,7 +171,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
           <section className="rounded-lg border border-line bg-surface p-6">
             <h2 className="mb-3 text-lg font-semibold">Valeur client</h2>
-            <p className="text-2xl font-bold tabular-nums text-primary">
+            <p className="text-2xl font-bold tabular-nums text-primary-text">
               {formatPrice(totalSpent)}
             </p>
             <p className="mt-1 text-xs text-fg-subtle">

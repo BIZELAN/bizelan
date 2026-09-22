@@ -167,7 +167,7 @@ export function CompleteButton({
           {pending ? (
             <Loader2 className="h-[1.125rem] w-[1.125rem] animate-spin" aria-hidden />
           ) : (
-            <Check className={cn('h-[1.125rem] w-[1.125rem]', completed && 'text-primary')} aria-hidden />
+            <Check className={cn('h-[1.125rem] w-[1.125rem]', completed && 'text-primary-text')} aria-hidden />
           )}
           {completed ? 'Leçon terminée' : 'Marquer comme terminée'}
         </Button>

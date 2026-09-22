@@ -66,7 +66,7 @@ export default async function AdminCouponsPage() {
                         <span className="block text-xs text-fg-subtle">{coupon.description}</span>
                       )}
                     </Td>
-                    <Td className="whitespace-nowrap font-semibold text-primary">
+                    <Td className="whitespace-nowrap font-semibold text-primary-text">
                       {coupon.discount_type === 'percent'
                         ? `-${coupon.discount_value} %`
                         : `-${formatPrice(coupon.discount_value)}`}

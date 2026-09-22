@@ -36,11 +36,22 @@
   --text-subtle: 102 115 109;
 
   /* --- Marque ----------------------------------------------------------- */
-  --primary: 20 84 62;
-  --primary-hover: 15 65 48;
-  --primary-fg: 255 255 255;
-  --primary-subtle: 230 242 236;
-  --ring: 28 122 88;
+  --primary: 173 255 47;
+  --primary-hover: 154 230 38;
+  --primary-fg: 13 20 17;
+  --primary-subtle: 238 248 217;
+  /* GreenYellow a une luminance de 0,806 : en TEXTE sur fond clair il tombe a
+     1,15 de contraste. Ce jeton porte donc le role texte/lien/icone, assombri
+     en theme clair et identique au primaire en sombre. */
+  --primary-text: 81 120 0;
+  --ring: 81 120 0;
+
+  /* Bleu secondaire — actions de second rang, liens de navigation, info. */
+  --secondary: 27 95 196;
+  --secondary-hover: 23 80 158;
+  --secondary-fg: 255 255 255;
+  --secondary-subtle: 230 238 251;
+  --secondary-text: 27 95 196;
 
   /* Accent ocre — RÉSERVÉ aux appels à l'action du site public. Le back-office
      n'a qu'une couleur de marque : y ajouter une seconde teinte vive ferait
@@ -98,11 +109,18 @@
     --text-muted: 159 176 168;
     --text-subtle: 125 140 133;
 
-    --primary: 85 174 135;
-    --primary-hover: 124 199 163;
-    --primary-fg: 6 18 12;
-    --primary-subtle: 20 48 36;
-    --ring: 85 174 135;
+    --primary: 173 255 47;
+    --primary-hover: 196 255 107;
+    --primary-fg: 13 20 17;
+    --primary-subtle: 31 43 8;
+    --primary-text: 173 255 47;
+    --ring: 173 255 47;
+
+    --secondary: 127 178 255;
+    --secondary-hover: 160 200 255;
+    --secondary-fg: 5 13 28;
+    --secondary-subtle: 18 32 58;
+    --secondary-text: 127 178 255;
     --accent: 228 160 47;
     --accent-hover: 234 187 91;
     --accent-fg: 26 17 3;
@@ -141,11 +159,18 @@
   --text-muted: 159 176 168;
   --text-subtle: 125 140 133;
 
-  --primary: 85 174 135;
-  --primary-hover: 124 199 163;
-  --primary-fg: 6 18 12;
-  --primary-subtle: 20 48 36;
-  --ring: 85 174 135;
+  --primary: 173 255 47;
+  --primary-hover: 196 255 107;
+  --primary-fg: 13 20 17;
+  --primary-subtle: 31 43 8;
+  --primary-text: 173 255 47;
+  --ring: 173 255 47;
+
+  --secondary: 127 178 255;
+  --secondary-hover: 160 200 255;
+  --secondary-fg: 5 13 28;
+  --secondary-subtle: 18 32 58;
+  --secondary-text: 127 178 255;
   --accent: 228 160 47;
   --accent-hover: 234 187 91;
   --accent-fg: 26 17 3;

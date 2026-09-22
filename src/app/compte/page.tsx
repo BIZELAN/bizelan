@@ -62,7 +62,7 @@ export default async function AccountPage({
             <Link
               key={enrollment.id}
               href={`/compte/formations/${enrollment.course.slug}`}
-              className="group overflow-hidden rounded-lg border border-line bg-surface shadow-e1 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-e2"
+              className="group overflow-hidden rounded-lg border border-line bg-surface shadow-e1 transition-all hover:-translate-y-0.5 hover:border-primary-text/40 hover:shadow-e2"
             >
               {enrollment.course.cover_url && (
                 <img
@@ -88,7 +88,7 @@ export default async function AccountPage({
 
                 <ProgressBar value={enrollment.progress_percent} showLabel className="mt-4" />
 
-                <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-primary">
+                <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-primary-text">
                   <BookOpen className="h-4 w-4" aria-hidden />
                   {enrollment.progress_percent > 0 ? 'Continuer' : 'Commencer'}
                 </p>

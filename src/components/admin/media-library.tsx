@@ -123,7 +123,7 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
                   onClick={() => item.public_url && copy(item.public_url, item.id)}
                 >
                   {copied === item.id ? (
-                    <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
+                    <Check className="h-3.5 w-3.5 text-primary-text" aria-hidden />
                   ) : (
                     <Copy className="h-3.5 w-3.5" aria-hidden />
                   )}

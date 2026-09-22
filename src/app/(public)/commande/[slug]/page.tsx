@@ -35,7 +35,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
       <div className="container-page py-12 sm:py-16">
         <Link
           href={`/formations/${slug}`}
-          className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary"
+          className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary-text"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Retour à la formation
@@ -77,7 +77,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
                   <p className="mt-1 text-sm text-fg-muted">{course.subtitle}</p>
                 )}
 
-                <p className="mt-4 text-2xl font-bold text-primary">
+                <p className="mt-4 text-2xl font-bold text-primary-text">
                   {formatPrice(course.price_cents, course.currency)}
                 </p>
                 {course.access_label && (
@@ -88,7 +88,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
                   <ul className="mt-5 space-y-2.5 border-t border-line pt-5">
                     {whatYouGet.map((item, i) => (
                       <li key={i} className="flex gap-2.5 text-sm text-fg-muted">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                         <span className="leading-relaxed">{item}</span>
                       </li>
                     ))}
@@ -96,7 +96,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
                 )}
 
                 <p className="mt-5 flex items-start gap-2 border-t border-line pt-5 text-xs leading-relaxed text-fg-subtle">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                   Paiement sécurisé par KkiaPay. Nous ne stockons aucune donnée bancaire.
                 </p>
               </div>

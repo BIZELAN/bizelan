@@ -37,13 +37,13 @@ export default async function ContactPage() {
               {settings.phone && (
                 <div className="flex gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
-                    <Phone className="h-5 w-5 text-primary" aria-hidden />
+                    <Phone className="h-5 w-5 text-primary-text" aria-hidden />
                   </span>
                   <div>
                     <p className="text-sm font-medium text-fg-subtle">Téléphone</p>
                     <a
                       href={`tel:${settings.phone.replace(/\s/g, '')}`}
-                      className="text-[0.9375rem] text-fg hover:text-primary"
+                      className="text-[0.9375rem] text-fg hover:text-primary-text"
                     >
                       {settings.phone}
                     </a>
@@ -54,13 +54,13 @@ export default async function ContactPage() {
               {settings.email && (
                 <div className="flex gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
-                    <Mail className="h-5 w-5 text-primary" aria-hidden />
+                    <Mail className="h-5 w-5 text-primary-text" aria-hidden />
                   </span>
                   <div>
                     <p className="text-sm font-medium text-fg-subtle">E-mail</p>
                     <a
                       href={`mailto:${settings.email}`}
-                      className="break-all text-[0.9375rem] text-fg hover:text-primary"
+                      className="break-all text-[0.9375rem] text-fg hover:text-primary-text"
                     >
                       {settings.email}
                     </a>
@@ -71,7 +71,7 @@ export default async function ContactPage() {
               {settings.address && (
                 <div className="flex gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
-                    <MapPin className="h-5 w-5 text-primary" aria-hidden />
+                    <MapPin className="h-5 w-5 text-primary-text" aria-hidden />
                   </span>
                   <div>
                     <p className="text-sm font-medium text-fg-subtle">Adresse</p>
@@ -83,7 +83,7 @@ export default async function ContactPage() {
               {hours.length > 0 && (
                 <div className="flex gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
-                    <Clock className="h-5 w-5 text-primary" aria-hidden />
+                    <Clock className="h-5 w-5 text-primary-text" aria-hidden />
                   </span>
                   <div>
                     <p className="text-sm font-medium text-fg-subtle">Horaires</p>

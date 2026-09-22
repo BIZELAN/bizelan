@@ -121,7 +121,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           <ul className="space-y-3 text-base">
             {settings.phone && (
               <li className="flex items-start gap-2.5">
-                <Phone className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                <Phone className="mt-1 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                 <a
                   href={`tel:${settings.phone.replace(/\s/g, '')}`}
                   className="hover:text-fg"
@@ -132,7 +132,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
             )}
             {settings.email && (
               <li className="flex items-start gap-2.5">
-                <Mail className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                <Mail className="mt-1 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                 <a href={`mailto:${settings.email}`} className="break-all hover:text-fg">
                   {settings.email}
                 </a>
@@ -140,7 +140,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
             )}
             {settings.address && (
               <li className="flex items-start gap-2.5">
-                <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                 <span>{settings.address}</span>
               </li>
             )}

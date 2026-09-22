@@ -60,7 +60,7 @@ export default async function AdminRequestsPage() {
                 <div className="mt-3 flex flex-wrap gap-4 text-sm">
                   <a
                     href={`mailto:${quote.email}`}
-                    className="flex items-center gap-1.5 text-primary hover:underline"
+                    className="flex items-center gap-1.5 text-primary-text hover:underline"
                   >
                     <Mail className="h-4 w-4" aria-hidden />
                     {quote.email}
@@ -68,7 +68,7 @@ export default async function AdminRequestsPage() {
                   {quote.phone && (
                     <a
                       href={`tel:${quote.phone.replace(/\s/g, '')}`}
-                      className="flex items-center gap-1.5 text-primary hover:underline"
+                      className="flex items-center gap-1.5 text-primary-text hover:underline"
                     >
                       <Phone className="h-4 w-4" aria-hidden />
                       {quote.phone}
@@ -112,7 +112,7 @@ export default async function AdminRequestsPage() {
               <article
                 key={message.id}
                 className={`rounded-lg border bg-surface p-5 ${
-                  message.handled ? 'border-line opacity-70' : 'border-primary/25'
+                  message.handled ? 'border-line opacity-70' : 'border-primary-text/25'
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -136,7 +136,7 @@ export default async function AdminRequestsPage() {
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                  <a href={`mailto:${message.email}`} className="text-primary hover:underline">
+                  <a href={`mailto:${message.email}`} className="text-primary-text hover:underline">
                     {message.email}
                   </a>
                   {message.phone && <span className="text-fg-muted">{message.phone}</span>}

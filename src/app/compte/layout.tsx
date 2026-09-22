@@ -20,7 +20,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
     <div className="flex min-h-screen flex-col bg-canvas-subtle">
       <header className="border-b border-line bg-surface">
         <div className="container-page flex h-16 items-center justify-between gap-4">
-          <Link href="/" className="text-lg font-bold tracking-[0.12em] text-primary">
+          <Link href="/" className="text-lg font-bold tracking-[0.12em] text-primary-text">
             {settings.site_name}
           </Link>
 
@@ -28,12 +28,12 @@ export default async function AccountLayout({ children }: { children: React.Reac
             {isAdmin && (
               <Link
                 href="/admin"
-                className="hidden rounded-md border border-primary/40 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary-subtle sm:block"
+                className="hidden rounded-md border border-primary-text/40 px-3 py-1.5 text-sm font-medium text-primary-text transition-colors hover:bg-primary-subtle sm:block"
               >
                 Administration
               </Link>
             )}
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-subtle text-sm font-semibold text-primary">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-subtle text-sm font-semibold text-primary-text">
               {initials(user.profile.full_name ?? user.email)}
             </span>
             <form action={signOut}>

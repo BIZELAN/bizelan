@@ -112,7 +112,7 @@ export default async function AdminOrdersPage({
                 <Td>
                   <Link
                     href={`/admin/commandes/${order.id}`}
-                    className="font-mono text-xs font-semibold text-primary hover:underline"
+                    className="font-mono text-xs font-semibold text-primary-text hover:underline"
                   >
                     {order.reference}
                   </Link>

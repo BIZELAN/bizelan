@@ -43,7 +43,7 @@ export function SignInForm({ next }: { next: string }) {
       <div className="text-right">
         <Link
           href="/mot-de-passe-oublie"
-          className="text-sm text-fg-muted underline underline-offset-4 hover:text-primary"
+          className="text-sm text-fg-muted underline underline-offset-4 hover:text-primary-text"
         >
           Mot de passe oublié ?
         </Link>

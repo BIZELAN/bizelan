@@ -154,7 +154,7 @@ export function ResourceManager({
           <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
             {resources.map((resource) => (
               <li key={resource.id} className="flex items-center gap-4 px-5 py-4">
-                <FileText className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                <FileText className="h-5 w-5 shrink-0 text-primary-text" aria-hidden />
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-fg">{resource.title}</p>
                   <p className="text-xs text-fg-subtle">

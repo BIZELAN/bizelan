@@ -85,10 +85,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 ))}
                 {order.discount_cents > 0 && (
                   <tr className="border-b border-line">
-                    <td className="py-3 text-primary">
+                    <td className="py-3 text-primary-text">
                       Remise {order.coupon_code ? `(${order.coupon_code})` : ''}
                     </td>
-                    <td className="py-3 text-right tabular-nums text-primary">
+                    <td className="py-3 text-right tabular-nums text-primary-text">
                       −{formatPrice(order.discount_cents, order.currency)}
                     </td>
                   </tr>
@@ -138,7 +138,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
                 <a
                   href={`mailto:${order.customer_email}`}
-                  className="break-all text-primary hover:underline"
+                  className="break-all text-primary-text hover:underline"
                 >
                   {order.customer_email}
                 </a>
@@ -148,7 +148,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   <Phone className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
                   <a
                     href={`tel:${order.customer_phone.replace(/\s/g, '')}`}
-                    className="text-primary hover:underline"
+                    className="text-primary-text hover:underline"
                   >
                     {order.customer_phone}
                   </a>
@@ -159,7 +159,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             {profile && (
               <Link
                 href={`/admin/clients/${profile.id}`}
-                className="mt-4 block text-sm font-medium text-primary hover:underline"
+                className="mt-4 block text-sm font-medium text-primary-text hover:underline"
               >
                 Voir la fiche client →
               </Link>

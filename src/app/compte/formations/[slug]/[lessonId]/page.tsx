@@ -45,7 +45,7 @@ export default async function LessonPage({
         <div>
           <Link
             href={`/compte/formations/${slug}`}
-            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary"
+            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary-text"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
             {course.title}
@@ -92,7 +92,7 @@ export default async function LessonPage({
         {lesson.resources && lesson.resources.length > 0 && (
           <section className="rounded-lg border border-line bg-surface p-6">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-              <Download className="h-5 w-5 text-primary" aria-hidden />
+              <Download className="h-5 w-5 text-primary-text" aria-hidden />
               Supports de cette leçon
             </h2>
             <ResourceList resources={lesson.resources} />
@@ -103,7 +103,7 @@ export default async function LessonPage({
           {previous ? (
             <Link
               href={`/compte/formations/${slug}/${previous.id}`}
-              className="text-sm font-medium text-fg-muted hover:text-primary"
+              className="text-sm font-medium text-fg-muted hover:text-primary-text"
             >
               ← {previous.title}
             </Link>
@@ -113,7 +113,7 @@ export default async function LessonPage({
           {next && (
             <Link
               href={`/compte/formations/${slug}/${next.id}`}
-              className="text-right text-sm font-medium text-fg-muted hover:text-primary"
+              className="text-right text-sm font-medium text-fg-muted hover:text-primary-text"
             >
               {next.title} →
             </Link>
@@ -148,7 +148,7 @@ export default async function LessonPage({
                           className={cn(
                             'flex items-start gap-2.5 rounded-md px-2 py-2 text-sm transition-colors',
                             current
-                              ? 'bg-primary-subtle font-medium text-primary'
+                              ? 'bg-primary-subtle font-medium text-primary-text'
                               : 'text-fg-muted hover:bg-surface',
                           )}
                         >

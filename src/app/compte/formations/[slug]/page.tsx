@@ -58,7 +58,7 @@ export default async function CourseOverviewPage({
       <div>
         <Link
           href="/compte"
-          className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary"
+          className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary-text"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Mes formations
@@ -73,7 +73,7 @@ export default async function CourseOverviewPage({
               {doneCount} leçon{doneCount > 1 ? 's' : ''} terminée{doneCount > 1 ? 's' : ''} sur{' '}
               {allLessons.length}
             </span>
-            <span className="text-sm font-bold tabular-nums text-primary">
+            <span className="text-sm font-bold tabular-nums text-primary-text">
               {enrollment.progress_percent}%
             </span>
           </div>
@@ -92,12 +92,12 @@ export default async function CourseOverviewPage({
       </div>
 
       {enrollment.certificate_code && (
-        <div className="flex flex-col gap-4 rounded-lg border-2 border-primary/40 bg-primary-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-lg border-2 border-primary-text/40 bg-primary-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-4">
-            <Award className="h-10 w-10 shrink-0 text-primary" aria-hidden />
+            <Award className="h-10 w-10 shrink-0 text-primary-text" aria-hidden />
             <div>
-              <h2 className="font-semibold text-primary">Formation terminée</h2>
-              <p className="mt-0.5 text-sm text-primary">
+              <h2 className="font-semibold text-primary-text">Formation terminée</h2>
+              <p className="mt-0.5 text-sm text-primary-text">
                 Votre certificat est disponible — n° {enrollment.certificate_code}
               </p>
             </div>
@@ -123,7 +123,7 @@ export default async function CourseOverviewPage({
       {course.resources && course.resources.length > 0 && (
         <section className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <Download className="h-5 w-5 text-primary" aria-hidden />
+            <Download className="h-5 w-5 text-primary-text" aria-hidden />
             Vos supports de travail
           </h2>
           <ResourceList resources={course.resources} />
@@ -140,7 +140,7 @@ export default async function CourseOverviewPage({
               <div key={courseModule.id} className="overflow-hidden rounded-lg border border-line bg-surface">
                 <div className="flex items-center justify-between gap-4 border-b border-line bg-canvas-subtle px-5 py-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary-text">
                       Module {mi + 1}
                     </p>
                     <h3 className="mt-0.5 font-semibold text-fg">{courseModule.title}</h3>

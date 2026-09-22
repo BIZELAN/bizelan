@@ -31,7 +31,7 @@ export default async function SignUpPage({
           Vous avez déjà un compte ?{' '}
           <Link
             href={`/connexion${suivant ? `?suivant=${encodeURIComponent(suivant)}` : ''}`}
-            className="font-medium text-primary underline underline-offset-4 hover:text-primary-hover"
+            className="font-medium text-primary-text underline underline-offset-4 hover:text-primary-hover"
           >
             Se connecter
           </Link>

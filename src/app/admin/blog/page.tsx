@@ -61,7 +61,7 @@ export default async function AdminBlogPage() {
                 <Td>
                   <Link
                     href={`/admin/blog/${post.id}`}
-                    className="block font-medium text-fg hover:text-primary"
+                    className="block font-medium text-fg hover:text-primary-text"
                   >
                     {post.title}
                   </Link>
@@ -79,7 +79,7 @@ export default async function AdminBlogPage() {
                       <Link
                         href={`/blog/${post.slug}`}
                         target="_blank"
-                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
+                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                         title="Voir l’article"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />

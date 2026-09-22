@@ -39,9 +39,9 @@ export default async function CertificatePage({
       </div>
 
       <div className="rounded-2xl border-4 border-brand-700 bg-white p-8 text-center sm:p-14">
-        <Award className="mx-auto h-14 w-14 text-primary" aria-hidden />
+        <Award className="mx-auto h-14 w-14 text-primary-text" aria-hidden />
 
-        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-primary-text">
           Certificat de fin de parcours
         </p>
 
@@ -51,7 +51,7 @@ export default async function CertificatePage({
         </p>
 
         <p className="mt-8 text-sm text-fg-subtle">pour avoir suivi avec succès la formation</p>
-        <p className="mt-2 text-xl font-semibold text-primary sm:text-2xl">
+        <p className="mt-2 text-xl font-semibold text-primary-text sm:text-2xl">
           {data.course.title}
         </p>
 

@@ -39,7 +39,7 @@ export default function GlobalError({
       )}
 
       <p className="mt-4 text-sm text-onDark-lo">
-        <Link href="/contact" className="underline underline-offset-4 hover:text-primary">
+        <Link href="/contact" className="underline underline-offset-4 hover:text-primary-text">
           Nous signaler le problème
         </Link>
       </p>

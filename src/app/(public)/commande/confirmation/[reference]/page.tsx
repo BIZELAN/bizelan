@@ -36,7 +36,7 @@ export default async function ConfirmationPage({
     <div className="container-page flex min-h-[70vh] items-center justify-center py-16">
       <div className="w-full max-w-lg text-center">
         {paid ? (
-          <CheckCircle2 className="mx-auto h-16 w-16 text-primary" aria-hidden />
+          <CheckCircle2 className="mx-auto h-16 w-16 text-primary-text" aria-hidden />
         ) : (
           <Clock className="mx-auto h-16 w-16 text-warning" aria-hidden />
         )}
@@ -75,7 +75,7 @@ export default async function ConfirmationPage({
         </div>
 
         {!paid && settings.bank_transfer_instructions && (
-          <div className="mt-6 rounded-lg bg-primary-subtle p-5 text-left text-sm leading-relaxed text-primary">
+          <div className="mt-6 rounded-lg bg-primary-subtle p-5 text-left text-sm leading-relaxed text-primary-text">
             <p className="mb-2 font-semibold">Pour finaliser votre paiement</p>
             {settings.bank_transfer_instructions}
             <p className="mt-3">
@@ -98,7 +98,7 @@ export default async function ConfirmationPage({
             Une question ?{' '}
             <a
               href={`mailto:${settings.email}?subject=Commande ${data.reference}`}
-              className="underline underline-offset-4 hover:text-primary"
+              className="underline underline-offset-4 hover:text-primary-text"
             >
               Écrivez-nous
             </a>

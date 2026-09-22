@@ -18,7 +18,7 @@ export const buttonVariants = cva(
   [
     'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium',
     'rounded-md transition-colors duration-fast',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text',
     'focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
     'disabled:pointer-events-none disabled:opacity-50',
   ],
@@ -30,8 +30,20 @@ export const buttonVariants = cva(
         outline: 'border border-line-control text-fg hover:bg-canvas-subtle',
         ghost: 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
         danger: 'bg-danger text-danger-fg hover:opacity-90 shadow-e1',
-        /** Réservé aux appels à l'action du site public — voir DESIGN_SYSTEM.md. */
-        accent: 'bg-accent text-accent-fg hover:bg-accent-hover shadow-e1',
+        /**
+         * L'action de conversion du site public : acheter, s'inscrire.
+         *
+         * Elle est BLEUE et non GreenYellow. Le vert-jaune est la signature
+         * de la marque — il ponctue, il ne peut pas porter tous les boutons
+         * sans saturer la page. Le bleu isole donc l'action qui engage.
+         *
+         * Le nom `accent` est conservé : 14 points d'appel s'y réfèrent, et
+         * il désigne bien un rôle — la couleur d'accentuation — et non un
+         * jeton. Les classes `bg-accent`/`text-accent-fg` qu'il portait
+         * auparavant n'existaient plus depuis le passage aux jetons de rôle :
+         * la variante rendait des boutons sans aucun fond.
+         */
+        accent: 'bg-secondary text-secondary-fg hover:bg-secondary-hover shadow-e1',
       },
       size: {
         sm: 'h-8 px-3 text-sm',

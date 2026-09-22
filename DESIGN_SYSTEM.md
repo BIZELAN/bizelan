@@ -43,11 +43,44 @@ composant.**
 | `--text` | `text-fg` | Texte principal |
 | `--text-muted` | `text-fg-muted` | Texte secondaire |
 | `--text-subtle` | `text-fg-subtle` | Méta, légende, horodatage |
-| `--primary` | `bg-primary` / `text-primary` | Action principale, lien |
-| `--primary-hover` | `hover:bg-primary-hover` | Survol de l'action principale |
+| `--primary` | `bg-primary` | **Aplat** GreenYellow — jamais du texte |
+| `--primary-text` | `text-primary-text`, `border-primary-text` | **Texte, icône, bordure, anneau** |
+| `--primary-hover` | `hover:bg-primary-hover` | Survol de l'aplat |
 | `--primary-fg` | `text-primary-fg` | Texte posé sur `--primary` |
 | `--primary-subtle` | `bg-primary-subtle` | Fond doux de marque |
+| `--secondary` | `bg-secondary` | Aplat bleu — action de conversion |
+| `--secondary-text` | `text-secondary-text` | Texte et icône bleus |
+| `--secondary-fg` | `text-secondary-fg` | Texte posé sur `--secondary` |
+| `--secondary-subtle` | `bg-secondary-subtle` | Fond doux bleu |
 | `--success` … `--info` | `text-success`, `bg-success-subtle`, … | Statuts |
+
+### GreenYellow se remplit, il ne s'écrit pas
+
+C'est la contrainte structurante de la palette. `#ADFF2F` a une luminance de
+**0,806** : posé en aplat sous du texte sombre il donne 15,22:1, mais employé
+comme couleur de texte sur une page claire il tombe à **1,15:1** — illisible.
+
+Un même jeton ne peut donc pas servir les deux usages, et le rôle est scindé :
+
+- `bg-primary` — boutons, pastilles, jauges, tout ce qui est **rempli** ;
+- `text-primary-text` — liens, icônes, bordures, anneaux de focus, tout ce qui
+  est **tracé**. Il vaut `#517800` en thème clair (4,88:1) et redevient
+  GreenYellow en thème sombre (15,67:1), où la luminosité joue enfin pour nous.
+
+Écrire `text-primary` est donc une erreur : la classe existe encore pour les
+rares aplats textuels, mais aucun texte de l'interface ne doit s'y référer.
+
+### Le bleu porte l'action qui engage
+
+La variante `accent` du bouton — acheter, s'inscrire — est **bleue**, pas
+GreenYellow. Le vert-jaune est la signature : il ponctue une page, il ne peut
+pas porter tous ses boutons sans la saturer. Le bleu isole l'action qui engage
+et lui rend sa visibilité.
+
+Le nom `accent` désigne ici un **rôle** — la couleur d'accentuation — et non un
+jeton `--accent`, qui n'existe pas. Seule exception conservée de l'échelle
+héritée : `accent-400`, l'or des étoiles de notation, qu'aucun jeton de rôle ne
+remplace.
 
 ### La couleur vive est réservée aux actions et aux statuts
 
@@ -67,16 +100,21 @@ contrasté.
 
 ### Contrastes mesurés
 
-**30 paires vérifiées sur les deux thèmes, toutes conformes.** Extraits :
+**24 paires vérifiées sur chacun des deux thèmes, toutes conformes.** Extraits :
 
 | Paire | Clair | Sombre | Seuil |
 |---|---|---|---|
 | Texte principal / surface | 18,66 | 15,39 | 4,5 |
-| Texte secondaire / surface | 7,23 | 7,73 | 4,5 |
-| Texte tertiaire / surface | 4,96 | 4,98 | 4,5 |
-| Texte de bouton / primaire | 8,87 | 7,09 | 4,5 |
-| Bordure de contrôle / surface | 3,27 | 3,51 | 3,0 |
-| Bordure de contrôle / fond | 3,07 | 3,46 | 3,0 |
+| Lien ou icône / surface | 5,20 | 14,31 | 4,5 |
+| Texte de bouton / aplat primaire | 15,22 | 15,22 | 4,5 |
+| Bleu / surface | 6,03 | 8,12 | 4,5 |
+| Texte / aplat bleu | 6,03 | 8,99 | 4,5 |
+| Bordure de contrôle / fond | 3,07 | 3,84 | 3,0 |
+| Anneau de focus / surface | 5,20 | 14,31 | 3,0 |
+
+La mesure est reproductible : elle lit les jetons dans `globals.css` plutôt que
+de les recopier, et aplatit les couleurs semi-opaques sur leur fond avant de
+calculer — sans quoi un `text-primary-fg/80` serait surévalué.
 
 Le blanc pur est écarté du texte sombre au profit d'un blanc cassé verdâtre
 (`#eaf2ed`) : il provoque un halo sur fond sombre, pour 2 points de contraste

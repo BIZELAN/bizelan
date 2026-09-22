@@ -64,7 +64,7 @@ export function CurriculumEditor({
                   aria-hidden
                 />
                 <span className="min-w-0">
-                  <span className="block text-xs font-semibold uppercase tracking-wider text-primary">
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-primary-text">
                     Module {index + 1}
                   </span>
                   <span className="block font-semibold text-fg">{courseModule.title}</span>
@@ -182,7 +182,7 @@ export function CurriculumEditor({
       })}
 
       {openModuleForm === 'new' ? (
-        <div className="rounded-lg border border-primary/40 bg-primary-subtle p-5">
+        <div className="rounded-lg border border-primary-text/40 bg-primary-subtle p-5">
           <h3 className="mb-4 font-semibold text-fg">Nouveau module</h3>
           <ModuleForm
             courseId={courseId}

@@ -33,7 +33,7 @@ export function ClientAccessPanel({
   return (
     <section className="rounded-lg border border-line bg-surface p-6">
       <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-        <KeyRound className="h-5 w-5 text-primary" aria-hidden />
+        <KeyRound className="h-5 w-5 text-primary-text" aria-hidden />
         Accès aux formations
       </h2>
 

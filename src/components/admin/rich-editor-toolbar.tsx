@@ -66,7 +66,7 @@ function ToolButton({
         'inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors',
         'disabled:cursor-not-allowed disabled:opacity-40',
         active
-          ? 'bg-primary-subtle text-primary'
+          ? 'bg-primary-subtle text-primary-text'
           : 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
       )}
     >
@@ -151,7 +151,7 @@ function Popover({
         className={cn(
           'inline-flex h-8 items-center gap-1 rounded-md px-1.5 transition-colors',
           active || open
-            ? 'bg-primary-subtle text-primary'
+            ? 'bg-primary-subtle text-primary-text'
             : 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
         )}
       >
@@ -200,7 +200,7 @@ function UrlForm({
           }
         }}
         placeholder={placeholder}
-        className="min-w-0 flex-1 rounded-md border border-line-strong bg-canvas px-2.5 py-1.5 text-sm text-fg placeholder:text-fg-subtle outline-none focus:border-primary"
+        className="min-w-0 flex-1 rounded-md border border-line-strong bg-canvas px-2.5 py-1.5 text-sm text-fg placeholder:text-fg-subtle outline-none focus:border-primary-text"
       />
       <button
         type="button"
@@ -320,7 +320,7 @@ export function RichEditorToolbar({
           value={blockValue}
           onChange={(e) => setBlock(e.target.value)}
           title="Niveau de texte"
-          className="h-8 rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary"
+          className="h-8 rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary-text"
         >
           <option value="p">Paragraphe</option>
           <option value="h2">Titre 1</option>
@@ -338,7 +338,7 @@ export function RichEditorToolbar({
             else editor.chain().focus().unsetFontFamily().run()
           }}
           title="Police"
-          className="h-8 max-w-[10rem] rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary"
+          className="h-8 max-w-[10rem] rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary-text"
         >
           {FONT_FAMILIES.map((font) => (
             <option key={font.label} value={font.value}>
@@ -356,7 +356,7 @@ export function RichEditorToolbar({
             else editor.chain().focus().unsetFontSize().run()
           }}
           title="Taille du texte"
-          className="h-8 rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary"
+          className="h-8 rounded-md border border-line bg-surface px-2 text-sm text-fg outline-none hover:border-line-strong focus:border-primary-text"
         >
           {FONT_SIZES.map((size) => (
             <option key={size || 'auto'} value={size}>
@@ -541,7 +541,7 @@ export function RichEditorToolbar({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-line-strong px-3 py-2.5 text-sm font-medium text-fg-muted hover:border-primary hover:bg-primary-subtle"
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-line-strong px-3 py-2.5 text-sm font-medium text-fg-muted hover:border-primary-text hover:bg-primary-subtle"
               >
                 <Upload className="h-4 w-4" aria-hidden />
                 Téléverser une image
@@ -698,7 +698,7 @@ function ImageOptions({ editor }: { editor: Editor }) {
     <Row label="Image">
       {[25, 50, 75, 100].map((width) => (
         <TextButton key={width} onClick={() => update({ width })}>
-          <span className={cn(attrs.width === width && 'font-bold text-primary')}>{width} %</span>
+          <span className={cn(attrs.width === width && 'font-bold text-primary-text')}>{width} %</span>
         </TextButton>
       ))}
       <Divider />
@@ -710,7 +710,7 @@ function ImageOptions({ editor }: { editor: Editor }) {
         ] as const
       ).map(([value, label]) => (
         <TextButton key={value} onClick={() => update({ align: value })}>
-          <span className={cn(attrs.align === value && 'font-bold text-primary')}>{label}</span>
+          <span className={cn(attrs.align === value && 'font-bold text-primary-text')}>{label}</span>
         </TextButton>
       ))}
       <Divider />
@@ -718,13 +718,13 @@ function ImageOptions({ editor }: { editor: Editor }) {
         value={(attrs.alt as string) ?? ''}
         onChange={(e) => update({ alt: e.target.value })}
         placeholder="Texte alternatif (accessibilité)"
-        className="h-7 w-52 rounded-md border border-line px-2 text-xs outline-none focus:border-primary"
+        className="h-7 w-52 rounded-md border border-line px-2 text-xs outline-none focus:border-primary-text"
       />
       <input
         value={(attrs.title as string) ?? ''}
         onChange={(e) => update({ title: e.target.value })}
         placeholder="Légende affichée"
-        className="h-7 w-44 rounded-md border border-line px-2 text-xs outline-none focus:border-primary"
+        className="h-7 w-44 rounded-md border border-line px-2 text-xs outline-none focus:border-primary-text"
       />
       <TextButton tone="danger" onClick={() => editor.chain().focus().deleteSelection().run()}>
         Supprimer
@@ -742,7 +742,7 @@ function CtaOptions({ editor }: { editor: Editor }) {
         value={(attrs.href as string) ?? ''}
         onChange={(e) => editor.chain().focus().updateCtaButton({ href: e.target.value }).run()}
         placeholder="Lien du bouton (/commande/…)"
-        className="h-7 w-56 rounded-md border border-line px-2 text-xs outline-none focus:border-primary"
+        className="h-7 w-56 rounded-md border border-line px-2 text-xs outline-none focus:border-primary-text"
       />
       <Divider />
       {CTA_VARIANTS.map((variant) => (
@@ -750,7 +750,7 @@ function CtaOptions({ editor }: { editor: Editor }) {
           key={variant.value}
           onClick={() => editor.chain().focus().updateCtaButton({ variant: variant.value }).run()}
         >
-          <span className={cn(attrs.variant === variant.value && 'font-bold text-primary')}>
+          <span className={cn(attrs.variant === variant.value && 'font-bold text-primary-text')}>
             {variant.label}
           </span>
         </TextButton>
@@ -767,7 +767,7 @@ function CtaOptions({ editor }: { editor: Editor }) {
           key={value}
           onClick={() => editor.chain().focus().updateCtaButton({ align: value }).run()}
         >
-          <span className={cn(attrs.align === value && 'font-bold text-primary')}>{label}</span>
+          <span className={cn(attrs.align === value && 'font-bold text-primary-text')}>{label}</span>
         </TextButton>
       ))}
     </Row>

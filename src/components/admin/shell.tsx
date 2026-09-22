@@ -23,7 +23,7 @@ export function PageHeader({
       {backHref && (
         <Link
           href={backHref}
-          className="mb-4 inline-flex items-center gap-1.5 text-base font-medium text-fg-muted transition-colors hover:text-primary"
+          className="mb-4 inline-flex items-center gap-1.5 text-base font-medium text-fg-muted transition-colors hover:text-primary-text"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           {backLabel ?? 'Retour'}
@@ -116,8 +116,8 @@ export function StatCard({
           <span
             className={cn(
               'flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
-              tone === 'brand' && 'bg-primary-subtle text-primary',
-              tone === 'accent' && 'bg-accent/10 text-accent',
+              tone === 'brand' && 'bg-primary-subtle text-primary-text',
+              tone === 'accent' && 'bg-secondary-subtle text-secondary-text',
               tone === 'neutral' && 'bg-canvas-subtle text-fg-muted',
             )}
           >

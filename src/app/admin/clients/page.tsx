@@ -79,7 +79,7 @@ export default async function AdminClientsPage({
                   <Td>
                     <Link
                       href={`/admin/clients/${profile.id}`}
-                      className="block font-medium text-fg hover:text-primary"
+                      className="block font-medium text-fg hover:text-primary-text"
                     >
                       {profile.full_name ?? '—'}
                     </Link>

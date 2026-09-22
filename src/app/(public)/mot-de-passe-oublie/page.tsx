@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
         )}
 
         <p className="mt-6 text-center text-sm text-fg-muted">
-          <Link href="/connexion" className="underline underline-offset-4 hover:text-primary">
+          <Link href="/connexion" className="underline underline-offset-4 hover:text-primary-text">
             Retour à la connexion
           </Link>
         </p>

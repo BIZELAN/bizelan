@@ -92,7 +92,7 @@ export default async function AdminCoursesPage() {
                     <div className="min-w-0">
                       <Link
                         href={`/admin/formations/${course.id}`}
-                        className="block font-medium text-fg hover:text-primary"
+                        className="block font-medium text-fg hover:text-primary-text"
                       >
                         {course.title}
                       </Link>
@@ -111,7 +111,7 @@ export default async function AdminCoursesPage() {
                   <div className="flex items-center justify-end gap-1.5">
                     <Link
                       href={`/admin/formations/${course.id}/programme`}
-                      className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
+                      className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                       title="Gérer le programme"
                     >
                       <Settings2 className="h-4 w-4" aria-hidden />
@@ -120,7 +120,7 @@ export default async function AdminCoursesPage() {
                       <Link
                         href={`/formations/${course.slug}`}
                         target="_blank"
-                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
+                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                         title="Voir sur le site"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />

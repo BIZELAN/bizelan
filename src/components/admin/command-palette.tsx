@@ -142,7 +142,7 @@ export function CommandPalette() {
                     >
                       {Icon && (
                         <Icon
-                          className={cn('h-4 w-4 shrink-0', active ? 'text-primary' : 'text-fg-subtle')}
+                          className={cn('h-4 w-4 shrink-0', active ? 'text-primary-text' : 'text-fg-subtle')}
                           aria-hidden
                         />
                       )}

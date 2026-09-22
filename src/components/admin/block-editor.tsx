@@ -126,7 +126,7 @@ export function BlockEditor({
                 key={block.id}
                 className={cn(
                   'overflow-hidden rounded-lg border bg-surface transition-colors',
-                  isOpen ? 'border-primary shadow-e1' : 'border-line',
+                  isOpen ? 'border-primary-text shadow-e1' : 'border-line',
                   block.hidden && 'opacity-60',
                 )}
               >
@@ -139,7 +139,7 @@ export function BlockEditor({
                     className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
                     aria-expanded={isOpen}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+                    <Icon className="h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-fg">
                         {def?.label ?? block.type}
@@ -257,7 +257,7 @@ export function BlockEditor({
                         key={def.type}
                         type="button"
                         onClick={() => add(def.type)}
-                        className="rounded-md border border-line p-3.5 text-left transition-colors hover:border-primary hover:bg-primary-subtle"
+                        className="rounded-md border border-line p-3.5 text-left transition-colors hover:border-primary-text hover:bg-primary-subtle"
                       >
                         <span className="block text-sm font-semibold text-fg">{def.label}</span>
                         <span className="mt-0.5 block text-xs leading-relaxed text-fg-subtle">
@@ -564,7 +564,7 @@ function InlineImage({ value, onChange }: { value: string; onChange: (v: string)
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex h-24 w-full max-w-xs items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-canvas-subtle text-sm text-fg-subtle transition-colors hover:border-primary hover:bg-primary-subtle hover:text-primary disabled:opacity-60"
+          className="flex h-24 w-full max-w-xs items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-canvas-subtle text-sm text-fg-subtle transition-colors hover:border-primary-text hover:bg-primary-subtle hover:text-primary-text disabled:opacity-60"
         >
           {uploading ? (
             <>

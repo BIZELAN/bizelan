@@ -88,7 +88,7 @@ function Hero({ settings, course }: { settings: SiteSettings; course: Course | n
                 <>
                   Structurez votre projet.
                   <br />
-                  <span className="text-primary">Convainquez vos partenaires.</span>
+                  <span className="text-primary-text">Convainquez vos partenaires.</span>
                 </>
               )}
             </h1>
@@ -112,7 +112,7 @@ function Hero({ settings, course }: { settings: SiteSettings; course: Course | n
               {['Paiement Mobile Money', 'Accès à vie', 'Modèles Excel & Word inclus'].map(
                 (item) => (
                   <li key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" aria-hidden />
+                    <CheckCircle2 className="h-4 w-4 text-primary-text" aria-hidden />
                     {item}
                   </li>
                 ),
@@ -161,7 +161,7 @@ function ProofBand({
       <div className="container-page grid grid-cols-2 gap-8 py-12 lg:grid-cols-4">
         {metrics.map((metric) => (
           <div key={metric.label} className="text-center">
-            <p className="text-2xl font-bold text-primary">{metric.value}</p>
+            <p className="text-2xl font-bold text-primary-text">{metric.value}</p>
             <p className="mt-1.5 text-base text-fg-subtle">{metric.label}</p>
           </div>
         ))}
@@ -206,7 +206,7 @@ function Approach() {
           {PILLARS.map(({ icon: Icon, title, text }, index) => (
             <Reveal key={title} delay={index * 90}>
               <Card className="h-full p-7">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-primary-subtle text-primary ring-1 ring-primary/25">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-primary-subtle text-primary-text ring-1 ring-primary-text/25">
                   <Icon className="h-6 w-6" aria-hidden />
                 </span>
                 <h3 className="mt-5 text-lg text-fg">{title}</h3>
@@ -236,7 +236,7 @@ function Courses({ courses }: { courses: Course[] }) {
           action={
             <Link
               href="/formations"
-              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:text-primary-hover"
+              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary-text hover:text-primary-hover"
             >
               Tout le catalogue
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -318,11 +318,11 @@ function Method() {
               {STEPS.map(({ icon: Icon, title, text }, index) => (
                 <Reveal key={title} delay={index * 90}>
                   <li className="flex gap-5">
-                    <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-canvas-subtle text-primary ring-1 ring-line-strong">
+                    <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-canvas-subtle text-primary-text ring-1 ring-line-strong">
                       <Icon className="h-5 w-5" aria-hidden />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary-text">
                         Étape {String(index + 1).padStart(2, '0')}
                       </p>
                       <h3 className="mt-1 text-lg text-fg">{title}</h3>
@@ -355,7 +355,7 @@ function Services({ services }: { services: Service[] }) {
           action={
             <Link
               href="/services"
-              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:text-primary-hover"
+              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary-text hover:text-primary-hover"
             >
               Voir tous les services
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -397,7 +397,7 @@ function Testimonials({ reviews }: { reviews: Review[] }) {
               key={review.id}
               className="flex h-full flex-col rounded-lg bg-surface p-7 ring-1 ring-line"
             >
-              <Quote className="h-7 w-7 text-primary/50" aria-hidden />
+              <Quote className="h-7 w-7 text-primary-text/50" aria-hidden />
               {review.comment && (
                 <blockquote className="mt-4 flex-1 text-base leading-relaxed text-fg-muted">
                   {review.comment}
@@ -436,7 +436,7 @@ function Journal({ posts }: { posts: Post[] }) {
           action={
             <Link
               href="/blog"
-              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:text-primary-hover"
+              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary-text hover:text-primary-hover"
             >
               Tous les articles
               <ArrowRight className="h-4 w-4" aria-hidden />

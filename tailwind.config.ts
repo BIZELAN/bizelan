@@ -26,11 +26,29 @@ const config: Config = {
           muted: 'rgb(var(--text-muted) / <alpha-value>)',
           subtle: 'rgb(var(--text-subtle) / <alpha-value>)',
         },
+        /**
+         * `primary` est un REMPLISSAGE, `primary-text` un TEXTE.
+         *
+         * GreenYellow a une luminance de 0,806 : superbe en aplat sous du
+         * texte sombre (15,2:1), illisible en texte sur fond clair (1,15:1).
+         * Les deux rôles ne peuvent donc pas partager une valeur.
+         * Règle : `bg-primary` pour les aplats, `text-primary-text` pour les
+         * liens, icônes et bordures.
+         */
         primary: {
           DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
           hover: 'rgb(var(--primary-hover) / <alpha-value>)',
           fg: 'rgb(var(--primary-fg) / <alpha-value>)',
           subtle: 'rgb(var(--primary-subtle) / <alpha-value>)',
+          text: 'rgb(var(--primary-text) / <alpha-value>)',
+        },
+        /** Bleu : actions de second rang, liens de navigation. */
+        secondary: {
+          DEFAULT: 'rgb(var(--secondary) / <alpha-value>)',
+          hover: 'rgb(var(--secondary-hover) / <alpha-value>)',
+          fg: 'rgb(var(--secondary-fg) / <alpha-value>)',
+          subtle: 'rgb(var(--secondary-subtle) / <alpha-value>)',
+          text: 'rgb(var(--secondary-text) / <alpha-value>)',
         },
         success: {
           DEFAULT: 'rgb(var(--success) / <alpha-value>)',

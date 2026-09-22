@@ -213,7 +213,7 @@ export function CheckoutForm(props: CheckoutProps) {
           </div>
 
           {method === 'bank_transfer' && props.transferInstructions && (
-            <div className="mt-5 rounded-md bg-primary-subtle px-4 py-3.5 text-sm leading-relaxed text-primary">
+            <div className="mt-5 rounded-md bg-primary-subtle px-4 py-3.5 text-sm leading-relaxed text-primary-text">
               {props.transferInstructions}
             </div>
           )}
@@ -222,7 +222,7 @@ export function CheckoutForm(props: CheckoutProps) {
         {/* Code promo */}
         <div className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <Tag className="h-5 w-5 text-primary" aria-hidden />
+            <Tag className="h-5 w-5 text-primary-text" aria-hidden />
             Code promo
           </h2>
           <div className="flex gap-3">
@@ -245,7 +245,7 @@ export function CheckoutForm(props: CheckoutProps) {
             <p
               className={cn(
                 'mt-2.5 text-sm',
-                couponState.valid ? 'font-medium text-primary' : 'text-danger',
+                couponState.valid ? 'font-medium text-primary-text' : 'text-danger',
               )}
             >
               {couponState.message}
@@ -254,8 +254,8 @@ export function CheckoutForm(props: CheckoutProps) {
         </div>
 
         {/* Récapitulatif */}
-        <div className="rounded-lg border-2 border-primary/40 bg-primary-subtle p-6">
-          <h2 className="mb-4 text-lg font-semibold text-primary">Récapitulatif</h2>
+        <div className="rounded-lg border-2 border-primary-text/40 bg-primary-subtle p-6">
+          <h2 className="mb-4 text-lg font-semibold text-primary-text">Récapitulatif</h2>
           <dl className="space-y-2.5 text-[0.9375rem]">
             <div className="flex justify-between gap-4">
               <dt className="text-fg-muted">{props.courseTitle}</dt>
@@ -265,15 +265,15 @@ export function CheckoutForm(props: CheckoutProps) {
             </div>
             {discount > 0 && (
               <div className="flex justify-between gap-4">
-                <dt className="text-primary">Remise</dt>
-                <dd className="shrink-0 tabular-nums text-primary">
+                <dt className="text-primary-text">Remise</dt>
+                <dd className="shrink-0 tabular-nums text-primary-text">
                   -{formatPrice(discount, props.currency)}
                 </dd>
               </div>
             )}
-            <div className="flex justify-between gap-4 border-t border-primary/25 pt-3 text-lg font-bold">
-              <dt className="text-primary">Total</dt>
-              <dd className="shrink-0 tabular-nums text-primary">
+            <div className="flex justify-between gap-4 border-t border-primary-text/25 pt-3 text-lg font-bold">
+              <dt className="text-primary-text">Total</dt>
+              <dd className="shrink-0 tabular-nums text-primary-text">
                 {formatPrice(total, props.currency)}
               </dd>
             </div>
@@ -290,7 +290,7 @@ export function CheckoutForm(props: CheckoutProps) {
             </Button>
           </div>
 
-          <p className="mt-4 text-center text-xs leading-relaxed text-primary">
+          <p className="mt-4 text-center text-xs leading-relaxed text-primary-text">
             En validant, vous acceptez nos conditions générales de vente. Vérifiez toujours le
             montant avant de confirmer sur votre téléphone.
           </p>
@@ -321,19 +321,19 @@ function PaymentOption({
       className={cn(
         'flex w-full gap-4 rounded-lg border-2 p-4 text-left transition-colors',
         selected
-          ? 'border-primary bg-primary-subtle'
+          ? 'border-primary-text bg-primary-subtle'
           : 'border-line bg-surface hover:border-line-strong hover:bg-surface',
       )}
     >
       <span
         className={cn(
           'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
-          selected ? 'border-primary' : 'border-line-strong',
+          selected ? 'border-primary-text' : 'border-line-strong',
         )}
       >
         {selected && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
       </span>
-      <Icon className={cn('h-6 w-6 shrink-0', selected ? 'text-primary' : 'text-fg-subtle')} aria-hidden />
+      <Icon className={cn('h-6 w-6 shrink-0', selected ? 'text-primary-text' : 'text-fg-subtle')} aria-hidden />
       <span className="min-w-0">
         <span className="block font-semibold text-fg">{title}</span>
         <span className="mt-0.5 block text-sm leading-relaxed text-fg-muted">{description}</span>

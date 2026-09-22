@@ -89,7 +89,7 @@ export function AdminNav({
                       <Icon
                         className={cn(
                           'relative h-4 w-4 shrink-0',
-                          active ? 'text-primary' : 'text-fg-subtle',
+                          active ? 'text-primary-text' : 'text-fg-subtle',
                         )}
                         aria-hidden
                       />

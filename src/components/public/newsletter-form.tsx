@@ -29,7 +29,7 @@ export function NewsletterForm() {
 
   if (state?.ok) {
     return (
-      <p className="flex items-center gap-2 text-sm text-primary">
+      <p className="flex items-center gap-2 text-sm text-primary-text">
         <Check className="h-4 w-4 shrink-0" aria-hidden />
         {state.message}
       </p>
@@ -46,7 +46,7 @@ export function NewsletterForm() {
           required
           placeholder="votre@email.com"
           aria-label="Votre adresse e-mail"
-          className="min-w-0 flex-1 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base text-fg placeholder:text-fg-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="min-w-0 flex-1 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base text-fg placeholder:text-fg-subtle focus:border-primary-text focus:outline-none focus:ring-1 focus:ring-primary-text"
         />
         <Submit />
       </div>

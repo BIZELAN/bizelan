@@ -150,7 +150,7 @@ export function RichEditor({
   const words = editor?.storage.characterCount?.words?.() ?? 0
 
   return (
-    <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-e1 focus-within:border-primary">
+    <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-e1 focus-within:border-primary-text">
       {name && <input type="hidden" name={name} value={serialized} />}
 
       {editor && (

@@ -62,7 +62,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <div className="container-page relative pb-16 pt-10 sm:pb-20">
             <Link
               href="/blog"
-              className="mb-8 inline-flex items-center gap-1.5 text-base font-medium text-fg-muted transition-colors hover:text-primary"
+              className="mb-8 inline-flex items-center gap-1.5 text-base font-medium text-fg-muted transition-colors hover:text-primary-text"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden />
               Tous les articles

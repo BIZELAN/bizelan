@@ -265,7 +265,7 @@ export function CourseForm({
           <Link
             href={`/formations/${course.slug}`}
             target="_blank"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-hover"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-text hover:text-primary-hover"
           >
             <ExternalLink className="h-4 w-4" aria-hidden />
             Voir sur le site

@@ -71,7 +71,7 @@ export function ImageInput({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex h-32 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-canvas-subtle text-sm text-fg-subtle transition-colors hover:border-primary hover:bg-primary-subtle hover:text-primary disabled:opacity-60"
+          className="flex h-32 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-canvas-subtle text-sm text-fg-subtle transition-colors hover:border-primary-text hover:bg-primary-subtle hover:text-primary-text disabled:opacity-60"
         >
           {uploading ? (
             <>

@@ -93,7 +93,7 @@ export function AdminChrome({
           <Dialog.Content className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r border-line bg-surface shadow-e3 focus:outline-none data-[state=open]:animate-fade-in lg:hidden">
             <Dialog.Title className="sr-only">Navigation</Dialog.Title>
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-line px-4">
-              <span className="text-base font-semibold tracking-wide text-primary">{siteName}</span>
+              <span className="text-base font-semibold tracking-wide text-primary-text">{siteName}</span>
               <Dialog.Close className="inline-flex h-10 w-10 items-center justify-center rounded-md text-fg-muted transition-colors duration-fast hover:bg-canvas-subtle hover:text-fg">
                 <X className="h-5 w-5" aria-hidden />
                 <span className="sr-only">Fermer</span>
@@ -160,7 +160,7 @@ function SidebarHeader({ siteName, collapsed }: { siteName: string; collapsed: b
     >
       <Link
         href="/admin"
-        className="truncate text-base font-semibold tracking-wide text-primary"
+        className="truncate text-base font-semibold tracking-wide text-primary-text"
         title={siteName}
       >
         {collapsed ? siteName.charAt(0) : siteName}

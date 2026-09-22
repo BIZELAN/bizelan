@@ -28,8 +28,8 @@ export function Switch({
       className={cn(
         'peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-pill border transition-colors duration-fast',
         'border-line-control bg-canvas-subtle',
-        'data-[state=checked]:border-primary data-[state=checked]:bg-primary',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+        'data-[state=checked]:border-primary-text data-[state=checked]:bg-primary',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}

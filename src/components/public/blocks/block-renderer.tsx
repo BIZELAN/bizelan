@@ -195,14 +195,14 @@ async function HeroSplitBlock({ data }: { data: Record<string, unknown> }) {
     <section className="relative overflow-hidden bg-canvas">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute -top-56 left-1/3 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-primary/25 blur-3xl" />
-        <div className="absolute -bottom-40 right-0 h-[28rem] w-[28rem] rounded-full bg-accent-500/10 blur-3xl" />
+        <div className="absolute -bottom-40 right-0 h-[28rem] w-[28rem] rounded-full bg-secondary/10 blur-3xl" />
       </div>
 
       <div className="container-page relative py-20 sm:py-24 lg:py-28">
         <div className={cn('grid items-center gap-14', course && 'lg:grid-cols-[1.05fr_0.95fr]')}>
           <div>
             {f.str('badge') && (
-              <span className="inline-flex items-center gap-2 rounded-pill border border-white/15 bg-white/5 px-4 py-1.5 text-base font-medium text-primary">
+              <span className="inline-flex items-center gap-2 rounded-pill border border-line bg-primary-subtle px-4 py-1.5 text-base font-medium text-primary-text">
                 {f.str('badge')}
               </span>
             )}
@@ -212,7 +212,7 @@ async function HeroSplitBlock({ data }: { data: Record<string, unknown> }) {
               {f.str('highlight') && (
                 <>
                   <br />
-                  <span className="text-primary">{f.str('highlight')}</span>
+                  <span className="text-primary-text">{f.str('highlight')}</span>
                 </>
               )}
             </h1>
@@ -241,7 +241,7 @@ async function HeroSplitBlock({ data }: { data: Record<string, unknown> }) {
               <ul className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-fg-subtle">
                 {guarantees.map((item) => (
                   <li key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" aria-hidden />
+                    <CheckCircle2 className="h-4 w-4 text-primary-text" aria-hidden />
                     {item}
                   </li>
                 ))}
@@ -263,7 +263,9 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
   const theme = themeOf(f.str('theme', 'dark'))
   const align = f.str('align', 'center')
   const imageUrl = f.str('imageUrl')
-  const dark = theme !== 'light'
+  /* Seul `brand` est un fond fixe sombre : lui seul impose du texte clair.
+     `dark` suit desormais le theme via les jetons de role. */
+  const onBrand = theme === 'brand'
 
   return (
     <section className={cn('relative overflow-hidden', THEMES[theme])}>
@@ -281,14 +283,14 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
       >
         <div className={cn('max-w-3xl', align === 'center' && 'mx-auto')}>
           {f.str('badge') && (
-            <span className="mb-6 inline-block rounded-full bg-accent px-4 py-1.5 text-sm font-bold text-accent-fg">
+            <span className="mb-6 inline-block rounded-full bg-secondary px-4 py-1.5 text-sm font-bold text-secondary-fg">
               {f.str('badge')}
             </span>
           )}
           <h1
             className={cn(
               'text-3xl font-bold leading-[1.15] sm:text-4xl lg:text-5xl',
-              dark ? 'text-white' : 'text-fg',
+              onBrand ? 'text-brand-50' : 'text-fg',
             )}
           >
             {f.str('title')}
@@ -297,7 +299,7 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
             <p
               className={cn(
                 'mt-6 text-lg leading-relaxed sm:text-xl',
-                dark ? 'text-fg-subtle' : 'text-fg-muted',
+                onBrand ? 'text-brand-100' : 'text-fg-muted',
               )}
             >
               {f.str('subtitle')}
@@ -320,7 +322,7 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
                 <ButtonLink
                   href={f.str('secondaryCtaHref', '/')}
                   size="lg"
-                  variant={dark ? 'secondary' : 'outline'}
+                  variant={onBrand ? 'secondary' : 'outline'}
                 >
                   {f.str('secondaryCtaLabel')}
                 </ButtonLink>
@@ -386,14 +388,14 @@ function BeforeAfterBlock({ data }: { data: Record<string, unknown> }) {
               ))}
             </ul>
           </div>
-          <div className="rounded-2xl border-2 border-primary/40 bg-primary-subtle p-7">
-            <h3 className="mb-5 text-lg font-semibold text-primary">
+          <div className="rounded-2xl border-2 border-primary-text/40 bg-primary-subtle p-7">
+            <h3 className="mb-5 text-lg font-semibold text-primary-text">
               {f.str('afterTitle', 'Après')}
             </h3>
             <ul className="space-y-3.5">
               {after.map((item, i) => (
                 <li key={i} className="flex gap-3 font-medium text-fg">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" aria-hidden />
                   <span className="leading-relaxed">{item}</span>
                 </li>
               ))}
@@ -420,7 +422,7 @@ function ChecklistBlock({ data }: { data: Record<string, unknown> }) {
               {items.map((item, i) => (
                 <li key={i} className="flex gap-3.5">
                   <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-subtle">
-                    <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
+                    <Check className="h-3.5 w-3.5 text-primary-text" aria-hidden />
                   </span>
                   <span className="leading-relaxed text-fg">{item}</span>
                 </li>
@@ -470,7 +472,7 @@ function PhasesBlock({ data }: { data: Record<string, unknown> }) {
                   <ul className="space-y-3">
                     {asArray<string>(phase.bullets).map((b, j) => (
                       <li key={j} className="flex gap-3 text-fg-subtle">
-                        <Check className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                        <Check className="mt-1 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                         <span className="leading-relaxed">{b}</span>
                       </li>
                     ))}
@@ -498,7 +500,7 @@ function FeaturesBlock({ data }: { data: Record<string, unknown> }) {
             <div key={i} className="rounded-lg border border-line bg-canvas-subtle/60 p-6 text-center">
               {item.icon && (
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-subtle">
-                  <DynIcon name={item.icon} className="h-6 w-6 text-primary" />
+                  <DynIcon name={item.icon} className="h-6 w-6 text-primary-text" />
                 </div>
               )}
               <h3 className="text-lg font-semibold text-fg">{item.title}</h3>
@@ -527,17 +529,17 @@ function PricingBlock({ data, course }: { data: Record<string, unknown>; course:
   return (
     <section id={anchor} className="section scroll-mt-20 bg-canvas-subtle">
       <div className="container-page">
-        <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border-2 border-primary/40 bg-surface shadow-e3">
+        <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border-2 border-primary-text/40 bg-surface shadow-e3">
           <div className="bg-primary px-7 py-8 text-center text-primary-fg sm:px-10">
             {(f.str('badge') || discount) && (
-              <span className="mb-4 inline-block rounded-full bg-accent px-4 py-1.5 text-sm font-bold">
+              <span className="mb-4 inline-block rounded-full bg-secondary px-4 py-1.5 text-sm font-bold text-secondary-fg">
                 {f.str('badge') || `-${discount} %`}
               </span>
             )}
-            {f.str('note') && <p className="text-sm text-primary">{f.str('note')}</p>}
+            {f.str('note') && <p className="text-sm text-primary-text">{f.str('note')}</p>}
             <div className="mt-3 flex items-baseline justify-center gap-3">
               {compareAt && compareAt > price && (
-                <span className="text-xl text-primary line-through">
+                <span className="text-xl text-primary-text line-through">
                   {formatPrice(compareAt, course?.currency)}
                 </span>
               )}
@@ -556,7 +558,7 @@ function PricingBlock({ data, course }: { data: Record<string, unknown>; course:
                 <ul className="space-y-3">
                   {includes.map((item, i) => (
                     <li key={i} className="flex gap-2.5 text-[0.9375rem] text-fg">
-                      <Check className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-primary" aria-hidden />
+                      <Check className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-primary-text" aria-hidden />
                       <span className="leading-relaxed">{item}</span>
                     </li>
                   ))}
@@ -571,7 +573,7 @@ function PricingBlock({ data, course }: { data: Record<string, unknown>; course:
                 <ul className="space-y-3">
                   {outcomes.map((item, i) => (
                     <li key={i} className="flex gap-2.5 text-[0.9375rem] text-fg">
-                      <Check className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-primary" aria-hidden />
+                      <Check className="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-primary-text" aria-hidden />
                       <span className="leading-relaxed">{item}</span>
                     </li>
                   ))}
@@ -587,7 +589,7 @@ function PricingBlock({ data, course }: { data: Record<string, unknown>; course:
             </ButtonLink>
             {f.str('securityNote') && (
               <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-fg-subtle">
-                <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
+                <ShieldCheck className="h-4 w-4 text-primary-text" aria-hidden />
                 {f.str('securityNote')}
               </p>
             )}
@@ -614,9 +616,9 @@ function QuoteBlock({ data }: { data: Record<string, unknown> }) {
             />
           )}
           <div>
-            <QuoteIcon className="mx-auto mb-4 h-8 w-8 text-primary lg:mx-0" aria-hidden />
+            <QuoteIcon className="mx-auto mb-4 h-8 w-8 text-primary-text lg:mx-0" aria-hidden />
             <p className="text-xl font-medium leading-relaxed sm:text-2xl">{f.str('text')}</p>
-            {f.str('author') && <p className="mt-4 text-primary">— {f.str('author')}</p>}
+            {f.str('author') && <p className="mt-4 text-primary-text">— {f.str('author')}</p>}
             {f.str('ctaLabel') && (
               <div className="mt-7">
                 <ButtonLink href={f.str('ctaHref', '#offre')} variant="accent" size="lg">
@@ -650,7 +652,7 @@ function AboutBlock({ data }: { data: Record<string, unknown> }) {
               <ul className="mt-7 space-y-3.5">
                 {bullets.map((b, i) => (
                   <li key={i} className="flex gap-3">
-                    <Check className="mt-1 h-[1.125rem] w-[1.125rem] shrink-0 text-primary" aria-hidden />
+                    <Check className="mt-1 h-[1.125rem] w-[1.125rem] shrink-0 text-primary-text" aria-hidden />
                     <span className="leading-relaxed text-fg">{b}</span>
                   </li>
                 ))}
@@ -687,17 +689,17 @@ function FaqBlock({ data, course }: { data: Record<string, unknown>; course: Cou
 function CtaBlock({ data }: { data: Record<string, unknown> }) {
   const f = d(data)
   const theme = themeOf(f.str('theme', 'brand'))
-  const dark = theme !== 'light'
+  const onBrand = theme === 'brand'
 
   return (
     <section className={cn('section', THEMES[theme])}>
       <div className="container-page text-center">
-        <h2 className={cn('text-3xl sm:text-4xl', dark && 'text-fg')}>{f.str('title')}</h2>
+        <h2 className={cn('text-3xl sm:text-4xl', onBrand ? 'text-brand-50' : 'text-fg')}>{f.str('title')}</h2>
         {f.str('text') && (
           <p
             className={cn(
               'mx-auto mt-4 max-w-2xl text-lg leading-relaxed',
-              dark ? 'text-primary' : 'text-fg-muted',
+              onBrand ? 'text-brand-100' : 'text-fg-muted',
             )}
           >
             {f.str('text')}
@@ -742,7 +744,7 @@ function StatsBlock({ data }: { data: Record<string, unknown> }) {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((s, i) => (
             <div key={i} className="text-center">
-              <p className="text-3xl font-bold text-primary sm:text-4xl">{s.value}</p>
+              <p className="text-3xl font-bold text-primary-text sm:text-4xl">{s.value}</p>
               <p className="mt-1.5 text-sm text-fg-muted">{s.label}</p>
             </div>
           ))}
@@ -1009,7 +1011,7 @@ function ExpertsBlock({ data }: { data: Record<string, unknown> }) {
       <Avatar name={expert.name} src={expert.photoUrl || null} size="xl" />
       <figcaption className="mt-4">
         <p className="font-semibold text-fg">{expert.name}</p>
-        {expert.role && <p className="mt-0.5 text-xs text-primary">{expert.role}</p>}
+        {expert.role && <p className="mt-0.5 text-xs text-primary-text">{expert.role}</p>}
       </figcaption>
       {expert.bio && (
         <p className="mt-3 text-base leading-relaxed text-fg-muted">{expert.bio}</p>
@@ -1065,7 +1067,7 @@ function FreeContentBlock({ data }: { data: Record<string, unknown> }) {
               <Link
                 key={index}
                 href={href}
-                className="group flex flex-col overflow-hidden rounded-lg border border-line bg-surface transition-all hover:-translate-y-1 hover:border-primary/40"
+                className="group flex flex-col overflow-hidden rounded-lg border border-line bg-surface transition-all hover:-translate-y-1 hover:border-primary-text/40"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-canvas-subtle">
                   {item.imageUrl ? (
@@ -1085,7 +1087,7 @@ function FreeContentBlock({ data }: { data: Record<string, unknown> }) {
                   )}
                 </div>
                 <div className="flex flex-1 flex-col p-5">
-                  <h3 className="font-semibold leading-snug text-fg transition-colors group-hover:text-primary">
+                  <h3 className="font-semibold leading-snug text-fg transition-colors group-hover:text-primary-text">
                     {item.title}
                   </h3>
                   {item.description && (
@@ -1093,7 +1095,7 @@ function FreeContentBlock({ data }: { data: Record<string, unknown> }) {
                       {item.description}
                     </p>
                   )}
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-base font-semibold text-primary">
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-base font-semibold text-primary-text">
                     Accéder
                     <ArrowRight
                       className="h-4 w-4 transition-transform group-hover:translate-x-0.5"

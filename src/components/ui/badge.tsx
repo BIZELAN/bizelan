@@ -19,8 +19,8 @@ export const badgeVariants = cva(
     variants: {
       tone: {
         neutral: 'bg-canvas-subtle text-fg-muted ring-line',
-        primary: 'bg-primary-subtle text-primary ring-primary/25',
-        accent: 'bg-accent/10 text-accent ring-accent/25',
+        primary: 'bg-primary-subtle text-primary-text ring-primary-text/25',
+        accent: 'bg-secondary-subtle text-secondary-text ring-secondary-text/25',
         success: 'bg-success-subtle text-success ring-success/25',
         warning: 'bg-warning-subtle text-warning ring-warning/25',
         danger: 'bg-danger-subtle text-danger ring-danger/25',

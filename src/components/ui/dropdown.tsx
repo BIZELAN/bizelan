@@ -55,7 +55,7 @@ export function DropdownCheckboxItem({
   return (
     <RadixMenu.CheckboxItem className={cn(ITEM, 'pl-8', className)} {...props}>
       <RadixMenu.ItemIndicator className="absolute left-2.5">
-        <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
+        <Check className="h-3.5 w-3.5 text-primary-text" aria-hidden />
       </RadixMenu.ItemIndicator>
       {children}
     </RadixMenu.CheckboxItem>

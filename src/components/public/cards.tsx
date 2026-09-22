@@ -15,7 +15,7 @@ import { cn, discountPercent, formatDate, formatPrice, truncate } from '@/lib/ut
  */
 const SHELL =
   'group flex flex-col overflow-hidden rounded-lg bg-surface ring-1 ring-line ' +
-  'transition-all duration-200 hover:-translate-y-1 hover:ring-primary/40'
+  'transition-all duration-200 hover:-translate-y-1 hover:ring-primary-text/40'
 
 /** Zone d'image commune, avec repli quand aucune couverture n'est renseignée. */
 function Cover({
@@ -38,7 +38,7 @@ function Cover({
         />
       ) : (
         <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/30 to-canvas">
-          <PlayCircle className="h-10 w-10 text-primary/60" aria-hidden />
+          <PlayCircle className="h-10 w-10 text-primary-text/60" aria-hidden />
         </div>
       )}
       {/* Voile bas : garantit la lisibilité des pastilles quelle que soit
@@ -54,7 +54,7 @@ function Cover({
 
 function Arrow({ label }: { label: string }) {
   return (
-    <span className="flex items-center gap-1.5 text-base font-semibold text-primary">
+    <span className="flex items-center gap-1.5 text-base font-semibold text-primary-text">
       {label}
       <ArrowRight
         className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
@@ -83,7 +83,7 @@ export function CourseCard({ course }: { course: Course }) {
       </Cover>
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="text-lg leading-snug text-fg transition-colors group-hover:text-primary">
+        <h3 className="text-lg leading-snug text-fg transition-colors group-hover:text-primary-text">
           {course.title}
         </h3>
 
@@ -108,7 +108,7 @@ export function CourseCard({ course }: { course: Course }) {
                   {formatPrice(course.compare_at_price_cents, course.currency)}
                 </p>
               )}
-            <p className="text-xl font-bold text-accent">
+            <p className="text-xl font-bold text-secondary-text">
               {course.pricing === 'free'
                 ? 'Gratuit'
                 : formatPrice(course.price_cents, course.currency)}
@@ -124,11 +124,11 @@ export function CourseCard({ course }: { course: Course }) {
 export function ServiceCard({ service }: { service: Service }) {
   return (
     <Link href={`/services/${service.slug}`} className={cn(SHELL, 'p-6')}>
-      <h3 className="text-lg text-fg transition-colors group-hover:text-primary">
+      <h3 className="text-lg text-fg transition-colors group-hover:text-primary-text">
         {service.title}
       </h3>
       {service.subtitle && (
-        <p className="mt-1.5 text-base font-medium text-primary">{service.subtitle}</p>
+        <p className="mt-1.5 text-base font-medium text-primary-text">{service.subtitle}</p>
       )}
       {service.summary && (
         <p className="mt-3.5 flex-1 text-base leading-relaxed text-fg-muted">
@@ -156,7 +156,7 @@ export function PostCard({ post }: { post: Post }) {
         <p className="text-xs text-fg-subtle">
           {formatDate(post.published_at)} · {post.reading_minutes} min de lecture
         </p>
-        <h3 className="mt-2 text-lg leading-snug text-fg transition-colors group-hover:text-primary">
+        <h3 className="mt-2 text-lg leading-snug text-fg transition-colors group-hover:text-primary-text">
           {post.title}
         </h3>
         {post.excerpt && (

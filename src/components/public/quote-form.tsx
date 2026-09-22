@@ -47,7 +47,7 @@ export function QuoteForm({
       <input type="hidden" name="serviceName" value={serviceName ?? ''} />
 
       {serviceName && (
-        <p className="rounded-md bg-primary-subtle px-4 py-3 text-sm text-primary">
+        <p className="rounded-md bg-primary-subtle px-4 py-3 text-sm text-primary-text">
           Demande concernant : <strong>{serviceName}</strong>
         </p>
       )}

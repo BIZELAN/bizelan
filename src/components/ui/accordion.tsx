@@ -34,7 +34,7 @@ export function Accordion({ items, className }: { items: AccordionItem[]; classN
               <span
                 className={cn(
                   'text-base font-medium transition-colors',
-                  isOpen ? 'text-primary' : 'text-fg',
+                  isOpen ? 'text-primary-text' : 'text-fg',
                 )}
               >
                 {item.question}
@@ -42,7 +42,7 @@ export function Accordion({ items, className }: { items: AccordionItem[]; classN
               <ChevronDown
                 className={cn(
                   'h-5 w-5 shrink-0 text-fg-subtle transition-transform duration-200',
-                  isOpen && 'rotate-180 text-primary',
+                  isOpen && 'rotate-180 text-primary-text',
                 )}
                 aria-hidden
               />

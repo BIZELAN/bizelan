@@ -36,7 +36,7 @@ export function Card({
         'rounded-lg',
         ELEVATIONS[elevation],
         interactive &&
-          'transition-all duration-200 hover:-translate-y-1 hover:ring-primary/40 hover:shadow-e3',
+          'transition-all duration-200 hover:-translate-y-1 hover:ring-primary-text/40 hover:shadow-e3',
         className,
       )}
       {...props}
@@ -62,7 +62,7 @@ export function Glow({
         <div className="absolute -top-56 left-1/3 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
       )}
       {(tone === 'accent' || tone === 'both') && (
-        <div className="absolute -bottom-40 right-0 h-[28rem] w-[28rem] rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute -bottom-40 right-0 h-[28rem] w-[28rem] rounded-full bg-secondary/10 blur-3xl" />
       )}
     </div>
   )

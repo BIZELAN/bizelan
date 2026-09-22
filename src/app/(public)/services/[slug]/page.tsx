@@ -43,13 +43,13 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <section className="bg-canvas text-white">
         <div className="container-page py-16 sm:py-20">
           <div className="max-w-3xl">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary-text">
               Service
             </p>
             <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">
               {service.title}
             </h1>
-            {service.subtitle && <p className="mt-4 text-xl text-primary">{service.subtitle}</p>}
+            {service.subtitle && <p className="mt-4 text-xl text-primary-text">{service.subtitle}</p>}
             {service.summary && (
               <p className="mt-5 text-lg leading-relaxed text-fg-subtle">{service.summary}</p>
             )}
@@ -101,9 +101,9 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 {deliverables.map((item, i) => (
                   <li
                     key={i}
-                    className="flex gap-3 rounded-lg border border-primary/25 bg-primary-subtle p-4 text-[0.9375rem] text-fg"
+                    className="flex gap-3 rounded-lg border border-primary-text/25 bg-primary-subtle p-4 text-[0.9375rem] text-fg"
                   >
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" aria-hidden />
                     <span className="leading-relaxed">{item}</span>
                   </li>
                 ))}
@@ -126,7 +126,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <ul className="space-y-2.5">
                 {features.map((item, i) => (
                   <li key={i} className="flex gap-2.5 text-sm text-fg-muted">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                     <span className="leading-relaxed">{item}</span>
                   </li>
                 ))}

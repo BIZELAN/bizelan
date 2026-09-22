@@ -66,7 +66,7 @@ export function SiteHeader({
   return (
     <>
       {announcement && (
-        <div className="bg-primary px-4 py-2 text-center text-xs font-medium text-primary">
+        <div className="bg-primary px-4 py-2 text-center text-xs font-medium text-primary-fg">
           {announcement}
         </div>
       )}
@@ -175,7 +175,7 @@ export function SiteHeader({
                 className={cn(
                   'rounded-lg px-4 py-4 text-lg font-semibold transition-colors',
                   isActive(item.href)
-                    ? 'bg-surface text-primary'
+                    ? 'bg-surface text-primary-text'
                     : 'text-fg hover:bg-canvas-subtle',
                 )}
               >

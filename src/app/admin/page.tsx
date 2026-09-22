@@ -144,7 +144,7 @@ export default async function AdminDashboard() {
           <h2 className="text-lg font-semibold">Dernières commandes</h2>
           <Link
             href="/admin/commandes"
-            className="text-sm font-medium text-primary hover:text-primary-hover"
+            className="text-sm font-medium text-primary-text hover:text-primary-hover"
           >
             Tout voir →
           </Link>
@@ -170,7 +170,7 @@ export default async function AdminDashboard() {
                     <Td>
                       <Link
                         href={`/admin/commandes/${order.id}`}
-                        className="font-mono text-xs font-semibold text-primary hover:underline"
+                        className="font-mono text-xs font-semibold text-primary-text hover:underline"
                       >
                         {order.reference}
                       </Link>

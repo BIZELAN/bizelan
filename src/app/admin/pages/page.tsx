@@ -68,7 +68,7 @@ export default async function AdminPagesPage() {
                 <Td>
                   <Link
                     href={`/admin/pages/${page.id}`}
-                    className="block font-medium text-fg hover:text-primary"
+                    className="block font-medium text-fg hover:text-primary-text"
                   >
                     {page.title}
                   </Link>
@@ -95,7 +95,7 @@ export default async function AdminPagesPage() {
                       <Link
                         href={page.is_home ? '/' : `/${page.slug}`}
                         target="_blank"
-                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary"
+                        className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                         title="Voir la page"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />

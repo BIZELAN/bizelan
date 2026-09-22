@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 const CONTROL =
   'w-full rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base ' +
   'text-fg placeholder:text-fg-subtle transition-colors ' +
-  'focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ' +
+  'focus:border-primary-text focus:outline-none focus:ring-1 focus:ring-primary-text ' +
   'disabled:bg-canvas-subtle disabled:text-fg-subtle disabled:cursor-not-allowed'
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -106,7 +106,7 @@ export function Checkbox({
     >
       <input
         type="checkbox"
-        className="mt-0.5 h-4 w-4 shrink-0 rounded border-line-strong bg-canvas text-primary focus:ring-primary focus:ring-offset-0"
+        className="mt-0.5 h-4 w-4 shrink-0 rounded border-line-strong bg-canvas text-primary-text focus:ring-primary-text focus:ring-offset-0"
         {...props}
       />
       <span className="leading-relaxed">{label}</span>

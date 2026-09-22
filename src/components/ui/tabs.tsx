@@ -41,7 +41,7 @@ export function TabsTrigger({
         'group relative -mb-px px-3 py-2.5 text-base font-medium outline-none transition-colors duration-fast',
         'text-fg-muted hover:text-fg',
         'data-[state=active]:text-fg',
-        'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+        'focus-visible:ring-2 focus-visible:ring-primary-text focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
         className,
       )}
       {...props}
@@ -62,7 +62,7 @@ export function TabsContent({ className, ...props }: RadixTabs.TabsContentProps)
   return (
     <RadixTabs.Content
       className={cn(
-        'pt-5 outline-none focus-visible:ring-2 focus-visible:ring-primary',
+        'pt-5 outline-none focus-visible:ring-2 focus-visible:ring-primary-text',
         'data-[state=active]:animate-fade-in',
         className,
       )}

@@ -223,7 +223,7 @@ function renderCell(node: RichNode): ReactNode {
 }
 
 const CALLOUT_STYLES: Record<string, string> = {
-  info: 'border-primary bg-primary-subtle text-fg',
+  info: 'border-primary-text bg-primary-subtle text-fg',
   success: 'border-success bg-success-subtle text-success',
   warning: 'border-warning bg-warning-subtle text-warning',
   danger: 'border-danger bg-danger-subtle text-danger',
@@ -242,8 +242,8 @@ function renderCallout(node: RichNode): ReactNode {
 
 const CTA_STYLES: Record<string, string> = {
   primary: 'bg-primary text-primary-fg hover:bg-primary-hover',
-  accent: 'bg-accent text-accent-fg hover:bg-accent-hover',
-  outline: 'border border-primary text-primary hover:bg-primary-subtle',
+  accent: 'bg-secondary text-secondary-fg hover:bg-secondary-hover',
+  outline: 'border border-primary-text text-primary-text hover:bg-primary-subtle',
 }
 
 function renderCta(node: RichNode): ReactNode {

@@ -19,11 +19,11 @@ export default async function ContactPage() {
 
   return (
     <>
-      <section className="border-b border-surface-700 bg-surface-900">
+      <section className="border-b border-line bg-canvas-subtle">
         <div className="container-page py-16 sm:py-20">
           <p className="eyebrow mb-3">Contact</p>
           <h1 className="max-w-3xl text-4xl leading-tight sm:text-5xl">Parlons de votre projet</h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-onDark-md">
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fg-muted">
             Une question sur une formation, un besoin d’accompagnement ? Écrivez-nous, nous
             répondons sous 48 h ouvrées.
           </p>
@@ -36,14 +36,14 @@ export default async function ContactPage() {
             <div className="space-y-5">
               {settings.phone && (
                 <div className="flex gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-400/15">
-                    <Phone className="h-5 w-5 text-brand-300" aria-hidden />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
+                    <Phone className="h-5 w-5 text-primary" aria-hidden />
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-onDark-lo">Téléphone</p>
+                    <p className="text-sm font-medium text-fg-subtle">Téléphone</p>
                     <a
                       href={`tel:${settings.phone.replace(/\s/g, '')}`}
-                      className="text-[0.9375rem] text-onDark-hi hover:text-brand-300"
+                      className="text-[0.9375rem] text-fg hover:text-primary"
                     >
                       {settings.phone}
                     </a>
@@ -53,14 +53,14 @@ export default async function ContactPage() {
 
               {settings.email && (
                 <div className="flex gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-400/15">
-                    <Mail className="h-5 w-5 text-brand-300" aria-hidden />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
+                    <Mail className="h-5 w-5 text-primary" aria-hidden />
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-onDark-lo">E-mail</p>
+                    <p className="text-sm font-medium text-fg-subtle">E-mail</p>
                     <a
                       href={`mailto:${settings.email}`}
-                      className="break-all text-[0.9375rem] text-onDark-hi hover:text-brand-300"
+                      className="break-all text-[0.9375rem] text-fg hover:text-primary"
                     >
                       {settings.email}
                     </a>
@@ -70,27 +70,27 @@ export default async function ContactPage() {
 
               {settings.address && (
                 <div className="flex gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-400/15">
-                    <MapPin className="h-5 w-5 text-brand-300" aria-hidden />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
+                    <MapPin className="h-5 w-5 text-primary" aria-hidden />
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-onDark-lo">Adresse</p>
-                    <p className="text-[0.9375rem] text-onDark-hi">{settings.address}</p>
+                    <p className="text-sm font-medium text-fg-subtle">Adresse</p>
+                    <p className="text-[0.9375rem] text-fg">{settings.address}</p>
                   </div>
                 </div>
               )}
 
               {hours.length > 0 && (
                 <div className="flex gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-400/15">
-                    <Clock className="h-5 w-5 text-brand-300" aria-hidden />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-subtle">
+                    <Clock className="h-5 w-5 text-primary" aria-hidden />
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-onDark-lo">Horaires</p>
-                    <ul className="mt-1 space-y-1 text-[0.9375rem] text-onDark-hi">
+                    <p className="text-sm font-medium text-fg-subtle">Horaires</p>
+                    <ul className="mt-1 space-y-1 text-[0.9375rem] text-fg">
                       {hours.map((h, i) => (
                         <li key={i}>
-                          <span className="text-onDark-md">{h.label} :</span> {h.value}
+                          <span className="text-fg-muted">{h.label} :</span> {h.value}
                         </li>
                       ))}
                     </ul>
@@ -104,7 +104,7 @@ export default async function ContactPage() {
                 href={whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-control bg-brand-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-brand-800"
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 font-semibold text-white transition-colors hover:bg-primary"
               >
                 <MessageCircle className="h-5 w-5" aria-hidden />
                 Discuter sur WhatsApp
@@ -112,7 +112,7 @@ export default async function ContactPage() {
             )}
 
             {settings.map_embed_url && (
-              <div className="overflow-hidden rounded-card border border-surface-700">
+              <div className="overflow-hidden rounded-lg border border-line">
                 <iframe
                   src={settings.map_embed_url}
                   title="Localisation du cabinet"

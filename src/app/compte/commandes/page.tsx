@@ -26,7 +26,7 @@ export default async function OrdersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl">Mes commandes</h1>
-        <p className="mt-1 text-onDark-md">L’historique de vos achats et leur statut.</p>
+        <p className="mt-1 text-fg-muted">L’historique de vos achats et leur statut.</p>
       </div>
 
       {orders.length === 0 ? (
@@ -39,26 +39,26 @@ export default async function OrdersPage() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div key={order.id} className="rounded-card border border-surface-700 bg-surface-800 p-5">
+            <div key={order.id} className="rounded-lg border border-line bg-surface p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-onDark-hi">{order.reference}</p>
-                  <p className="mt-0.5 text-sm text-onDark-lo">
+                  <p className="font-semibold text-fg">{order.reference}</p>
+                  <p className="mt-0.5 text-sm text-fg-subtle">
                     {formatDateTime(order.created_at)} ·{' '}
                     {PAYMENT_METHOD_LABELS[order.payment_method] ?? order.payment_method}
                   </p>
                 </div>
                 <div className="text-right">
                   <StatusBadge status={order.status} map={ORDER_STATUS_LABELS} />
-                  <p className="mt-1.5 font-bold text-onDark-hi">
+                  <p className="mt-1.5 font-bold text-fg">
                     {formatPrice(order.total_cents, order.currency)}
                   </p>
                 </div>
               </div>
 
-              <ul className="mt-4 space-y-1.5 border-t border-surface-700 pt-4">
+              <ul className="mt-4 space-y-1.5 border-t border-line pt-4">
                 {order.items?.map((item) => (
-                  <li key={item.id} className="flex justify-between gap-3 text-sm text-onDark-md">
+                  <li key={item.id} className="flex justify-between gap-3 text-sm text-fg-muted">
                     <span>{item.title_snapshot}</span>
                     <span className="shrink-0 tabular-nums">
                       {formatPrice(item.unit_price_cents, order.currency)}
@@ -68,7 +68,7 @@ export default async function OrdersPage() {
               </ul>
 
               {order.status === 'awaiting_payment' && (
-                <p className="mt-4 rounded-control bg-amber-400/10 px-4 py-3 text-sm text-amber-900">
+                <p className="mt-4 rounded-md bg-warning-subtle px-4 py-3 text-sm text-warning">
                   Nous attendons la confirmation de votre paiement. Votre accès s’ouvre dès
                   validation — généralement sous quelques heures ouvrées.
                 </p>

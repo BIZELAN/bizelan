@@ -21,7 +21,7 @@ export function SignInForm({ next }: { next: string }) {
   const [state, action] = useActionState<AuthState | null, FormData>(signIn, null)
 
   return (
-    <form action={action} className="space-y-5 rounded-card border border-surface-700 bg-surface-800 p-7">
+    <form action={action} className="space-y-5 rounded-lg border border-line bg-surface p-7">
       {state && !state.ok && <Alert tone="error">{state.message}</Alert>}
 
       <input type="hidden" name="next" value={next} />
@@ -43,7 +43,7 @@ export function SignInForm({ next }: { next: string }) {
       <div className="text-right">
         <Link
           href="/mot-de-passe-oublie"
-          className="text-sm text-onDark-md underline underline-offset-4 hover:text-brand-300"
+          className="text-sm text-fg-muted underline underline-offset-4 hover:text-primary"
         >
           Mot de passe oublié ?
         </Link>

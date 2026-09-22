@@ -66,7 +66,7 @@ export function SiteHeader({
   return (
     <>
       {announcement && (
-        <div className="bg-brand-800 px-4 py-2 text-center text-meta font-medium text-brand-200">
+        <div className="bg-primary px-4 py-2 text-center text-xs font-medium text-primary">
           {announcement}
         </div>
       )}
@@ -77,15 +77,15 @@ export function SiteHeader({
             className={cn(
               'flex items-center justify-between gap-4 rounded-pill px-4 pr-3 ring-1 backdrop-blur-xl transition-all duration-300',
               scrolled
-                ? 'h-14 bg-surface-900/90 shadow-dark ring-surface-600'
-                : 'h-16 bg-surface-900/60 ring-surface-700',
+                ? 'h-14 bg-canvas-subtle/90 shadow-e2 ring-line-strong'
+                : 'h-16 bg-canvas-subtle/60 ring-line',
             )}
           >
             <Link href="/" className="flex shrink-0 items-center gap-2.5 pl-1">
               {logoUrl ? (
                 <img src={logoUrl} alt={siteName} className="h-8 w-auto" />
               ) : (
-                <span className="text-lg font-bold tracking-[0.12em] text-onDark-hi">
+                <span className="text-lg font-bold tracking-[0.12em] text-fg">
                   {siteName}
                 </span>
               )}
@@ -101,10 +101,10 @@ export function SiteHeader({
                   href={item.href}
                   aria-current={isActive(item.href) ? 'page' : undefined}
                   className={cn(
-                    'rounded-pill px-4 py-2 text-body font-medium transition-colors',
+                    'rounded-pill px-4 py-2 text-base font-medium transition-colors',
                     isActive(item.href)
-                      ? 'bg-surface-700/70 text-onDark-hi'
-                      : 'text-onDark-md hover:bg-surface-800 hover:text-onDark-hi',
+                      ? 'bg-canvas-subtle text-fg'
+                      : 'text-fg-muted hover:bg-surface hover:text-fg',
                   )}
                 >
                   {item.label}
@@ -134,7 +134,7 @@ export function SiteHeader({
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-onDark-hi hover:bg-surface-800 md:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-fg hover:bg-surface md:hidden"
               aria-label="Ouvrir le menu"
               aria-expanded={open}
             >
@@ -146,18 +146,18 @@ export function SiteHeader({
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex flex-col bg-surface-950/98 backdrop-blur-xl md:hidden"
+          className="fixed inset-0 z-50 flex flex-col bg-canvas/95 backdrop-blur-xl md:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Menu de navigation"
         >
           <div className="container-page flex h-20 shrink-0 items-center justify-between">
-            <span className="text-lg font-bold tracking-[0.12em] text-onDark-hi">{siteName}</span>
+            <span className="text-lg font-bold tracking-[0.12em] text-fg">{siteName}</span>
             <button
               type="button"
               onClick={() => setOpen(false)}
               autoFocus
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-onDark-hi hover:bg-surface-800"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-fg hover:bg-surface"
               aria-label="Fermer le menu"
             >
               <X className="h-5 w-5" aria-hidden />
@@ -173,10 +173,10 @@ export function SiteHeader({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'rounded-card px-4 py-4 text-h3 font-semibold transition-colors',
+                  'rounded-lg px-4 py-4 text-lg font-semibold transition-colors',
                   isActive(item.href)
-                    ? 'bg-surface-800 text-brand-300'
-                    : 'text-onDark-hi hover:bg-surface-900',
+                    ? 'bg-surface text-primary'
+                    : 'text-fg hover:bg-canvas-subtle',
                 )}
               >
                 {item.label}
@@ -184,7 +184,7 @@ export function SiteHeader({
             ))}
           </nav>
 
-          <div className="container-page flex flex-col gap-3 border-t border-surface-700 py-6">
+          <div className="container-page flex flex-col gap-3 border-t border-line py-6">
             {isLoggedIn ? (
               <ButtonLink href="/compte" variant="outline" size="lg" fullWidth>
                 Mon espace

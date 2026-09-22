@@ -158,7 +158,7 @@ export function RichEditor({
       )}
 
       {error && (
-        <div className="flex items-start gap-2 border-b border-danger/25 bg-danger-subtle px-4 py-2.5 text-sm text-red-800">
+        <div className="flex items-start gap-2 border-b border-danger/25 bg-danger-subtle px-4 py-2.5 text-sm text-danger">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <span>{error}</span>
         </div>

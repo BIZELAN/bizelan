@@ -13,7 +13,7 @@ function Submit() {
       type="submit"
       disabled={pending}
       aria-label="S’inscrire"
-      className="shrink-0 rounded-control bg-brand-500 px-3.5 py-2.5 text-white transition-colors hover:bg-brand-400 disabled:opacity-60"
+      className="shrink-0 rounded-md bg-primary px-3.5 py-2.5 text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-60"
     >
       {pending ? (
         <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -29,7 +29,7 @@ export function NewsletterForm() {
 
   if (state?.ok) {
     return (
-      <p className="flex items-center gap-2 text-sm text-brand-400">
+      <p className="flex items-center gap-2 text-sm text-primary">
         <Check className="h-4 w-4 shrink-0" aria-hidden />
         {state.message}
       </p>
@@ -46,11 +46,11 @@ export function NewsletterForm() {
           required
           placeholder="votre@email.com"
           aria-label="Votre adresse e-mail"
-          className="min-w-0 flex-1 rounded-control border border-surface-600 bg-surface-950 px-3.5 py-2.5 text-body text-onDark-hi placeholder:text-onDark-lo focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+          className="min-w-0 flex-1 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base text-fg placeholder:text-fg-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
         <Submit />
       </div>
-      {state && !state.ok && <p className="mt-2 text-xs text-red-400">{state.message}</p>}
+      {state && !state.ok && <p className="mt-2 text-xs text-danger">{state.message}</p>}
     </form>
   )
 }

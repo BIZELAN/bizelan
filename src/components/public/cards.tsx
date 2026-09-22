@@ -14,8 +14,8 @@ import { cn, discountPercent, formatDate, formatPrice, truncate } from '@/lib/ut
  * ce qui se lit immédiatement.
  */
 const SHELL =
-  'group flex flex-col overflow-hidden rounded-card bg-surface-800 ring-1 ring-surface-700 ' +
-  'transition-all duration-200 hover:-translate-y-1 hover:ring-brand-400/40'
+  'group flex flex-col overflow-hidden rounded-lg bg-surface ring-1 ring-line ' +
+  'transition-all duration-200 hover:-translate-y-1 hover:ring-primary/40'
 
 /** Zone d'image commune, avec repli quand aucune couverture n'est renseignée. */
 function Cover({
@@ -28,7 +28,7 @@ function Cover({
   children?: React.ReactNode
 }) {
   return (
-    <div className={cn('relative overflow-hidden bg-surface-700', ratio)}>
+    <div className={cn('relative overflow-hidden bg-canvas-subtle', ratio)}>
       {src ? (
         <img
           src={src}
@@ -37,14 +37,14 @@ function Cover({
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
-        <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-700 to-surface-900">
-          <PlayCircle className="h-10 w-10 text-brand-300/60" aria-hidden />
+        <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/30 to-canvas">
+          <PlayCircle className="h-10 w-10 text-primary/60" aria-hidden />
         </div>
       )}
       {/* Voile bas : garantit la lisibilité des pastilles quelle que soit
           la photo, même claire. */}
       <div
-        className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-surface-800 to-transparent"
+        className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-surface to-transparent"
         aria-hidden
       />
       {children}
@@ -54,7 +54,7 @@ function Cover({
 
 function Arrow({ label }: { label: string }) {
   return (
-    <span className="flex items-center gap-1.5 text-body font-semibold text-brand-300">
+    <span className="flex items-center gap-1.5 text-base font-semibold text-primary">
       {label}
       <ArrowRight
         className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
@@ -83,32 +83,32 @@ export function CourseCard({ course }: { course: Course }) {
       </Cover>
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="text-h3 leading-snug text-onDark-hi transition-colors group-hover:text-brand-300">
+        <h3 className="text-lg leading-snug text-fg transition-colors group-hover:text-primary">
           {course.title}
         </h3>
 
         {course.summary && (
-          <p className="mt-2.5 flex-1 text-body leading-relaxed text-onDark-md">
+          <p className="mt-2.5 flex-1 text-base leading-relaxed text-fg-muted">
             {truncate(course.summary, 130)}
           </p>
         )}
 
         {course.duration_label && (
-          <p className="mt-4 flex items-center gap-1.5 text-meta text-onDark-lo">
+          <p className="mt-4 flex items-center gap-1.5 text-xs text-fg-subtle">
             <Clock className="h-3.5 w-3.5" aria-hidden />
             {course.duration_label}
           </p>
         )}
 
-        <div className="mt-5 flex items-end justify-between gap-3 border-t border-surface-700 pt-4">
+        <div className="mt-5 flex items-end justify-between gap-3 border-t border-line pt-4">
           <div>
             {course.compare_at_price_cents &&
               course.compare_at_price_cents > course.price_cents && (
-                <p className="text-meta text-onDark-lo line-through">
+                <p className="text-xs text-fg-subtle line-through">
                   {formatPrice(course.compare_at_price_cents, course.currency)}
                 </p>
               )}
-            <p className="text-xl font-bold text-accent-300">
+            <p className="text-xl font-bold text-accent">
               {course.pricing === 'free'
                 ? 'Gratuit'
                 : formatPrice(course.price_cents, course.currency)}
@@ -124,19 +124,19 @@ export function CourseCard({ course }: { course: Course }) {
 export function ServiceCard({ service }: { service: Service }) {
   return (
     <Link href={`/services/${service.slug}`} className={cn(SHELL, 'p-6')}>
-      <h3 className="text-h3 text-onDark-hi transition-colors group-hover:text-brand-300">
+      <h3 className="text-lg text-fg transition-colors group-hover:text-primary">
         {service.title}
       </h3>
       {service.subtitle && (
-        <p className="mt-1.5 text-body font-medium text-brand-400">{service.subtitle}</p>
+        <p className="mt-1.5 text-base font-medium text-primary">{service.subtitle}</p>
       )}
       {service.summary && (
-        <p className="mt-3.5 flex-1 text-body leading-relaxed text-onDark-md">
+        <p className="mt-3.5 flex-1 text-base leading-relaxed text-fg-muted">
           {truncate(service.summary, 150)}
         </p>
       )}
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-surface-700 pt-4">
-        <span className="text-body font-semibold text-onDark-hi">
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
+        <span className="text-base font-semibold text-fg">
           {service.pricing === 'quote'
             ? (service.price_label ?? 'Sur devis')
             : formatPrice(service.price_cents, service.currency)}
@@ -153,14 +153,14 @@ export function PostCard({ post }: { post: Post }) {
       {post.cover_url && <Cover src={post.cover_url} />}
 
       <div className="flex flex-1 flex-col p-6">
-        <p className="text-meta text-onDark-lo">
+        <p className="text-xs text-fg-subtle">
           {formatDate(post.published_at)} · {post.reading_minutes} min de lecture
         </p>
-        <h3 className="mt-2 text-h3 leading-snug text-onDark-hi transition-colors group-hover:text-brand-300">
+        <h3 className="mt-2 text-lg leading-snug text-fg transition-colors group-hover:text-primary">
           {post.title}
         </h3>
         {post.excerpt && (
-          <p className="mt-2.5 flex-1 text-body leading-relaxed text-onDark-md">
+          <p className="mt-2.5 flex-1 text-base leading-relaxed text-fg-muted">
             {truncate(post.excerpt, 140)}
           </p>
         )}
@@ -189,12 +189,12 @@ export function FeaturedCourseCard({
   return (
     <div className="relative">
       <div
-        className="absolute -inset-3 rounded-panel bg-gradient-to-br from-brand-500/20 to-transparent blur-xl"
+        className="absolute -inset-3 rounded-lg bg-gradient-to-br from-primary/20 to-transparent blur-xl"
         aria-hidden
       />
       <Link
         href={`/formations/${course.slug}`}
-        className="group relative block overflow-hidden rounded-panel bg-surface-800 ring-1 ring-surface-600 shadow-dark-lg transition-transform hover:-translate-y-1"
+        className="group relative block overflow-hidden rounded-lg bg-surface ring-1 ring-line-strong shadow-e3 transition-transform hover:-translate-y-1"
       >
         <Cover src={course.cover_url} ratio="aspect-[16/10]">
           {discount && (
@@ -206,22 +206,22 @@ export function FeaturedCourseCard({
 
         <div className="p-6">
           <p className="eyebrow">{label}</p>
-          <h3 className="mt-2 text-h3 leading-snug text-onDark-hi">{course.title}</h3>
+          <h3 className="mt-2 text-lg leading-snug text-fg">{course.title}</h3>
           {course.summary && (
-            <p className="mt-2.5 text-body leading-relaxed text-onDark-md">
+            <p className="mt-2.5 text-base leading-relaxed text-fg-muted">
               {truncate(course.summary, 120)}
             </p>
           )}
 
-          <div className="mt-5 flex items-center justify-between border-t border-surface-700 pt-4">
+          <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
             <div>
-              <span className="text-2xl font-bold text-onDark-hi">
+              <span className="text-2xl font-bold text-fg">
                 {course.pricing === 'free'
                   ? 'Gratuit'
                   : formatPrice(course.price_cents, course.currency)}
               </span>
               {course.compare_at_price_cents && (
-                <span className="ml-2 text-body text-onDark-lo line-through">
+                <span className="ml-2 text-base text-fg-subtle line-through">
                   {formatPrice(course.compare_at_price_cents, course.currency)}
                 </span>
               )}

@@ -25,19 +25,15 @@ import {
  * `dangerouslySetInnerHTML` — le JSON de l'éditeur devient directement des
  * éléments React, ce qui rend l'injection de script structurellement impossible.
  *
- * Le même contenu s'affiche sur deux fonds : sombre partout sur le site, clair
- * dans le corps des articles de blog. Le `tone` est donc transmis à chaque
- * nœud plutôt que figé en classes.
+ * Le rendu portait auparavant un `tone` transmis à chaque nœud, pour servir à
+ * la fois le site sombre et le panneau blanc des articles. Les jetons de rôle
+ * rendent ce dédoublement inutile : une seule série de classes suit le thème.
  */
-type Tone = 'dark' | 'light'
-
 export function RichContentView({
   content,
-  tone = 'dark',
   className,
 }: {
   content: RichContent
-  tone?: Tone
   className?: string
 }) {
   if (!content) return null
@@ -48,9 +44,7 @@ export function RichContentView({
   }
 
   return (
-    <div className={cn(tone === 'light' ? 'prose-bizelan' : 'prose-dark', className)}>
-      {renderNodes(content.content, tone)}
-    </div>
+    <div className={cn('prose-dark', className)}>{renderNodes(content.content)}</div>
   )
 }
 
@@ -58,9 +52,9 @@ export function RichContentView({
 /* Nœuds                                                               */
 /* ------------------------------------------------------------------ */
 
-function renderNodes(nodes: RichNode[] | undefined, tone: Tone): ReactNode {
+function renderNodes(nodes: RichNode[] | undefined): ReactNode {
   if (!nodes?.length) return null
-  return nodes.map((node, index) => <Fragment key={index}>{renderNode(node, tone)}</Fragment>)
+  return nodes.map((node, index) => <Fragment key={index}>{renderNode(node)}</Fragment>)
 }
 
 function alignClass(node: RichNode): string | undefined {
@@ -69,44 +63,44 @@ function alignClass(node: RichNode): string | undefined {
   return align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-justify'
 }
 
-function renderNode(node: RichNode, tone: Tone): ReactNode {
+function renderNode(node: RichNode): ReactNode {
   switch (node.type) {
     case 'text':
       return applyMarks(node.text ?? '', node.marks)
 
     case 'paragraph': {
       if (!node.content?.length) return <p className="h-0" aria-hidden />
-      return <p className={alignClass(node)}>{renderNodes(node.content, tone)}</p>
+      return <p className={alignClass(node)}>{renderNodes(node.content)}</p>
     }
 
     case 'heading': {
       const level = Math.min(Math.max(Number(node.attrs?.level) || 2, 2), 4)
       const Tag = (['h2', 'h3', 'h4'] as const)[level - 2]
-      return <Tag className={alignClass(node)}>{renderNodes(node.content, tone)}</Tag>
+      return <Tag className={alignClass(node)}>{renderNodes(node.content)}</Tag>
     }
 
     case 'bulletList':
-      return <ul>{renderNodes(node.content, tone)}</ul>
+      return <ul>{renderNodes(node.content)}</ul>
 
     case 'orderedList': {
       const start = Number(node.attrs?.start)
       return (
         <ol start={Number.isFinite(start) && start > 1 ? start : undefined}>
-          {renderNodes(node.content, tone)}
+          {renderNodes(node.content)}
         </ol>
       )
     }
 
     case 'listItem':
-      return <li>{renderNodes(node.content, tone)}</li>
+      return <li>{renderNodes(node.content)}</li>
 
     case 'blockquote':
-      return <blockquote>{renderNodes(node.content, tone)}</blockquote>
+      return <blockquote>{renderNodes(node.content)}</blockquote>
 
     case 'codeBlock':
       return (
         <pre>
-          <code>{renderNodes(node.content, tone)}</code>
+          <code>{renderNodes(node.content)}</code>
         </pre>
       )
 
@@ -117,40 +111,40 @@ function renderNode(node: RichNode, tone: Tone): ReactNode {
       return <br />
 
     case 'image':
-      return renderImage(node, tone)
+      return renderImage(node)
 
     case 'youtube':
-      return renderYoutube(node, tone)
+      return renderYoutube(node)
 
     case 'table':
       return (
         <div className="my-7 -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
           <table className="w-full min-w-[34rem] border-collapse text-left">
-            <tbody>{renderNodes(node.content, tone)}</tbody>
+            <tbody>{renderNodes(node.content)}</tbody>
           </table>
         </div>
       )
 
     case 'tableRow':
-      return <tr>{renderNodes(node.content, tone)}</tr>
+      return <tr>{renderNodes(node.content)}</tr>
 
     case 'tableHeader':
     case 'tableCell':
-      return renderCell(node, tone)
+      return renderCell(node)
 
     case 'callout':
-      return renderCallout(node, tone)
+      return renderCallout(node)
 
     case 'ctaButton':
-      return renderCta(node, tone)
+      return renderCta(node)
 
     // Nœud inconnu : on tente d'afficher son contenu plutôt que de le perdre.
     default:
-      return renderNodes(node.content, tone)
+      return renderNodes(node.content)
   }
 }
 
-function renderImage(node: RichNode, tone: Tone): ReactNode {
+function renderImage(node: RichNode): ReactNode {
   const src = safeUrl(node.attrs?.src)
   if (!src) return null
 
@@ -179,30 +173,18 @@ function renderImage(node: RichNode, tone: Tone): ReactNode {
         className="my-0 h-auto max-w-full rounded-lg"
       />
       {caption && (
-        <figcaption
-          className={cn(
-            'mt-2.5 text-center text-xs',
-            tone === 'light' ? 'text-ink-500' : 'text-fg-subtle',
-          )}
-        >
-          {caption}
-        </figcaption>
+        <figcaption className="mt-2.5 text-center text-xs text-fg-subtle">{caption}</figcaption>
       )}
     </figure>
   )
 }
 
-function renderYoutube(node: RichNode, tone: Tone): ReactNode {
+function renderYoutube(node: RichNode): ReactNode {
   const src = safeYoutubeSrc(node.attrs?.src)
   if (!src) return null
 
   return (
-    <div
-      className={cn(
-        'my-7 overflow-hidden rounded-lg',
-        tone === 'light' ? 'bg-ink-950' : 'bg-canvas ring-1 ring-line',
-      )}
-    >
+    <div className="my-7 overflow-hidden rounded-lg bg-canvas ring-1 ring-line">
       <div className="relative aspect-video">
         <iframe
           src={src}
@@ -217,7 +199,7 @@ function renderYoutube(node: RichNode, tone: Tone): ReactNode {
   )
 }
 
-function renderCell(node: RichNode, tone: Tone): ReactNode {
+function renderCell(node: RichNode): ReactNode {
   const isHeader = node.type === 'tableHeader'
   const colSpan = Number(node.attrs?.colspan)
   const rowSpan = Number(node.attrs?.rowspan)
@@ -226,70 +208,45 @@ function renderCell(node: RichNode, tone: Tone): ReactNode {
     rowSpan: Number.isFinite(rowSpan) && rowSpan > 1 ? rowSpan : undefined,
   }
 
-  const border = tone === 'light' ? 'border-ink-200' : 'border-line'
-
   return isHeader ? (
     <th
       {...props}
-      className={cn(
-        'border px-3.5 py-2.5 font-semibold',
-        border,
-        tone === 'light' ? 'bg-ink-50 text-ink-950' : 'bg-surface text-fg',
-      )}
+      className="border border-line bg-canvas-subtle px-3.5 py-2.5 font-semibold text-fg"
     >
-      {renderNodes(node.content, tone)}
+      {renderNodes(node.content)}
     </th>
   ) : (
-    <td {...props} className={cn('border px-3.5 py-2.5 align-top', border)}>
-      {renderNodes(node.content, tone)}
+    <td {...props} className="border border-line px-3.5 py-2.5 align-top">
+      {renderNodes(node.content)}
     </td>
   )
 }
 
-const CALLOUT_STYLES: Record<Tone, Record<string, string>> = {
-  dark: {
-    info: 'border-primary bg-primary-subtle text-fg',
-    success: 'border-success bg-success-subtle text-success',
-    warning: 'border-warning bg-warning-subtle text-warning',
-    danger: 'border-danger bg-danger-subtle text-danger',
-  },
-  /* Branche volontairement LITTÉRALE : ce rendu vit sur le panneau blanc des
-     articles, quel que soit le thème. Un jeton de rôle y basculerait avec le
-     thème et poserait de l'ocre sombre sur du blanc. */
-  light: {
-    info: 'border-brand-500 bg-brand-50 text-ink-800',
-    success: 'border-emerald-500 bg-emerald-50 text-emerald-950',
-    warning: 'border-accent-500 bg-accent-50 text-accent-950',
-    danger: 'border-red-500 bg-red-50 text-red-950',
-  },
+const CALLOUT_STYLES: Record<string, string> = {
+  info: 'border-primary bg-primary-subtle text-fg',
+  success: 'border-success bg-success-subtle text-success',
+  warning: 'border-warning bg-warning-subtle text-warning',
+  danger: 'border-danger bg-danger-subtle text-danger',
 }
 
-function renderCallout(node: RichNode, tone: Tone): ReactNode {
+function renderCallout(node: RichNode): ReactNode {
   const calloutTone = safeCalloutTone(node.attrs?.tone)
   return (
-    <div className={cn('my-7 rounded-lg border-l-2 px-5 py-4', CALLOUT_STYLES[tone][calloutTone])}>
+    <div className={cn('my-7 rounded-lg border-l-2 px-5 py-4', CALLOUT_STYLES[calloutTone])}>
       <div className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-        {renderNodes(node.content, tone)}
+        {renderNodes(node.content)}
       </div>
     </div>
   )
 }
 
-const CTA_STYLES: Record<Tone, Record<string, string>> = {
-  dark: {
-    primary: 'bg-primary text-primary-fg hover:bg-primary-hover',
-    accent: 'bg-accent text-accent-fg hover:bg-accent-hover',
-    outline: 'border border-primary text-primary hover:bg-primary-subtle',
-  },
-  /* Littérale également — même raison que pour les encadrés. */
-  light: {
-    primary: 'bg-brand-700 text-white hover:bg-brand-800',
-    accent: 'bg-accent-500 text-white hover:bg-accent-600',
-    outline: 'border-2 border-brand-600 text-brand-700 hover:bg-brand-50',
-  },
+const CTA_STYLES: Record<string, string> = {
+  primary: 'bg-primary text-primary-fg hover:bg-primary-hover',
+  accent: 'bg-accent text-accent-fg hover:bg-accent-hover',
+  outline: 'border border-primary text-primary hover:bg-primary-subtle',
 }
 
-function renderCta(node: RichNode, tone: Tone): ReactNode {
+function renderCta(node: RichNode): ReactNode {
   const href = safeUrl(node.attrs?.href)
   if (!href || !node.content?.length) return null
 
@@ -309,10 +266,10 @@ function renderCta(node: RichNode, tone: Tone): ReactNode {
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         className={cn(
           'inline-flex items-center justify-center rounded-md px-7 py-3.5 text-base font-semibold no-underline transition-colors',
-          CTA_STYLES[tone][variant],
+          CTA_STYLES[variant],
         )}
       >
-        {renderNodes(node.content, tone)}
+        {renderNodes(node.content)}
       </a>
     </div>
   )

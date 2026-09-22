@@ -17,8 +17,8 @@ export default function GlobalError({
   }, [error])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-surface-900 px-6 text-center">
-      <TriangleAlert className="h-12 w-12 text-amber-500" aria-hidden />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-6 text-center">
+      <TriangleAlert className="h-12 w-12 text-warning" aria-hidden />
       <h1 className="mt-5 text-2xl">Une erreur est survenue</h1>
       <p className="mt-3 max-w-md text-onDark-md">
         Le problème a été enregistré. Réessayez dans un instant — si cela persiste, contactez-nous.
@@ -39,7 +39,7 @@ export default function GlobalError({
       )}
 
       <p className="mt-4 text-sm text-onDark-lo">
-        <Link href="/contact" className="underline underline-offset-4 hover:text-brand-300">
+        <Link href="/contact" className="underline underline-offset-4 hover:text-primary">
           Nous signaler le problème
         </Link>
       </p>

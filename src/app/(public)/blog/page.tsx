@@ -17,7 +17,7 @@ export default async function BlogPage() {
 
   return (
     <>
-      <section className="border-b border-surface-700 bg-surface-900">
+      <section className="border-b border-line bg-canvas-subtle">
         <div className="container-page py-16 sm:py-20">
           <p className="eyebrow mb-3">Le blog</p>
           <h1 className="max-w-3xl text-4xl leading-tight sm:text-5xl">

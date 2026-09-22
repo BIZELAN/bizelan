@@ -16,7 +16,7 @@ export default async function TermsPage() {
         {settings.terms ? (
           <Markdown content={settings.terms} />
         ) : (
-          <p className="text-onDark-lo">
+          <p className="text-fg-subtle">
             Le texte des conditions générales se renseigne depuis l’espace d’administration, dans
             Paramètres → Textes légaux.
           </p>

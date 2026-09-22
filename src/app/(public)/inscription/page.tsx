@@ -20,18 +20,18 @@ export default async function SignUpPage({
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-3xl">Créer un compte</h1>
-          <p className="mt-2 text-onDark-md">
+          <p className="mt-2 text-fg-muted">
             Votre espace personnel garde vos formations et votre progression.
           </p>
         </div>
 
         <SignUpForm next={suivant ?? '/compte'} />
 
-        <p className="mt-6 text-center text-sm text-onDark-md">
+        <p className="mt-6 text-center text-sm text-fg-muted">
           Vous avez déjà un compte ?{' '}
           <Link
             href={`/connexion${suivant ? `?suivant=${encodeURIComponent(suivant)}` : ''}`}
-            className="font-medium text-brand-300 underline underline-offset-4 hover:text-brand-200"
+            className="font-medium text-primary underline underline-offset-4 hover:text-primary-hover"
           >
             Se connecter
           </Link>

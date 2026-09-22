@@ -31,11 +31,11 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   const whatYouGet = asArray<string>(course.what_you_get)
 
   return (
-    <div className="bg-surface-900">
+    <div className="bg-canvas-subtle">
       <div className="container-page py-12 sm:py-16">
         <Link
           href={`/formations/${slug}`}
-          className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-onDark-md transition-colors hover:text-brand-300"
+          className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Retour à la formation
@@ -44,7 +44,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
         <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-start">
           <div className="min-w-0">
             <h1 className="mb-2 text-3xl">Finaliser votre commande</h1>
-            <p className="mb-8 text-onDark-md">
+            <p className="mb-8 text-fg-muted">
               Accès immédiat après confirmation du paiement Mobile Money.
             </p>
 
@@ -67,36 +67,36 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
 
           {/* Rappel de l'offre */}
           <aside className="lg:sticky lg:top-24">
-            <div className="overflow-hidden rounded-card border border-surface-700 bg-surface-800">
+            <div className="overflow-hidden rounded-lg border border-line bg-surface">
               {course.cover_url && (
                 <img src={course.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
               )}
               <div className="p-6">
-                <h2 className="text-lg font-semibold text-onDark-hi">{course.title}</h2>
+                <h2 className="text-lg font-semibold text-fg">{course.title}</h2>
                 {course.subtitle && (
-                  <p className="mt-1 text-sm text-onDark-md">{course.subtitle}</p>
+                  <p className="mt-1 text-sm text-fg-muted">{course.subtitle}</p>
                 )}
 
-                <p className="mt-4 text-2xl font-bold text-brand-300">
+                <p className="mt-4 text-2xl font-bold text-primary">
                   {formatPrice(course.price_cents, course.currency)}
                 </p>
                 {course.access_label && (
-                  <p className="mt-0.5 text-sm text-onDark-lo">{course.access_label}</p>
+                  <p className="mt-0.5 text-sm text-fg-subtle">{course.access_label}</p>
                 )}
 
                 {whatYouGet.length > 0 && (
-                  <ul className="mt-5 space-y-2.5 border-t border-surface-700 pt-5">
+                  <ul className="mt-5 space-y-2.5 border-t border-line pt-5">
                     {whatYouGet.map((item, i) => (
-                      <li key={i} className="flex gap-2.5 text-sm text-onDark-md">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" aria-hidden />
+                      <li key={i} className="flex gap-2.5 text-sm text-fg-muted">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
                         <span className="leading-relaxed">{item}</span>
                       </li>
                     ))}
                   </ul>
                 )}
 
-                <p className="mt-5 flex items-start gap-2 border-t border-surface-700 pt-5 text-xs leading-relaxed text-onDark-lo">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" aria-hidden />
+                <p className="mt-5 flex items-start gap-2 border-t border-line pt-5 text-xs leading-relaxed text-fg-subtle">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
                   Paiement sécurisé par KkiaPay. Nous ne stockons aucune donnée bancaire.
                 </p>
               </div>

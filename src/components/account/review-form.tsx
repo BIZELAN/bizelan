@@ -40,7 +40,7 @@ export function ReviewForm({ courseId }: { courseId: string }) {
       <input type="hidden" name="rating" value={rating} />
 
       <fieldset>
-        <legend className="mb-2 text-sm font-medium text-onDark-hi">Votre note</legend>
+        <legend className="mb-2 text-sm font-medium text-fg">Votre note</legend>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((value) => (
             <button
@@ -54,7 +54,7 @@ export function ReviewForm({ courseId }: { courseId: string }) {
               <Star
                 className={cn(
                   'h-7 w-7',
-                  value <= rating ? 'fill-accent-400 text-accent-400' : 'fill-ink-200 text-onDark-lo',
+                  value <= rating ? 'fill-accent-400 text-accent' : 'fill-ink-200 text-fg-subtle',
                 )}
                 aria-hidden
               />

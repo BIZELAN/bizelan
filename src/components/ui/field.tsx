@@ -47,7 +47,7 @@ export function Label({
   return (
     <label className={cn('mb-1.5 block text-base font-medium text-fg', className)} {...props}>
       {children}
-      {required && <span className="ml-0.5 text-red-400">*</span>}
+      {required && <span className="ml-0.5 text-danger">*</span>}
     </label>
   )
 }

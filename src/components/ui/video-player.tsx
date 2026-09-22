@@ -71,7 +71,7 @@ export function VideoPlayer({
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           ) : (
-            <span className="absolute inset-0 bg-gradient-to-br from-brand-800 via-surface-900 to-surface-950" />
+            <span className="absolute inset-0 bg-gradient-to-br from-primary/40 via-canvas-subtle to-canvas" />
           )}
 
           {/* Voile : garantit le contraste du bouton quelle que soit l'affiche */}
@@ -83,7 +83,7 @@ export function VideoPlayer({
             </span>
           </span>
 
-          <span className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-surface-950 to-transparent px-5 pb-4 pt-12 text-left">
+          <span className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-canvas to-transparent px-5 pb-4 pt-12 text-left">
             <span className="text-base font-medium text-fg">{title}</span>
           </span>
         </button>

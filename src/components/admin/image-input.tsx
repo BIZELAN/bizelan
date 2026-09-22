@@ -60,7 +60,7 @@ export function ImageInput({
           <button
             type="button"
             onClick={() => setUrl('')}
-            className="absolute -right-2 -top-2 rounded-full bg-canvas p-1 text-primary-fg shadow-e1 transition-colors hover:bg-red-600"
+            className="absolute -right-2 -top-2 rounded-full bg-danger p-1 text-danger-fg shadow-e1 transition-opacity hover:opacity-90"
             aria-label="Retirer l’image"
           >
             <X className="h-3.5 w-3.5" aria-hidden />

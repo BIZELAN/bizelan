@@ -26,7 +26,7 @@ export function ContactForm({ subjectDefault }: { subjectDefault?: string }) {
   }
 
   return (
-    <form action={action} className="space-y-5 rounded-card border border-surface-700 bg-surface-800 p-6 sm:p-8">
+    <form action={action} className="space-y-5 rounded-lg border border-line bg-surface p-6 sm:p-8">
       {state && !state.ok && <Alert tone="error">{state.message}</Alert>}
 
       <div className="grid gap-5 sm:grid-cols-2">

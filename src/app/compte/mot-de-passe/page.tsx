@@ -13,7 +13,7 @@ export default async function ResetPasswordPage() {
     <div className="mx-auto max-w-md space-y-6">
       <div>
         <h1 className="text-2xl">Choisir un nouveau mot de passe</h1>
-        <p className="mt-1 text-onDark-md">
+        <p className="mt-1 text-fg-muted">
           Vous êtes connecté via le lien reçu par e-mail. Définissez votre nouveau mot de passe.
         </p>
       </div>
@@ -22,7 +22,7 @@ export default async function ResetPasswordPage() {
         Après validation, ce nouveau mot de passe remplacera l’ancien pour toutes vos connexions.
       </Alert>
 
-      <div className="rounded-card border border-surface-700 bg-surface-800 p-6">
+      <div className="rounded-lg border border-line bg-surface p-6">
         <PasswordForm />
       </div>
     </div>

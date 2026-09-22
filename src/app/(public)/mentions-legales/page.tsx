@@ -27,7 +27,7 @@ export default async function LegalPage() {
                 {settings.phone ? ` — ${settings.phone}` : ''}
               </p>
             )}
-            <p className="text-onDark-lo">
+            <p className="text-fg-subtle">
               Le contenu complet des mentions légales se renseigne depuis l’espace
               d’administration, dans Paramètres → Textes légaux.
             </p>

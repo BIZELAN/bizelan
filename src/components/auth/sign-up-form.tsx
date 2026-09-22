@@ -28,7 +28,7 @@ export function SignUpForm({ next }: { next: string }) {
   }
 
   return (
-    <form action={action} className="space-y-5 rounded-card border border-surface-700 bg-surface-800 p-7">
+    <form action={action} className="space-y-5 rounded-lg border border-line bg-surface p-7">
       {state && !state.ok && <Alert tone="error">{state.message}</Alert>}
 
       <input type="hidden" name="next" value={next} />

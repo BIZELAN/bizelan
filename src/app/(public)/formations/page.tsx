@@ -17,13 +17,13 @@ export default async function CoursesPage() {
 
   return (
     <>
-      <section className="border-b border-surface-700 bg-surface-900">
+      <section className="border-b border-line bg-canvas-subtle">
         <div className="container-page py-16 sm:py-20">
           <p className="eyebrow mb-3">Formations en ligne</p>
           <h1 className="max-w-3xl text-4xl leading-tight sm:text-5xl">
             Des parcours faits pour être appliqués, pas seulement suivis
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-onDark-md">
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fg-muted">
             Chaque formation combine des séquences vidéo courtes et des supports de travail
             réutilisables, pour que vous repartiez avec un livrable concret.
           </p>

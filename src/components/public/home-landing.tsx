@@ -70,7 +70,7 @@ export function HomeLanding({
 
 function Hero({ settings, course }: { settings: SiteSettings; course: Course | null }) {
   return (
-    <section className="relative overflow-hidden bg-surface-950">
+    <section className="relative overflow-hidden bg-canvas">
       <Glow tone="both" />
 
       {/* La barre de navigation flotte par-dessus : on compense sa hauteur
@@ -83,17 +83,17 @@ function Hero({ settings, course }: { settings: SiteSettings; course: Course | n
               Cabinet d’accompagnement des entreprises
             </Badge>
 
-            <h1 className="mt-7 text-h1 text-onDark-hi sm:text-display">
+            <h1 className="mt-7 text-2xl text-fg sm:text-3xl">
               {settings.tagline ?? (
                 <>
                   Structurez votre projet.
                   <br />
-                  <span className="text-brand-300">Convainquez vos partenaires.</span>
+                  <span className="text-primary">Convainquez vos partenaires.</span>
                 </>
               )}
             </h1>
 
-            <p className="mt-6 max-w-xl text-body-lg text-onDark-md">
+            <p className="mt-6 max-w-xl text-md text-fg-muted">
               {settings.default_seo_description ??
                 'Des formations pratiques et un accompagnement sur mesure pour bâtir un business plan solide, financer votre activité et piloter votre croissance.'}
             </p>
@@ -108,11 +108,11 @@ function Hero({ settings, course }: { settings: SiteSettings; course: Course | n
               </ButtonLink>
             </div>
 
-            <ul className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-body text-onDark-md">
+            <ul className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-base text-fg-muted">
               {['Paiement Mobile Money', 'Accès à vie', 'Modèles Excel & Word inclus'].map(
                 (item) => (
                   <li key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-brand-400" aria-hidden />
+                    <CheckCircle2 className="h-4 w-4 text-primary" aria-hidden />
                     {item}
                   </li>
                 ),
@@ -157,12 +157,12 @@ function ProofBand({
   if (metrics.length < 2) return null
 
   return (
-    <section className="border-y border-surface-800 bg-surface-900">
+    <section className="border-y border-line bg-canvas-subtle">
       <div className="container-page grid grid-cols-2 gap-8 py-12 lg:grid-cols-4">
         {metrics.map((metric) => (
           <div key={metric.label} className="text-center">
-            <p className="text-h1 font-bold text-brand-300">{metric.value}</p>
-            <p className="mt-1.5 text-body text-onDark-lo">{metric.label}</p>
+            <p className="text-2xl font-bold text-primary">{metric.value}</p>
+            <p className="mt-1.5 text-base text-fg-subtle">{metric.label}</p>
           </div>
         ))}
       </div>
@@ -206,11 +206,11 @@ function Approach() {
           {PILLARS.map(({ icon: Icon, title, text }, index) => (
             <Reveal key={title} delay={index * 90}>
               <Card className="h-full p-7">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-control bg-brand-400/12 text-brand-300 ring-1 ring-brand-400/25">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-primary-subtle text-primary ring-1 ring-primary/25">
                   <Icon className="h-6 w-6" aria-hidden />
                 </span>
-                <h3 className="mt-5 text-h3 text-onDark-hi">{title}</h3>
-                <p className="mt-2.5 text-body leading-relaxed text-onDark-md">{text}</p>
+                <h3 className="mt-5 text-lg text-fg">{title}</h3>
+                <p className="mt-2.5 text-base leading-relaxed text-fg-muted">{text}</p>
               </Card>
             </Reveal>
           ))}
@@ -236,7 +236,7 @@ function Courses({ courses }: { courses: Course[] }) {
           action={
             <Link
               href="/formations"
-              className="inline-flex items-center gap-1.5 text-body font-semibold text-brand-300 hover:text-brand-200"
+              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:text-primary-hover"
             >
               Tout le catalogue
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -289,7 +289,7 @@ function Method() {
           {/* Une photographie de terrain ancre le propos : sans elle, trois
               encarts de texte flottent sans rien dire du métier. */}
           <Reveal className="relative">
-            <div className="overflow-hidden rounded-panel ring-1 ring-surface-700">
+            <div className="overflow-hidden rounded-lg ring-1 ring-line">
               <img
                 src={FIELD_IMAGE}
                 alt="Exploitant agricole au travail dans son champ"
@@ -302,7 +302,7 @@ function Method() {
             </div>
             {/* Dégradé bas : raccorde la photo au fond sombre de la section */}
             <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-28 rounded-b-panel bg-gradient-to-t from-surface-950 to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-28 rounded-b-lg bg-gradient-to-t from-canvas to-transparent"
               aria-hidden
             />
           </Reveal>
@@ -318,15 +318,15 @@ function Method() {
               {STEPS.map(({ icon: Icon, title, text }, index) => (
                 <Reveal key={title} delay={index * 90}>
                   <li className="flex gap-5">
-                    <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-surface-900 text-brand-300 ring-1 ring-surface-600">
+                    <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-canvas-subtle text-primary ring-1 ring-line-strong">
                       <Icon className="h-5 w-5" aria-hidden />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-meta font-bold uppercase tracking-[0.18em] text-accent-400">
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
                         Étape {String(index + 1).padStart(2, '0')}
                       </p>
-                      <h3 className="mt-1 text-h3 text-onDark-hi">{title}</h3>
-                      <p className="mt-2 text-body leading-relaxed text-onDark-md">{text}</p>
+                      <h3 className="mt-1 text-lg text-fg">{title}</h3>
+                      <p className="mt-2 text-base leading-relaxed text-fg-muted">{text}</p>
                     </div>
                   </li>
                 </Reveal>
@@ -355,7 +355,7 @@ function Services({ services }: { services: Service[] }) {
           action={
             <Link
               href="/services"
-              className="inline-flex items-center gap-1.5 text-body font-semibold text-brand-300 hover:text-brand-200"
+              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:text-primary-hover"
             >
               Voir tous les services
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -395,21 +395,21 @@ function Testimonials({ reviews }: { reviews: Review[] }) {
           {reviews.slice(0, 8).map((review) => (
             <figure
               key={review.id}
-              className="flex h-full flex-col rounded-card bg-surface-800 p-7 ring-1 ring-surface-700"
+              className="flex h-full flex-col rounded-lg bg-surface p-7 ring-1 ring-line"
             >
-              <Quote className="h-7 w-7 text-brand-400/50" aria-hidden />
+              <Quote className="h-7 w-7 text-primary/50" aria-hidden />
               {review.comment && (
-                <blockquote className="mt-4 flex-1 text-body leading-relaxed text-onDark-md">
+                <blockquote className="mt-4 flex-1 text-base leading-relaxed text-fg-muted">
                   {review.comment}
                 </blockquote>
               )}
-              <figcaption className="mt-6 border-t border-surface-700 pt-4">
+              <figcaption className="mt-6 border-t border-line pt-4">
                 <Stars rating={review.rating} />
-                <p className="mt-2.5 text-body font-semibold text-onDark-hi">
+                <p className="mt-2.5 text-base font-semibold text-fg">
                   {review.author_name}
                 </p>
                 {review.author_role && (
-                  <p className="text-meta text-onDark-lo">{review.author_role}</p>
+                  <p className="text-xs text-fg-subtle">{review.author_role}</p>
                 )}
               </figcaption>
             </figure>
@@ -436,7 +436,7 @@ function Journal({ posts }: { posts: Post[] }) {
           action={
             <Link
               href="/blog"
-              className="inline-flex items-center gap-1.5 text-body font-semibold text-brand-300 hover:text-brand-200"
+              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:text-primary-hover"
             >
               Tous les articles
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -476,10 +476,10 @@ function FinalCta({ settings }: { settings: SiteSettings }) {
 
           <div className="relative grid items-end gap-10 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="px-6 pb-4 pt-14 text-center sm:px-12 sm:pt-16 lg:pb-16 lg:text-left">
-              <h2 className="text-h2 text-onDark-hi sm:text-h1">
+              <h2 className="text-xl text-fg sm:text-2xl">
                 Prêt à donner une structure à votre projet ?
               </h2>
-              <p className="mt-5 max-w-xl text-body-lg text-onDark-md lg:mx-0">
+              <p className="mt-5 max-w-xl text-md text-fg-muted lg:mx-0">
                 Commencez par une formation, ou parlez-nous directement de votre situation. La
                 première prise de contact est gratuite.
               </p>
@@ -495,7 +495,7 @@ function FinalCta({ settings }: { settings: SiteSettings }) {
               </div>
 
               {settings.phone && (
-                <p className="mt-8 text-body text-onDark-lo">
+                <p className="mt-8 text-base text-fg-subtle">
                   Une question rapide ? {settings.phone}
                 </p>
               )}

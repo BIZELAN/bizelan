@@ -17,10 +17,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const isAdmin = ['admin', 'editor'].includes(user.profile.role)
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface-900">
-      <header className="border-b border-surface-700 bg-surface-800">
+    <div className="flex min-h-screen flex-col bg-canvas-subtle">
+      <header className="border-b border-line bg-surface">
         <div className="container-page flex h-16 items-center justify-between gap-4">
-          <Link href="/" className="text-lg font-bold tracking-[0.12em] text-brand-300">
+          <Link href="/" className="text-lg font-bold tracking-[0.12em] text-primary">
             {settings.site_name}
           </Link>
 
@@ -28,12 +28,12 @@ export default async function AccountLayout({ children }: { children: React.Reac
             {isAdmin && (
               <Link
                 href="/admin"
-                className="hidden rounded-control border border-brand-400/40 px-3 py-1.5 text-sm font-medium text-brand-300 transition-colors hover:bg-brand-400/10 sm:block"
+                className="hidden rounded-md border border-primary/40 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary-subtle sm:block"
               >
                 Administration
               </Link>
             )}
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-400/15 text-sm font-semibold text-brand-300">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-subtle text-sm font-semibold text-primary">
               {initials(user.profile.full_name ?? user.email)}
             </span>
             <form action={signOut}>
@@ -54,7 +54,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="flex items-center gap-2.5 whitespace-nowrap rounded-control px-3.5 py-2.5 text-[0.9375rem] font-medium text-onDark-md transition-colors hover:bg-surface-700 hover:text-brand-200"
+                    className="flex items-center gap-2.5 whitespace-nowrap rounded-md px-3.5 py-2.5 text-[0.9375rem] font-medium text-fg-muted transition-colors hover:bg-canvas-subtle hover:text-primary-hover"
                   >
                     <item.icon className="h-[1.125rem] w-[1.125rem]" aria-hidden />
                     {item.label}

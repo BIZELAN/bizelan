@@ -12,15 +12,15 @@ export default async function ProfilePage() {
     <div className="max-w-2xl space-y-8">
       <div>
         <h1 className="text-2xl">Mon profil</h1>
-        <p className="mt-1 text-onDark-md">Vos informations personnelles et votre mot de passe.</p>
+        <p className="mt-1 text-fg-muted">Vos informations personnelles et votre mot de passe.</p>
       </div>
 
-      <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+      <section className="rounded-lg border border-line bg-surface p-6">
         <h2 className="mb-5 text-lg font-semibold">Informations</h2>
         <ProfileForm profile={user.profile} email={user.email} />
       </section>
 
-      <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+      <section className="rounded-lg border border-line bg-surface p-6">
         <h2 className="mb-5 text-lg font-semibold">Mot de passe</h2>
         <PasswordForm />
       </section>

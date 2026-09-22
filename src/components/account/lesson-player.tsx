@@ -89,7 +89,7 @@ export function VideoFrame({
 
   if (!url) {
     return (
-      <div className="flex aspect-video items-center justify-center rounded-card bg-ink-900 text-center text-sm text-onDark-lo">
+      <div className="flex aspect-video items-center justify-center rounded-lg bg-canvas text-center text-sm text-fg-subtle">
         <p className="max-w-sm px-6">
           La vidéo de cette leçon n’est pas encore en ligne. Elle sera ajoutée prochainement.
         </p>
@@ -98,7 +98,7 @@ export function VideoFrame({
   }
 
   return (
-    <div className="aspect-video overflow-hidden rounded-card bg-surface-950">
+    <div className="aspect-video overflow-hidden rounded-lg bg-canvas">
       {isDirectFile ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
@@ -167,7 +167,7 @@ export function CompleteButton({
           {pending ? (
             <Loader2 className="h-[1.125rem] w-[1.125rem] animate-spin" aria-hidden />
           ) : (
-            <Check className={cn('h-[1.125rem] w-[1.125rem]', completed && 'text-brand-400')} aria-hidden />
+            <Check className={cn('h-[1.125rem] w-[1.125rem]', completed && 'text-primary')} aria-hidden />
           )}
           {completed ? 'Leçon terminée' : 'Marquer comme terminée'}
         </Button>
@@ -178,7 +178,7 @@ export function CompleteButton({
           </Button>
         )}
       </div>
-      {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="mt-2 text-sm text-danger">{error}</p>}
     </div>
   )
 }

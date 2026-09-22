@@ -40,14 +40,14 @@ export function QuoteForm({
   }
 
   return (
-    <form action={action} className="space-y-5 rounded-card border border-surface-700 bg-surface-800 p-6 sm:p-8">
+    <form action={action} className="space-y-5 rounded-lg border border-line bg-surface p-6 sm:p-8">
       {state && !state.ok && <Alert tone="error">{state.message}</Alert>}
 
       <input type="hidden" name="serviceId" value={serviceId ?? ''} />
       <input type="hidden" name="serviceName" value={serviceName ?? ''} />
 
       {serviceName && (
-        <p className="rounded-control bg-brand-400/10 px-4 py-3 text-sm text-brand-900">
+        <p className="rounded-md bg-primary-subtle px-4 py-3 text-sm text-primary">
           Demande concernant : <strong>{serviceName}</strong>
         </p>
       )}

@@ -156,7 +156,7 @@ export function CheckoutForm(props: CheckoutProps) {
         {error && <Alert tone="error">{error}</Alert>}
 
         {/* Coordonnées */}
-        <div className="rounded-card border border-surface-700 bg-surface-800 p-6">
+        <div className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-5 text-lg font-semibold">Vos coordonnées</h2>
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Nom complet" htmlFor="co-name" required>
@@ -183,13 +183,13 @@ export function CheckoutForm(props: CheckoutProps) {
               />
             </Field>
           </div>
-          <p className="mt-4 text-sm text-onDark-lo">
-            Facture envoyée à <strong className="text-onDark-md">{props.customerEmail}</strong>
+          <p className="mt-4 text-sm text-fg-subtle">
+            Facture envoyée à <strong className="text-fg-muted">{props.customerEmail}</strong>
           </p>
         </div>
 
         {/* Moyen de paiement */}
-        <div className="rounded-card border border-surface-700 bg-surface-800 p-6">
+        <div className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-5 text-lg font-semibold">Moyen de paiement</h2>
           <div className="space-y-3">
             {props.kkiapayEnabled && (
@@ -213,16 +213,16 @@ export function CheckoutForm(props: CheckoutProps) {
           </div>
 
           {method === 'bank_transfer' && props.transferInstructions && (
-            <div className="mt-5 rounded-control bg-brand-400/10 px-4 py-3.5 text-sm leading-relaxed text-brand-900">
+            <div className="mt-5 rounded-md bg-primary-subtle px-4 py-3.5 text-sm leading-relaxed text-primary">
               {props.transferInstructions}
             </div>
           )}
         </div>
 
         {/* Code promo */}
-        <div className="rounded-card border border-surface-700 bg-surface-800 p-6">
+        <div className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <Tag className="h-5 w-5 text-brand-300" aria-hidden />
+            <Tag className="h-5 w-5 text-primary" aria-hidden />
             Code promo
           </h2>
           <div className="flex gap-3">
@@ -245,7 +245,7 @@ export function CheckoutForm(props: CheckoutProps) {
             <p
               className={cn(
                 'mt-2.5 text-sm',
-                couponState.valid ? 'font-medium text-brand-300' : 'text-red-300',
+                couponState.valid ? 'font-medium text-primary' : 'text-danger',
               )}
             >
               {couponState.message}
@@ -254,26 +254,26 @@ export function CheckoutForm(props: CheckoutProps) {
         </div>
 
         {/* Récapitulatif */}
-        <div className="rounded-card border-2 border-brand-400/40 bg-brand-400/10 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-brand-900">Récapitulatif</h2>
+        <div className="rounded-lg border-2 border-primary/40 bg-primary-subtle p-6">
+          <h2 className="mb-4 text-lg font-semibold text-primary">Récapitulatif</h2>
           <dl className="space-y-2.5 text-[0.9375rem]">
             <div className="flex justify-between gap-4">
-              <dt className="text-onDark-md">{props.courseTitle}</dt>
-              <dd className="shrink-0 tabular-nums text-onDark-hi">
+              <dt className="text-fg-muted">{props.courseTitle}</dt>
+              <dd className="shrink-0 tabular-nums text-fg">
                 {formatPrice(props.priceCents, props.currency)}
               </dd>
             </div>
             {discount > 0 && (
               <div className="flex justify-between gap-4">
-                <dt className="text-brand-300">Remise</dt>
-                <dd className="shrink-0 tabular-nums text-brand-300">
+                <dt className="text-primary">Remise</dt>
+                <dd className="shrink-0 tabular-nums text-primary">
                   -{formatPrice(discount, props.currency)}
                 </dd>
               </div>
             )}
-            <div className="flex justify-between gap-4 border-t border-brand-400/30 pt-3 text-lg font-bold">
-              <dt className="text-brand-900">Total</dt>
-              <dd className="shrink-0 tabular-nums text-brand-900">
+            <div className="flex justify-between gap-4 border-t border-primary/25 pt-3 text-lg font-bold">
+              <dt className="text-primary">Total</dt>
+              <dd className="shrink-0 tabular-nums text-primary">
                 {formatPrice(total, props.currency)}
               </dd>
             </div>
@@ -290,7 +290,7 @@ export function CheckoutForm(props: CheckoutProps) {
             </Button>
           </div>
 
-          <p className="mt-4 text-center text-xs leading-relaxed text-brand-300">
+          <p className="mt-4 text-center text-xs leading-relaxed text-primary">
             En validant, vous acceptez nos conditions générales de vente. Vérifiez toujours le
             montant avant de confirmer sur votre téléphone.
           </p>
@@ -319,24 +319,24 @@ function PaymentOption({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        'flex w-full gap-4 rounded-card border-2 p-4 text-left transition-colors',
+        'flex w-full gap-4 rounded-lg border-2 p-4 text-left transition-colors',
         selected
-          ? 'border-brand-600 bg-brand-400/10'
-          : 'border-surface-700 bg-surface-800 hover:border-surface-600 hover:bg-surface-800',
+          ? 'border-primary bg-primary-subtle'
+          : 'border-line bg-surface hover:border-line-strong hover:bg-surface',
       )}
     >
       <span
         className={cn(
           'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
-          selected ? 'border-brand-600' : 'border-surface-600',
+          selected ? 'border-primary' : 'border-line-strong',
         )}
       >
-        {selected && <span className="h-2.5 w-2.5 rounded-full bg-brand-600" />}
+        {selected && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
       </span>
-      <Icon className={cn('h-6 w-6 shrink-0', selected ? 'text-brand-300' : 'text-onDark-lo')} aria-hidden />
+      <Icon className={cn('h-6 w-6 shrink-0', selected ? 'text-primary' : 'text-fg-subtle')} aria-hidden />
       <span className="min-w-0">
-        <span className="block font-semibold text-onDark-hi">{title}</span>
-        <span className="mt-0.5 block text-sm leading-relaxed text-onDark-md">{description}</span>
+        <span className="block font-semibold text-fg">{title}</span>
+        <span className="mt-0.5 block text-sm leading-relaxed text-fg-muted">{description}</span>
       </span>
     </button>
   )

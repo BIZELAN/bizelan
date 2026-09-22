@@ -38,10 +38,13 @@ export async function generateMetadata({
 /**
  * Article de blog.
  *
- * Seule page du site à conserver un fond clair, et uniquement pour le corps :
- * un texte long se lit mieux en noir sur blanc. Le reste de la page —
- * en-tête, image, articles liés — suit le système sombre, si bien que la zone
- * claire se lit comme une feuille posée sur la page et non comme une rupture.
+ * Le corps est posé sur une surface détachée du fond de page, ce qui lui donne
+ * l'allure d'une feuille et cadre la mesure de lecture.
+ *
+ * Cette surface était auparavant blanche en dur : le site n'ayant qu'un thème
+ * sombre, c'était le seul moyen d'obtenir du texte noir sur blanc. Avec deux
+ * thèmes, la forcer produirait une page blanche éblouissante en mode sombre —
+ * elle suit donc le thème comme le reste.
  */
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -54,23 +57,23 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   return (
     <>
       <article>
-        <header className="relative overflow-hidden bg-surface-950">
+        <header className="relative overflow-hidden bg-canvas">
           <Glow tone="brand" />
           <div className="container-page relative pb-16 pt-10 sm:pb-20">
             <Link
               href="/blog"
-              className="mb-8 inline-flex items-center gap-1.5 text-body font-medium text-onDark-md transition-colors hover:text-brand-300"
+              className="mb-8 inline-flex items-center gap-1.5 text-base font-medium text-fg-muted transition-colors hover:text-primary"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden />
               Tous les articles
             </Link>
             <div className="max-w-3xl">
-              <p className="text-meta text-onDark-lo">
+              <p className="text-xs text-fg-subtle">
                 {formatDate(post.published_at)} · {post.reading_minutes} min de lecture
               </p>
-              <h1 className="mt-3 text-h1 text-onDark-hi sm:text-display">{post.title}</h1>
+              <h1 className="mt-3 text-2xl text-fg sm:text-3xl">{post.title}</h1>
               {post.excerpt && (
-                <p className="mt-5 text-body-lg text-onDark-md">{post.excerpt}</p>
+                <p className="mt-5 text-md text-fg-muted">{post.excerpt}</p>
               )}
             </div>
           </div>
@@ -78,24 +81,24 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
         {/* L'image chevauche la frontière sombre / claire : elle coud les deux
             zones au lieu de les laisser se heurter. */}
-        <div className="relative bg-surface-950">
-          <div className="absolute inset-x-0 bottom-0 top-1/2 bg-surface-900" aria-hidden />
+        <div className="relative bg-canvas">
+          <div className="absolute inset-x-0 bottom-0 top-1/2 bg-canvas-subtle" aria-hidden />
           {post.cover_url && (
             <div className="container-page relative">
               <img
                 src={post.cover_url}
                 alt=""
-                className="mx-auto max-w-4xl rounded-panel object-cover shadow-dark-lg ring-1 ring-surface-700"
+                className="mx-auto max-w-4xl rounded-lg object-cover shadow-e3 ring-1 ring-line"
               />
             </div>
           )}
         </div>
 
-        <div className="bg-surface-900 pb-20 pt-14">
+        <div className="bg-canvas-subtle pb-20 pt-14">
           <div className="container-page">
-            <div className="mx-auto max-w-4xl rounded-panel bg-white px-6 py-12 shadow-dark-lg sm:px-12 sm:py-16">
+            <div className="mx-auto max-w-4xl rounded-lg border border-line bg-surface px-6 py-12 shadow-e2 sm:px-12 sm:py-16">
               <div className="mx-auto max-w-reading">
-                <RichContentView content={parseRichContent(post.content)} tone="light" />
+                <RichContentView content={parseRichContent(post.content)} />
               </div>
             </div>
           </div>

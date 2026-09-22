@@ -553,7 +553,7 @@ function InlineImage({ value, onChange }: { value: string; onChange: (v: string)
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute -right-2 -top-2 rounded-full bg-canvas p-1 text-primary-fg transition-colors hover:bg-red-600"
+            className="absolute -right-2 -top-2 rounded-full bg-danger p-1 text-danger-fg shadow-e1 transition-opacity hover:opacity-90"
             aria-label="Retirer l’image"
           >
             <X className="h-3 w-3" aria-hidden />

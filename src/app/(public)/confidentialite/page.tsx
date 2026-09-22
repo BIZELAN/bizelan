@@ -16,7 +16,7 @@ export default async function PrivacyPage() {
         {settings.privacy_policy ? (
           <Markdown content={settings.privacy_policy} />
         ) : (
-          <p className="text-onDark-lo">
+          <p className="text-fg-subtle">
             Le texte de la politique de confidentialité se renseigne depuis l’espace
             d’administration, dans Paramètres → Textes légaux.
           </p>

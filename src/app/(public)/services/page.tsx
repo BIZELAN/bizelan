@@ -18,13 +18,13 @@ export default async function ServicesPage() {
 
   return (
     <>
-      <section className="border-b border-surface-700 bg-surface-900">
+      <section className="border-b border-line bg-canvas-subtle">
         <div className="container-page py-16 sm:py-20">
           <p className="eyebrow mb-3">Conseil et accompagnement</p>
           <h1 className="max-w-3xl text-4xl leading-tight sm:text-5xl">
             Un accompagnement sur mesure, du diagnostic aux résultats
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-onDark-md">
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fg-muted">
             Nous combinons analyse profonde de la santé organisationnelle, diagnostic clair,
             solutions adaptées et suivi dans la durée.
           </p>
@@ -49,11 +49,11 @@ export default async function ServicesPage() {
         </div>
       </section>
 
-      <section className="section bg-surface-900">
+      <section className="section bg-canvas-subtle">
         <div className="container-page">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <h2 className="text-3xl sm:text-4xl">Parlons de votre projet</h2>
-            <p className="mt-4 text-lg leading-relaxed text-onDark-md">
+            <p className="mt-4 text-lg leading-relaxed text-fg-muted">
               Décrivez-nous votre besoin : nous revenons vers vous avec une proposition adaptée.
             </p>
           </div>

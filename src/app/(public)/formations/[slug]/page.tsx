@@ -73,7 +73,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   return (
     <>
       {/* En-tête */}
-      <section className="bg-surface-950 text-white">
+      <section className="bg-canvas text-white">
         <div className="container-page grid gap-10 py-16 lg:grid-cols-[1.4fr_1fr] lg:items-start lg:py-20">
           <div>
             {course.level && (
@@ -85,60 +85,60 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
               {course.title}
             </h1>
             {course.subtitle && (
-              <p className="mt-4 text-xl text-brand-200">{course.subtitle}</p>
+              <p className="mt-4 text-xl text-primary">{course.subtitle}</p>
             )}
             {course.summary && (
-              <p className="mt-5 text-lg leading-relaxed text-onDark-lo">{course.summary}</p>
+              <p className="mt-5 text-lg leading-relaxed text-fg-subtle">{course.summary}</p>
             )}
 
-            <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-onDark-lo">
+            <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-fg-subtle">
               <span className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-brand-400" aria-hidden />
+                <BookOpen className="h-4 w-4 text-primary" aria-hidden />
                 {stats.lessonCount} leçon{stats.lessonCount > 1 ? 's' : ''}
               </span>
               {totalSeconds > 0 && (
                 <span className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-brand-400" aria-hidden />
+                  <Clock className="h-4 w-4 text-primary" aria-hidden />
                   {formatDuration(totalSeconds)} de vidéo
                 </span>
               )}
               {stats.studentCount > 0 && (
                 <span className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-brand-400" aria-hidden />
+                  <Users className="h-4 w-4 text-primary" aria-hidden />
                   {stats.studentCount} inscrit{stats.studentCount > 1 ? 's' : ''}
                 </span>
               )}
               <span className="flex items-center gap-2">
-                <MonitorSmartphone className="h-4 w-4 text-brand-400" aria-hidden />
+                <MonitorSmartphone className="h-4 w-4 text-primary" aria-hidden />
                 Téléphone et ordinateur
               </span>
             </div>
           </div>
 
           {/* Encart d'achat */}
-          <aside className="overflow-hidden rounded-2xl bg-surface-800 text-onDark-hi shadow-xl lg:sticky lg:top-24">
+          <aside className="overflow-hidden rounded-2xl bg-surface text-fg shadow-xl lg:sticky lg:top-24">
             {course.cover_url && (
               <img src={course.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
             )}
             <div className="p-6">
               {discount && (
-                <span className="mb-3 inline-block rounded-full bg-accent-400 px-3 py-1 text-xs font-bold text-surface-950">
+                <span className="mb-3 inline-block rounded-full bg-accent px-3 py-1 text-xs font-bold text-fg">
                   -{discount} % pendant le lancement
                 </span>
               )}
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-brand-300">
+                <span className="text-3xl font-bold text-primary">
                   {formatPrice(course.price_cents, course.currency)}
                 </span>
                 {course.compare_at_price_cents &&
                   course.compare_at_price_cents > course.price_cents && (
-                    <span className="text-lg text-onDark-lo line-through">
+                    <span className="text-lg text-fg-subtle line-through">
                       {formatPrice(course.compare_at_price_cents, course.currency)}
                     </span>
                   )}
               </div>
               {course.access_label && (
-                <p className="mt-1.5 text-sm text-onDark-lo">{course.access_label}</p>
+                <p className="mt-1.5 text-sm text-fg-subtle">{course.access_label}</p>
               )}
 
               <div className="mt-6">
@@ -155,16 +155,16 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 )}
               </div>
 
-              <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-onDark-lo">
-                <ShieldCheck className="h-4 w-4 text-brand-400" aria-hidden />
+              <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-fg-subtle">
+                <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
                 Paiement sécurisé Mobile Money (MTN, Moov, Celtiis)
               </p>
 
               {whatYouGet.length > 0 && (
-                <ul className="mt-6 space-y-2.5 border-t border-surface-700 pt-5">
+                <ul className="mt-6 space-y-2.5 border-t border-line pt-5">
                   {whatYouGet.map((item, i) => (
-                    <li key={i} className="flex gap-2.5 text-sm text-onDark-md">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" aria-hidden />
+                    <li key={i} className="flex gap-2.5 text-sm text-fg-muted">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -191,9 +191,9 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 {outcomes.map((item, i) => (
                   <li
                     key={i}
-                    className="flex gap-3 rounded-card border border-brand-400/30 bg-brand-400/10 p-4 text-[0.9375rem] text-onDark-hi"
+                    className="flex gap-3 rounded-lg border border-primary/25 bg-primary-subtle p-4 text-[0.9375rem] text-fg"
                   >
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-brand-400" aria-hidden />
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
                     <span className="leading-relaxed">{item}</span>
                   </li>
                 ))}
@@ -206,30 +206,30 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
             <h2 className="mb-5 text-2xl">Le programme</h2>
             <div className="space-y-4">
               {course.modules.map((courseModule, mi) => (
-                <div key={courseModule.id} className="overflow-hidden rounded-card border border-surface-700">
-                  <div className="border-b border-surface-700 bg-surface-900 px-5 py-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-brand-300">
+                <div key={courseModule.id} className="overflow-hidden rounded-lg border border-line">
+                  <div className="border-b border-line bg-canvas-subtle px-5 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                       Module {mi + 1}
                     </p>
-                    <h3 className="mt-1 text-lg font-semibold text-onDark-hi">{courseModule.title}</h3>
+                    <h3 className="mt-1 text-lg font-semibold text-fg">{courseModule.title}</h3>
                     {courseModule.description && (
-                      <p className="mt-1.5 text-sm leading-relaxed text-onDark-md">
+                      <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">
                         {courseModule.description}
                       </p>
                     )}
                   </div>
-                  <ul className="divide-y divide-surface-700">
+                  <ul className="divide-y divide-line">
                     {courseModule.lessons.map((lesson) => {
                       const openable = lesson.is_preview || enrolled
                       return (
                         <li key={lesson.id}>
                           <div className="flex items-center gap-3 px-5 py-3.5">
                             {openable ? (
-                              <PlayCircle className="h-[1.125rem] w-[1.125rem] shrink-0 text-brand-400" aria-hidden />
+                              <PlayCircle className="h-[1.125rem] w-[1.125rem] shrink-0 text-primary" aria-hidden />
                             ) : (
-                              <Lock className="h-4 w-4 shrink-0 text-onDark-lo" aria-hidden />
+                              <Lock className="h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
                             )}
-                            <span className="min-w-0 flex-1 text-[0.9375rem] text-onDark-hi">
+                            <span className="min-w-0 flex-1 text-[0.9375rem] text-fg">
                               {lesson.title}
                               {lesson.is_preview && !enrolled && (
                                 <Badge tone="success" className="ml-2">
@@ -238,7 +238,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                               )}
                             </span>
                             {lesson.duration_seconds > 0 && (
-                              <span className="shrink-0 text-xs tabular-nums text-onDark-lo">
+                              <span className="shrink-0 text-xs tabular-nums text-fg-subtle">
                                 {formatDuration(lesson.duration_seconds)}
                               </span>
                             )}
@@ -247,7 +247,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                       )
                     })}
                     {courseModule.lessons.length === 0 && (
-                      <li className="px-5 py-4 text-sm text-onDark-lo">
+                      <li className="px-5 py-4 text-sm text-fg-subtle">
                         Contenu de ce module en préparation.
                       </li>
                     )}
@@ -262,14 +262,14 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
               <h2 className="mb-5 text-2xl">Ce qu’en disent les participants</h2>
               <div className="space-y-4">
                 {reviews.map((r) => (
-                  <figure key={r.id} className="rounded-card border border-surface-700 bg-surface-900/60 p-5">
+                  <figure key={r.id} className="rounded-lg border border-line bg-canvas-subtle/60 p-5">
                     <Stars rating={r.rating} className="mb-2.5" />
-                    <blockquote className="text-[0.9375rem] leading-relaxed text-onDark-md">
+                    <blockquote className="text-[0.9375rem] leading-relaxed text-fg-muted">
                       « {r.comment} »
                     </blockquote>
                     <figcaption className="mt-3 text-sm">
-                      <span className="font-semibold text-onDark-hi">{r.author_name}</span>
-                      {r.author_role && <span className="text-onDark-lo"> · {r.author_role}</span>}
+                      <span className="font-semibold text-fg">{r.author_name}</span>
+                      {r.author_role && <span className="text-fg-subtle"> · {r.author_role}</span>}
                     </figcaption>
                   </figure>
                 ))}
@@ -287,37 +287,37 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
         {/* Colonne latérale */}
         <aside className="space-y-6">
-          <div className="rounded-card border border-surface-700 bg-surface-800 p-6">
+          <div className="rounded-lg border border-line bg-surface p-6">
             <h3 className="mb-4 text-base font-semibold">En pratique</h3>
             <dl className="space-y-3.5 text-sm">
               {course.format_label && (
                 <div>
-                  <dt className="font-medium text-onDark-lo">Format</dt>
-                  <dd className="mt-0.5 text-onDark-hi">{course.format_label}</dd>
+                  <dt className="font-medium text-fg-subtle">Format</dt>
+                  <dd className="mt-0.5 text-fg">{course.format_label}</dd>
                 </div>
               )}
               {course.duration_label && (
                 <div>
-                  <dt className="font-medium text-onDark-lo">Durée</dt>
-                  <dd className="mt-0.5 text-onDark-hi">{course.duration_label}</dd>
+                  <dt className="font-medium text-fg-subtle">Durée</dt>
+                  <dd className="mt-0.5 text-fg">{course.duration_label}</dd>
                 </div>
               )}
               {course.access_label && (
                 <div>
-                  <dt className="font-medium text-onDark-lo">Accès</dt>
-                  <dd className="mt-0.5 text-onDark-hi">{course.access_label}</dd>
+                  <dt className="font-medium text-fg-subtle">Accès</dt>
+                  <dd className="mt-0.5 text-fg">{course.access_label}</dd>
                 </div>
               )}
             </dl>
           </div>
 
           {audience.length > 0 && (
-            <div className="rounded-card border border-surface-700 bg-surface-800 p-6">
+            <div className="rounded-lg border border-line bg-surface p-6">
               <h3 className="mb-4 text-base font-semibold">Pour qui ?</h3>
               <ul className="space-y-2.5">
                 {audience.map((item, i) => (
-                  <li key={i} className="flex gap-2.5 text-sm text-onDark-md">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" aria-hidden />
+                  <li key={i} className="flex gap-2.5 text-sm text-fg-muted">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
                     <span className="leading-relaxed">{item}</span>
                   </li>
                 ))}
@@ -326,12 +326,12 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           )}
 
           {course.resources && course.resources.length > 0 && (
-            <div className="rounded-card border border-surface-700 bg-surface-800 p-6">
+            <div className="rounded-lg border border-line bg-surface p-6">
               <h3 className="mb-4 text-base font-semibold">Supports inclus</h3>
               <ul className="space-y-2.5">
                 {course.resources.map((r) => (
-                  <li key={r.id} className="flex gap-2.5 text-sm text-onDark-md">
-                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-onDark-lo" aria-hidden />
+                  <li key={r.id} className="flex gap-2.5 text-sm text-fg-muted">
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
                     <span>{r.title}</span>
                   </li>
                 ))}
@@ -343,18 +343,18 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
       {/* Rappel de conversion */}
       {!enrolled && (
-        <section className="bg-brand-800 py-14 text-white">
+        <section className="bg-primary py-14 text-white">
           <div className="container-page text-center">
             <SectionHeading
               title="Prêt à structurer votre projet ?"
               subtitle="Accès immédiat après paiement, depuis votre téléphone ou votre ordinateur."
-              className="[&_h2]:text-white [&_p]:text-brand-200"
+              className="[&_h2]:text-white [&_p]:text-primary"
             />
             <ButtonLink href={`/commande/${course.slug}`} size="lg" variant="accent">
               Rejoindre pour {formatPrice(course.price_cents, course.currency)}
               <ArrowRight className="h-5 w-5" aria-hidden />
             </ButtonLink>
-            <p className="mt-6 text-sm text-brand-200">
+            <p className="mt-6 text-sm text-primary">
               Une question avant de vous lancer ?{' '}
               <Link href="/contact" className="underline underline-offset-4 hover:text-white">
                 Écrivez-nous

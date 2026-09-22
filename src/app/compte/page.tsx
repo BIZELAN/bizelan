@@ -37,7 +37,7 @@ export default async function AccountPage({
         <h1 className="text-2xl">
           Bonjour {user.profile.full_name?.split(' ')[0] ?? ''}
         </h1>
-        <p className="mt-1 text-onDark-md">
+        <p className="mt-1 text-fg-muted">
           {enrollments.length > 0
             ? 'Reprenez là où vous vous êtes arrêté.'
             : 'Vos formations apparaîtront ici après votre premier achat.'}
@@ -62,7 +62,7 @@ export default async function AccountPage({
             <Link
               key={enrollment.id}
               href={`/compte/formations/${enrollment.course.slug}`}
-              className="group overflow-hidden rounded-card border border-surface-700 bg-surface-800 shadow-dark-sm transition-all hover:-translate-y-0.5 hover:border-brand-400/40 hover:shadow-dark"
+              className="group overflow-hidden rounded-lg border border-line bg-surface shadow-e1 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-e2"
             >
               {enrollment.course.cover_url && (
                 <img
@@ -82,19 +82,19 @@ export default async function AccountPage({
                   )}
                 </div>
 
-                <h2 className="text-lg font-semibold leading-snug text-onDark-hi group-hover:text-brand-200">
+                <h2 className="text-lg font-semibold leading-snug text-fg group-hover:text-primary-hover">
                   {enrollment.course.title}
                 </h2>
 
                 <ProgressBar value={enrollment.progress_percent} showLabel className="mt-4" />
 
-                <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-brand-300">
+                <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-primary">
                   <BookOpen className="h-4 w-4" aria-hidden />
                   {enrollment.progress_percent > 0 ? 'Continuer' : 'Commencer'}
                 </p>
 
                 {enrollment.completed_at && (
-                  <p className="mt-2 text-xs text-onDark-lo">
+                  <p className="mt-2 text-xs text-fg-subtle">
                     Terminée le {formatDate(enrollment.completed_at)}
                   </p>
                 )}

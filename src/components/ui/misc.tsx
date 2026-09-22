@@ -8,7 +8,7 @@ type AlertTone = 'info' | 'success' | 'warning' | 'error'
 
 const ALERT_STYLES: Record<AlertTone, { wrap: string; icon: React.ElementType }> = {
   info: { wrap: 'bg-info-subtle text-info ring-info/25', icon: Info },
-  success: { wrap: 'bg-success-subtle text-emerald-200 ring-success/25', icon: CheckCircle2 },
+  success: { wrap: 'bg-success-subtle text-success ring-success/25', icon: CheckCircle2 },
   warning: { wrap: 'bg-warning-subtle text-warning ring-warning/25', icon: TriangleAlert },
   error: { wrap: 'bg-danger-subtle text-danger ring-danger/25', icon: AlertCircle },
 }

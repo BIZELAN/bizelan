@@ -4,18 +4,19 @@ import { cn } from '@/lib/utils'
 /**
  * Enveloppe de section et son en-tête.
  *
- * Le `tone` est un jeton, pas une classe écrite en dur : basculer une section
- * du sombre au clair reste un changement d'un mot, y compris depuis l'admin
- * via les blocs de page.
+ * Les tons `light` et `brand` ont été retirés, ainsi que le `tone` de
+ * `SectionHeader` : aucun n'était utilisé, et les jetons de rôle les rendent
+ * inutiles — une section suit le thème sans qu'on ait à le lui dire.
+ *
+ * Il reste trois profondeurs, qui suffisent à rythmer une page : le fond de
+ * page, un cran en retrait, et la même nuance pour les zones denses.
  */
-export type SectionTone = 'base' | 'raised' | 'panel' | 'light' | 'brand'
+export type SectionTone = 'base' | 'raised' | 'panel'
 
 const TONES: Record<SectionTone, string> = {
   base: 'bg-canvas text-fg-muted',
   raised: 'bg-canvas-subtle text-fg-muted',
   panel: 'bg-canvas-subtle text-fg-muted',
-  light: 'bg-white text-ink-700',
-  brand: 'bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900 text-brand-50',
 }
 
 export function Section({
@@ -41,7 +42,6 @@ export function SectionHeader({
   subtitle,
   action,
   align = 'left',
-  tone = 'dark',
   className,
 }: {
   eyebrow?: string
@@ -49,7 +49,6 @@ export function SectionHeader({
   subtitle?: React.ReactNode
   action?: React.ReactNode
   align?: 'left' | 'center'
-  tone?: 'dark' | 'light'
   className?: string
 }) {
   const centered = align === 'center'
@@ -64,24 +63,8 @@ export function SectionHeader({
     >
       <div className={cn(centered ? 'max-w-2xl' : 'max-w-xl')}>
         {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h2
-          className={cn(
-            'mt-3 text-xl sm:text-2xl',
-            tone === 'light' ? 'text-ink-950' : 'text-fg',
-          )}
-        >
-          {title}
-        </h2>
-        {subtitle && (
-          <p
-            className={cn(
-              'mt-4 text-md',
-              tone === 'light' ? 'text-ink-600' : 'text-fg-muted',
-            )}
-          >
-            {subtitle}
-          </p>
-        )}
+        <h2 className="mt-3 text-xl text-fg sm:text-2xl">{title}</h2>
+        {subtitle && <p className="mt-4 text-md text-fg-muted">{subtitle}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

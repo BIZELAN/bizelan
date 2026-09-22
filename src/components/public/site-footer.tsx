@@ -48,7 +48,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
     .map(([key, url]) => ({ ...SOCIALS[key], url: url.trim() }))
 
   return (
-    <footer className="mt-auto bg-surface-950">
+    <footer className="mt-auto bg-canvas">
       <div className="container-page">
         <hr className="hairline" />
       </div>
@@ -61,8 +61,8 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           className="flex flex-col gap-6 p-8 sm:p-10 lg:flex-row lg:items-center lg:justify-between"
         >
           <div className="max-w-md">
-            <h2 className="text-h3 text-onDark-hi">Recevez nos analyses</h2>
-            <p className="mt-2 text-body text-onDark-md">
+            <h2 className="text-lg text-fg">Recevez nos analyses</h2>
+            <p className="mt-2 text-base text-fg-muted">
               Conseils concrets sur le financement, la structuration et la gestion d’entreprise.
               Pas de publicité, désinscription en un clic.
             </p>
@@ -78,12 +78,12 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           {settings.logo_url ? (
             <img src={settings.logo_url} alt={settings.site_name} className="h-9 w-auto" />
           ) : (
-            <p className="text-lg font-bold tracking-[0.12em] text-onDark-hi">
+            <p className="text-lg font-bold tracking-[0.12em] text-fg">
               {settings.site_name}
             </p>
           )}
           {settings.tagline && (
-            <p className="mt-4 text-body leading-relaxed text-onDark-lo">{settings.tagline}</p>
+            <p className="mt-4 text-base leading-relaxed text-fg-subtle">{settings.tagline}</p>
           )}
 
           {socials.length > 0 && (
@@ -95,7 +95,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface-800 text-onDark-md ring-1 ring-surface-700 transition-colors hover:bg-surface-700 hover:text-onDark-hi"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface text-fg-muted ring-1 ring-line transition-colors hover:bg-canvas-subtle hover:text-fg"
                   >
                     <social.icon className="h-4 w-4" aria-hidden />
                   </a>
@@ -106,10 +106,10 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
         </div>
 
         <FooterColumn title="Navigation">
-          <ul className="space-y-3 text-body">
+          <ul className="space-y-3 text-base">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="transition-colors hover:text-onDark-hi">
+                <Link href={link.href} className="transition-colors hover:text-fg">
                   {link.label}
                 </Link>
               </li>
@@ -118,13 +118,13 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
         </FooterColumn>
 
         <FooterColumn title="Contact">
-          <ul className="space-y-3 text-body">
+          <ul className="space-y-3 text-base">
             {settings.phone && (
               <li className="flex items-start gap-2.5">
-                <Phone className="mt-1 h-4 w-4 shrink-0 text-brand-400" aria-hidden />
+                <Phone className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
                 <a
                   href={`tel:${settings.phone.replace(/\s/g, '')}`}
-                  className="hover:text-onDark-hi"
+                  className="hover:text-fg"
                 >
                   {settings.phone}
                 </a>
@@ -132,15 +132,15 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
             )}
             {settings.email && (
               <li className="flex items-start gap-2.5">
-                <Mail className="mt-1 h-4 w-4 shrink-0 text-brand-400" aria-hidden />
-                <a href={`mailto:${settings.email}`} className="break-all hover:text-onDark-hi">
+                <Mail className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                <a href={`mailto:${settings.email}`} className="break-all hover:text-fg">
                   {settings.email}
                 </a>
               </li>
             )}
             {settings.address && (
               <li className="flex items-start gap-2.5">
-                <MapPin className="mt-1 h-4 w-4 shrink-0 text-brand-400" aria-hidden />
+                <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
                 <span>{settings.address}</span>
               </li>
             )}
@@ -150,7 +150,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                   href={whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-pill bg-brand-500 px-4 py-2 text-meta font-semibold text-white transition-colors hover:bg-brand-400"
+                  className="inline-flex items-center gap-2 rounded-pill bg-primary px-4 py-2 text-xs font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
                 >
                   <MessageCircle className="h-4 w-4" aria-hidden />
                   Écrire sur WhatsApp
@@ -162,11 +162,11 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
 
         {hours.length > 0 && (
           <FooterColumn title="Horaires">
-            <ul className="space-y-3 text-body">
+            <ul className="space-y-3 text-base">
               {hours.map((hour, index) => (
                 <li key={index} className="flex justify-between gap-3">
-                  <span className="text-onDark-lo">{hour.label}</span>
-                  <span className="text-right text-onDark-md">{hour.value}</span>
+                  <span className="text-fg-subtle">{hour.label}</span>
+                  <span className="text-right text-fg-muted">{hour.value}</span>
                 </li>
               ))}
             </ul>
@@ -174,14 +174,14 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
         )}
       </div>
 
-      <div className="border-t border-surface-800">
-        <div className="container-page flex flex-col items-center justify-between gap-3 py-6 text-meta text-onDark-lo sm:flex-row">
+      <div className="border-t border-line">
+        <div className="container-page flex flex-col items-center justify-between gap-3 py-6 text-xs text-fg-subtle sm:flex-row">
           <p>
             © {year} {settings.site_name} · Tous droits réservés
           </p>
           <div className="flex flex-wrap justify-center gap-5">
             {LEGAL_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="hover:text-onDark-md">
+              <Link key={link.href} href={link.href} className="hover:text-fg-muted">
                 {link.label}
               </Link>
             ))}
@@ -195,7 +195,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
 function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="mb-4 text-meta font-semibold uppercase tracking-[0.14em] text-onDark-hi">
+      <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-fg">
         {title}
       </h3>
       {children}

@@ -58,22 +58,22 @@ export default async function CourseOverviewPage({
       <div>
         <Link
           href="/compte"
-          className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-onDark-md transition-colors hover:text-brand-300"
+          className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-primary"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Mes formations
         </Link>
 
         <h1 className="text-2xl sm:text-3xl">{course.title}</h1>
-        {course.subtitle && <p className="mt-2 text-onDark-md">{course.subtitle}</p>}
+        {course.subtitle && <p className="mt-2 text-fg-muted">{course.subtitle}</p>}
 
-        <div className="mt-6 rounded-card border border-surface-700 bg-surface-800 p-5">
+        <div className="mt-6 rounded-lg border border-line bg-surface p-5">
           <div className="mb-3 flex items-center justify-between gap-4">
-            <span className="text-sm font-medium text-onDark-md">
+            <span className="text-sm font-medium text-fg-muted">
               {doneCount} leçon{doneCount > 1 ? 's' : ''} terminée{doneCount > 1 ? 's' : ''} sur{' '}
               {allLessons.length}
             </span>
-            <span className="text-sm font-bold tabular-nums text-brand-300">
+            <span className="text-sm font-bold tabular-nums text-primary">
               {enrollment.progress_percent}%
             </span>
           </div>
@@ -92,12 +92,12 @@ export default async function CourseOverviewPage({
       </div>
 
       {enrollment.certificate_code && (
-        <div className="flex flex-col gap-4 rounded-card border-2 border-brand-400/40 bg-brand-400/10 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-lg border-2 border-primary/40 bg-primary-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-4">
-            <Award className="h-10 w-10 shrink-0 text-brand-300" aria-hidden />
+            <Award className="h-10 w-10 shrink-0 text-primary" aria-hidden />
             <div>
-              <h2 className="font-semibold text-brand-900">Formation terminée</h2>
-              <p className="mt-0.5 text-sm text-brand-300">
+              <h2 className="font-semibold text-primary">Formation terminée</h2>
+              <p className="mt-0.5 text-sm text-primary">
                 Votre certificat est disponible — n° {enrollment.certificate_code}
               </p>
             </div>
@@ -110,9 +110,9 @@ export default async function CourseOverviewPage({
 
       {/* Dépôt d'avis, proposé dès que la formation est bien entamée */}
       {enrollment.progress_percent >= 50 && !hasReviewed && (
-        <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+        <section className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-1 text-lg font-semibold">Donnez votre avis</h2>
-          <p className="mb-5 text-sm text-onDark-md">
+          <p className="mb-5 text-sm text-fg-muted">
             Votre retour sera publié après relecture et aidera les prochains participants.
           </p>
           <ReviewForm courseId={course.id} />
@@ -121,9 +121,9 @@ export default async function CourseOverviewPage({
 
       {/* Supports téléchargeables de la formation */}
       {course.resources && course.resources.length > 0 && (
-        <section className="rounded-card border border-surface-700 bg-surface-800 p-6">
+        <section className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <Download className="h-5 w-5 text-brand-300" aria-hidden />
+            <Download className="h-5 w-5 text-primary" aria-hidden />
             Vos supports de travail
           </h2>
           <ResourceList resources={course.resources} />
@@ -137,42 +137,42 @@ export default async function CourseOverviewPage({
           {course.modules.map((courseModule, mi) => {
             const moduleDone = courseModule.lessons.filter((l) => l.progress?.completed).length
             return (
-              <div key={courseModule.id} className="overflow-hidden rounded-card border border-surface-700 bg-surface-800">
-                <div className="flex items-center justify-between gap-4 border-b border-surface-700 bg-surface-900 px-5 py-4">
+              <div key={courseModule.id} className="overflow-hidden rounded-lg border border-line bg-surface">
+                <div className="flex items-center justify-between gap-4 border-b border-line bg-canvas-subtle px-5 py-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-brand-300">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                       Module {mi + 1}
                     </p>
-                    <h3 className="mt-0.5 font-semibold text-onDark-hi">{courseModule.title}</h3>
+                    <h3 className="mt-0.5 font-semibold text-fg">{courseModule.title}</h3>
                   </div>
                   <Badge tone={moduleDone === courseModule.lessons.length && moduleDone > 0 ? 'success' : 'neutral'}>
                     {moduleDone}/{courseModule.lessons.length}
                   </Badge>
                 </div>
 
-                <ul className="divide-y divide-surface-700">
+                <ul className="divide-y divide-line">
                   {courseModule.lessons.map((lesson) => (
                     <li key={lesson.id}>
                       <Link
                         href={`/compte/formations/${slug}/${lesson.id}`}
-                        className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface-800"
+                        className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface"
                       >
                         <span
                           className={
                             lesson.progress?.completed
-                              ? 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600'
-                              : 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-surface-600'
+                              ? 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary'
+                              : 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-line-strong'
                           }
                         >
                           {lesson.progress?.completed && (
                             <Check className="h-3.5 w-3.5 text-white" aria-hidden />
                           )}
                         </span>
-                        <span className="min-w-0 flex-1 text-[0.9375rem] text-onDark-hi">
+                        <span className="min-w-0 flex-1 text-[0.9375rem] text-fg">
                           {lesson.title}
                         </span>
                         {lesson.duration_seconds > 0 && (
-                          <span className="shrink-0 text-xs tabular-nums text-onDark-lo">
+                          <span className="shrink-0 text-xs tabular-nums text-fg-subtle">
                             {formatDuration(lesson.duration_seconds)}
                           </span>
                         )}

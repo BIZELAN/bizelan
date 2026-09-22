@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-3xl">Mot de passe oublié</h1>
-          <p className="mt-2 text-onDark-md">
+          <p className="mt-2 text-fg-muted">
             Indiquez votre adresse e-mail : nous vous envoyons un lien pour en choisir un nouveau.
           </p>
         </div>
@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
             {state.message}
           </Alert>
         ) : (
-          <form action={action} className="space-y-5 rounded-card border border-surface-700 bg-surface-800 p-7">
+          <form action={action} className="space-y-5 rounded-lg border border-line bg-surface p-7">
             {state && !state.ok && <Alert tone="error">{state.message}</Alert>}
             <Field label="Adresse e-mail" htmlFor="email" required>
               <Input id="email" name="email" type="email" required autoComplete="email" autoFocus />
@@ -44,8 +44,8 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-sm text-onDark-md">
-          <Link href="/connexion" className="underline underline-offset-4 hover:text-brand-300">
+        <p className="mt-6 text-center text-sm text-fg-muted">
+          <Link href="/connexion" className="underline underline-offset-4 hover:text-primary">
             Retour à la connexion
           </Link>
         </p>

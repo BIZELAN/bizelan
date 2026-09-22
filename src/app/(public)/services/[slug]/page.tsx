@@ -40,20 +40,20 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
-      <section className="bg-canvas text-white">
+      <section className="bg-canvas text-fg-muted">
         <div className="container-page py-16 sm:py-20">
           <div className="max-w-3xl">
             <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary-text">
               Service
             </p>
-            <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">
+            <h1 className="text-4xl font-bold leading-tight text-fg sm:text-5xl">
               {service.title}
             </h1>
             {service.subtitle && <p className="mt-4 text-xl text-primary-text">{service.subtitle}</p>}
             {service.summary && (
               <p className="mt-5 text-lg leading-relaxed text-fg-subtle">{service.summary}</p>
             )}
-            <p className="mt-7 text-lg font-semibold text-white">
+            <p className="mt-7 text-lg font-semibold text-fg">
               {service.pricing === 'quote'
                 ? (service.price_label ?? 'Sur devis')
                 : formatPrice(service.price_cents, service.currency)}
@@ -77,7 +77,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <ol className="space-y-4">
                 {steps.map((step, i) => (
                   <li key={i} className="flex gap-4 rounded-lg border border-line bg-surface p-5">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-fg">
                       {i + 1}
                     </span>
                     <div>

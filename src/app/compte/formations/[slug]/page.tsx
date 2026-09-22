@@ -165,7 +165,7 @@ export default async function CourseOverviewPage({
                           }
                         >
                           {lesson.progress?.completed && (
-                            <Check className="h-3.5 w-3.5 text-white" aria-hidden />
+                            <Check className="h-3.5 w-3.5 text-primary-fg" aria-hidden />
                           )}
                         </span>
                         <span className="min-w-0 flex-1 text-[0.9375rem] text-fg">

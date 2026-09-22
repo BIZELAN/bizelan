@@ -38,7 +38,14 @@ export default async function CertificatePage({
         <PrintButton />
       </div>
 
-      <div className="rounded-2xl border-4 border-brand-700 bg-white p-8 text-center sm:p-14">
+      {/* Ilot de theme clair : un certificat est un document destine a
+          l'impression. Il reste sur papier blanc meme si la page est en
+          theme sombre, et `data-theme` suffit a le dire — les jetons a
+          l'interieur se redeclarent seuls. */}
+      <div
+        data-theme="light"
+        className="rounded-2xl border-4 border-primary-text bg-surface p-8 text-center text-fg-muted sm:p-14"
+      >
         <Award className="mx-auto h-14 w-14 text-primary-text" aria-hidden />
 
         <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-primary-text">
@@ -55,7 +62,7 @@ export default async function CertificatePage({
           {data.course.title}
         </p>
 
-        <div className="mx-auto mt-10 max-w-sm border-t border-ink-200 pt-6">
+        <div className="mx-auto mt-10 max-w-sm border-t border-line pt-6">
           <p className="text-sm text-fg-muted">Délivré le {formatDate(data.completed_at)}</p>
           <p className="mt-1 text-sm text-fg-muted">par {settings.site_name}</p>
           <p className="mt-4 font-mono text-xs text-fg-subtle">N° {data.certificate_code}</p>

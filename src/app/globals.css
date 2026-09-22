@@ -9,9 +9,16 @@
    Le thème clair est la valeur par défaut sur :root. Le sombre s'applique
    selon la préférence système, et `data-theme` sur <html> permet de forcer
    l'un ou l'autre — d'où la triple déclaration ci-dessous.
+
+   Les deux sélecteurs `[data-theme]` ne servent pas qu'à <html> : posés sur
+   n'importe quel élément, ils redéclarent les jetons pour tout son sous-arbre.
+   C'est ce qui permet un ÎLOT de thème — un certificat qui reste sur papier
+   blanc même en thème sombre — sans dupliquer une seule valeur ni écrire la
+   moindre classe conditionnelle à l'intérieur.
    =========================================================================== */
 
-:root {
+:root,
+[data-theme='light'] {
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: ui-serif, Georgia, 'Times New Roman', serif;
 

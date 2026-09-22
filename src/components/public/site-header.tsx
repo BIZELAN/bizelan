@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LogIn, Menu, User, X } from 'lucide-react'
 import { ButtonLink } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { cn } from '@/lib/utils'
 
 const NAV = [
@@ -113,6 +114,7 @@ export function SiteHeader({
             </nav>
 
             <div className="hidden items-center gap-2 md:flex">
+              <ThemeToggle className="hidden lg:inline-flex" />
               {isLoggedIn ? (
                 <ButtonLink href="/compte" variant="outline" size="sm">
                   <User className="h-4 w-4" aria-hidden />
@@ -185,6 +187,10 @@ export function SiteHeader({
           </nav>
 
           <div className="container-page flex flex-col gap-3 border-t border-line py-6">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-sm font-medium text-fg-muted">Thème</span>
+              <ThemeToggle />
+            </div>
             {isLoggedIn ? (
               <ButtonLink href="/compte" variant="outline" size="lg" fullWidth>
                 Mon espace

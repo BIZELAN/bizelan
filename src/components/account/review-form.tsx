@@ -54,7 +54,7 @@ export function ReviewForm({ courseId }: { courseId: string }) {
               <Star
                 className={cn(
                   'h-7 w-7',
-                  value <= rating ? 'fill-accent-400 text-accent-400' : 'fill-ink-200 text-fg-subtle',
+                  value <= rating ? 'fill-accent-400 text-accent-400' : 'fill-line-strong text-fg-subtle',
                 )}
                 aria-hidden
               />

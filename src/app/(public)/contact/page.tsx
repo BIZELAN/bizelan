@@ -104,7 +104,7 @@ export default async function ContactPage() {
                 href={whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 font-semibold text-white transition-colors hover:bg-primary"
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
               >
                 <MessageCircle className="h-5 w-5" aria-hidden />
                 Discuter sur WhatsApp

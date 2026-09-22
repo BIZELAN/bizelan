@@ -20,7 +20,7 @@ export default function GlobalError({
     <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-6 text-center">
       <TriangleAlert className="h-12 w-12 text-warning" aria-hidden />
       <h1 className="mt-5 text-2xl">Une erreur est survenue</h1>
-      <p className="mt-3 max-w-md text-onDark-md">
+      <p className="mt-3 max-w-md text-fg-muted">
         Le problème a été enregistré. Réessayez dans un instant — si cela persiste, contactez-nous.
       </p>
 
@@ -35,10 +35,10 @@ export default function GlobalError({
       </div>
 
       {error.digest && (
-        <p className="mt-8 font-mono text-xs text-onDark-lo">Référence : {error.digest}</p>
+        <p className="mt-8 font-mono text-xs text-fg-subtle">Référence : {error.digest}</p>
       )}
 
-      <p className="mt-4 text-sm text-onDark-lo">
+      <p className="mt-4 text-sm text-fg-subtle">
         <Link href="/contact" className="underline underline-offset-4 hover:text-primary-text">
           Nous signaler le problème
         </Link>

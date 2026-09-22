@@ -351,7 +351,7 @@ function PainPointsBlock({ data }: { data: Record<string, unknown> }) {
                 key={i}
                 className="flex gap-3.5 rounded-lg border border-line bg-canvas-subtle/60 p-5 text-fg"
               >
-                <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-accent-500" aria-hidden />
+                <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden />
                 <span className="leading-relaxed">{item}</span>
               </li>
             ))}
@@ -448,7 +448,7 @@ function PhasesBlock({ data }: { data: Record<string, unknown> }) {
     <section className="section bg-canvas text-fg">
       <div className="container-page">
         {f.str('title') && (
-          <h2 className="mb-12 text-center text-3xl text-white sm:text-4xl">{f.str('title')}</h2>
+          <h2 className="mb-12 text-center text-3xl text-fg sm:text-4xl">{f.str('title')}</h2>
         )}
         <div className="space-y-6">
           {items.map((phase, i) => (
@@ -459,11 +459,11 @@ function PhasesBlock({ data }: { data: Record<string, unknown> }) {
               <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
                 <div className="lg:w-1/3">
                   {phase.label && (
-                    <span className="mb-3 inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
+                    <span className="mb-3 inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-fg">
                       {phase.label}
                     </span>
                   )}
-                  <h3 className="text-2xl font-semibold text-white">{phase.title}</h3>
+                  <h3 className="text-2xl font-semibold text-fg">{phase.title}</h3>
                 </div>
                 <div className="lg:w-2/3">
                   {phase.description && (

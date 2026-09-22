@@ -161,7 +161,7 @@ export default async function LessonPage({
                             )}
                           >
                             {l.progress?.completed && (
-                              <Check className="h-2.5 w-2.5 text-white" aria-hidden />
+                              <Check className="h-2.5 w-2.5 text-primary-fg" aria-hidden />
                             )}
                           </span>
                           <span className="min-w-0 leading-snug">{l.title}</span>

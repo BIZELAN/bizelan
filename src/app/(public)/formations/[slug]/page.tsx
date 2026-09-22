@@ -73,7 +73,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   return (
     <>
       {/* En-tête */}
-      <section className="bg-canvas text-white">
+      <section className="bg-canvas text-fg-muted">
         <div className="container-page grid gap-10 py-16 lg:grid-cols-[1.4fr_1fr] lg:items-start lg:py-20">
           <div>
             {course.level && (
@@ -81,7 +81,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 {course.level}
               </Badge>
             )}
-            <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-[2.75rem]">
+            <h1 className="text-3xl font-bold leading-tight text-fg sm:text-4xl lg:text-[2.75rem]">
               {course.title}
             </h1>
             {course.subtitle && (

@@ -1,16 +1,12 @@
 import Link from 'next/link'
-import { BookOpen, LogOut, Receipt, User } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { requireUser } from '@/lib/auth'
 import { getSiteSettings } from '@/lib/queries'
 import { signOut } from '@/app/actions/auth'
+import { AccountNav } from '@/components/account/account-nav'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { initials } from '@/lib/utils'
-
-const NAV = [
-  { href: '/compte', label: 'Mes formations', icon: BookOpen },
-  { href: '/compte/commandes', label: 'Mes commandes', icon: Receipt },
-  { href: '/compte/profil', label: 'Mon profil', icon: User },
-]
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const [user, settings] = await Promise.all([requireUser(), getSiteSettings()])
@@ -25,6 +21,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
           </Link>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle className="hidden sm:inline-flex" />
             {isAdmin && (
               <Link
                 href="/admin"
@@ -48,22 +45,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
       <div className="container-page flex-1 py-8">
         <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
-          <nav aria-label="Navigation de l’espace membre">
-            <ul className="flex gap-1 overflow-x-auto lg:flex-col lg:gap-1">
-              {NAV.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center gap-2.5 whitespace-nowrap rounded-md px-3.5 py-2.5 text-[0.9375rem] font-medium text-fg-muted transition-colors hover:bg-canvas-subtle hover:text-primary-hover"
-                  >
-                    <item.icon className="h-[1.125rem] w-[1.125rem]" aria-hidden />
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
+          <AccountNav />
           <main className="min-w-0">{children}</main>
         </div>
       </div>

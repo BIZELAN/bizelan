@@ -77,6 +77,12 @@ PAIRS = [
     ('alerte sur voile',           'warning',        'warning-subtle',   4.5, 1),
     ('erreur sur voile',           'danger',         'danger-subtle',    4.5, 1),
     ('info sur voile',             'info',           'info-subtle',      4.5, 1),
+    # Lecture longue : `.prose-bz` sert a la fois le site et l'editeur.
+    ('prose : corps sur carte',    'text-muted',     'surface',          4.5, 1),
+    ('prose : lien',               'secondary-text', 'surface',          4.5, 1),
+    ('prose : lien survole',       'secondary-hover', 'surface',         4.5, 1),
+    ('prose : citation',           'text',           'bg-subtle',        4.5, 1),
+    ('prose : code',               'text',           'bg-subtle',        4.5, 1),
     ('bordure de champ',           'control-border', 'bg',               3.0, 1),
     ('anneau de focus',            'ring',           'bg',               3.0, 1),
     ('anneau de focus / carte',    'ring',           'surface',          3.0, 1),

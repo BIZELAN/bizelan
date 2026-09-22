@@ -98,7 +98,7 @@ export function RichEditor({
     ],
     editorProps: {
       attributes: {
-        class: cn('rich-surface focus:outline-none', minHeight),
+        class: cn('prose-bz rich-surface focus:outline-none', minHeight),
       },
       handleDrop: (_view, event) => {
         const file = event.dataTransfer?.files?.[0]

@@ -17,7 +17,7 @@ export function Markdown({
 
   return (
     <div
-      className={cn('prose-bizelan', className)}
+      className={cn('prose-bz', className)}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )

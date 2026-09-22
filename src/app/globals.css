@@ -248,7 +248,7 @@
      l'anneau se détacherait sur une couleur figée et paraîtrait sale dès que
      le thème change. */
   :focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-canvas;
+    @apply outline-none ring-2 ring-primary-text ring-offset-2 ring-offset-canvas;
   }
 
   ::selection {
@@ -284,130 +284,80 @@
   }
 
   .eyebrow {
-    @apply text-meta font-semibold uppercase tracking-[0.18em] text-brand-400;
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-primary-text;
   }
 
-  /* Filet lumineux : sépare deux sections sombres sans trait dur. */
+  /* Filet en dégradé : sépare deux sections sans trait dur. */
   .hairline {
-    @apply h-px w-full border-0 bg-gradient-to-r from-transparent via-surface-600 to-transparent;
+    @apply h-px w-full border-0 bg-gradient-to-r from-transparent via-line-strong to-transparent;
   }
 
   /* ---------------------------------------------------------------------
-     Lecture longue sur fond SOMBRE
-     (pages de vente, leçons, blocs de texte, éditeur)
-     --------------------------------------------------------------------- */
-  .prose-dark {
-    @apply text-body-lg text-onDark-md;
-  }
-  .prose-dark > * + * {
-    @apply mt-5;
-  }
-  .prose-dark h2 {
-    @apply mb-4 mt-12 text-h2 text-onDark-hi;
-  }
-  .prose-dark h3 {
-    @apply mb-3 mt-9 text-h3 text-onDark-hi;
-  }
-  .prose-dark h4 {
-    @apply mb-2 mt-7 text-lg font-semibold text-onDark-hi;
-  }
-  .prose-dark ul {
-    @apply list-disc space-y-2 pl-6 marker:text-brand-400;
-  }
-  .prose-dark ol {
-    @apply list-decimal space-y-2 pl-6 marker:text-brand-400;
-  }
-  .prose-dark a {
-    @apply font-medium text-brand-300 underline decoration-brand-400/40 underline-offset-4 transition-colors hover:text-brand-200;
-  }
-  .prose-dark strong {
-    @apply font-semibold text-onDark-hi;
-  }
-  .prose-dark blockquote {
-    @apply my-7 rounded-r-card border-l-2 border-brand-400 bg-surface-800/60 py-4 pl-6 pr-5 italic text-onDark-hi;
-  }
-  .prose-dark code {
-    @apply rounded bg-surface-800 px-1.5 py-0.5 text-[0.9em] text-brand-200;
-  }
-  .prose-dark pre {
-    @apply my-7 overflow-x-auto rounded-card bg-surface-950 p-5 text-sm ring-1 ring-surface-700;
-  }
-  .prose-dark pre code {
-    @apply bg-transparent p-0 text-onDark-md;
-  }
-  .prose-dark img {
-    @apply my-7 rounded-card;
-  }
-  .prose-dark hr {
-    @apply my-12 border-surface-700;
-  }
-  .prose-dark table {
-    @apply my-7 w-full border-collapse text-body;
-  }
-  .prose-dark th {
-    @apply border border-surface-700 bg-surface-800 px-4 py-2.5 text-left font-semibold text-onDark-hi;
-  }
-  .prose-dark td {
-    @apply border border-surface-700 px-4 py-2.5 align-top;
-  }
+     Lecture longue — UNE seule définition.
 
-  /* ---------------------------------------------------------------------
-     Lecture longue sur fond CLAIR — conservée pour les corps d'articles,
-     seule zone claire du site public.
+     Il y en avait trois, identiques à la couleur près : `.prose-dark` pour le
+     site, `.prose-bizelan` pour le fond clair des articles, `.rich-surface`
+     pour l'éditeur. Les trois ont divergé, et `.prose-dark` écrivait encore
+     en `onDark-md` — un gris clair conçu pour un fond sombre — soit 1,9:1 sur
+     la page claire : le corps de toutes les pages de vente était illisible.
+
+     Les jetons de rôle rendent la triplication inutile. L'éditeur porte la
+     même classe que le rendu public, ce qui rend le WYSIWYG exact par
+     construction plutôt que par recopie.
      --------------------------------------------------------------------- */
-  .prose-bizelan {
-    @apply text-body-lg text-ink-700;
+  .prose-bz {
+    @apply text-reading text-fg-muted;
   }
-  .prose-bizelan > * + * {
+  .prose-bz > * + * {
     @apply mt-5;
   }
-  .prose-bizelan h2 {
-    @apply mb-4 mt-12 text-h2 text-ink-950;
+  .prose-bz h2 {
+    @apply mb-4 mt-12 text-2xl font-semibold text-fg;
   }
-  .prose-bizelan h3 {
-    @apply mb-3 mt-9 text-h3 text-ink-950;
+  .prose-bz h3 {
+    @apply mb-3 mt-9 text-xl font-semibold text-fg;
   }
-  .prose-bizelan h4 {
-    @apply mb-2 mt-7 text-lg font-semibold text-ink-950;
+  .prose-bz h4 {
+    @apply mb-2 mt-7 text-lg font-semibold text-fg;
   }
-  .prose-bizelan ul {
-    @apply list-disc space-y-2 pl-6 marker:text-brand-600;
+  .prose-bz ul {
+    @apply list-disc space-y-2 pl-6 marker:text-primary-text;
   }
-  .prose-bizelan ol {
-    @apply list-decimal space-y-2 pl-6 marker:text-brand-600;
+  .prose-bz ol {
+    @apply list-decimal space-y-2 pl-6 marker:text-primary-text;
   }
-  .prose-bizelan a {
-    @apply font-medium text-brand-700 underline underline-offset-4 hover:text-brand-800;
+  .prose-bz a {
+    @apply font-medium text-secondary-text underline underline-offset-4 transition-colors hover:text-secondary-hover;
   }
-  .prose-bizelan strong {
-    @apply font-semibold text-ink-950;
+  .prose-bz strong {
+    @apply font-semibold text-fg;
   }
-  .prose-bizelan blockquote {
-    @apply my-7 rounded-r-card border-l-2 border-brand-500 bg-brand-50 py-4 pl-6 pr-5 italic text-ink-800;
+  .prose-bz blockquote {
+    @apply my-7 rounded-r-lg border-l-2 border-primary-text bg-canvas-subtle py-4 pl-6 pr-5 italic text-fg;
   }
-  .prose-bizelan code {
-    @apply rounded bg-ink-100 px-1.5 py-0.5 text-[0.9em] text-ink-900;
+  .prose-bz code {
+    @apply rounded bg-canvas-subtle px-1.5 py-0.5 text-[0.9em] text-fg;
   }
-  .prose-bizelan pre {
-    @apply my-7 overflow-x-auto rounded-card bg-ink-950 p-5 text-sm text-ink-100;
+  .prose-bz pre {
+    @apply my-7 overflow-x-auto rounded-lg bg-canvas-subtle p-5 text-sm ring-1 ring-line;
   }
-  .prose-bizelan pre code {
+  .prose-bz pre code {
     @apply bg-transparent p-0 text-inherit;
   }
-  .prose-bizelan img {
-    @apply my-7 rounded-card;
+  .prose-bz img {
+    @apply my-7 rounded-lg;
   }
-  .prose-bizelan hr {
-    @apply my-12 border-ink-200;
+  .prose-bz hr {
+    @apply my-12 border-line;
   }
-  .prose-bizelan table {
-    @apply my-7 w-full border-collapse text-body;
+  .prose-bz table {
+    @apply my-7 w-full border-collapse text-base;
   }
-  .prose-bizelan th {
-    @apply border border-ink-200 bg-ink-50 px-4 py-2.5 text-left font-semibold text-ink-950;
+  .prose-bz th {
+    @apply border border-line bg-canvas-subtle px-4 py-2.5 text-left font-semibold text-fg;
   }
-  .prose-bizelan td {
-    @apply border border-ink-200 px-4 py-2.5 align-top;
+  .prose-bz td {
+    @apply border border-line px-4 py-2.5 align-top;
   }
 
   /* Masques latéraux des défileurs horizontaux */
@@ -430,56 +380,17 @@
 }
 
 /* ===========================================================================
-   Surface de l'éditeur riche (TipTap) — back-office sombre.
-   Elle reprend les jetons de `.prose-dark` : ce que l'admin voit en rédigeant
-   est ce que le visiteur verra, puisque le site public est sombre lui aussi.
+   Surface de l'éditeur riche (TipTap).
+
+   Elle ne redéfinit plus la typographie : l'éditeur porte `.prose-bz`, la
+   même classe que le rendu public. Ce qui suit ne concerne donc que ce qui
+   n'existe QUE pendant l'édition — sélection de nœud, poignées de colonne,
+   texte d'invite — et les vues de nœud que ProseMirror rend en HTML brut.
    =========================================================================== */
 @layer components {
-  .rich-surface {
-    @apply text-body-lg text-onDark-md;
-  }
-  .rich-surface > * + * {
-    @apply mt-4;
-  }
-  .rich-surface h2 {
-    @apply mb-3 mt-8 text-h2 text-onDark-hi;
-  }
-  .rich-surface h3 {
-    @apply mb-2 mt-7 text-h3 text-onDark-hi;
-  }
-  .rich-surface h4 {
-    @apply mb-2 mt-6 text-lg font-semibold text-onDark-hi;
-  }
-  .rich-surface ul {
-    @apply list-disc space-y-1.5 pl-6 marker:text-brand-400;
-  }
-  .rich-surface ol {
-    @apply list-decimal space-y-1.5 pl-6 marker:text-brand-400;
-  }
-  .rich-surface a {
-    @apply font-medium text-brand-300 underline underline-offset-4;
-  }
-  .rich-surface strong {
-    @apply text-onDark-hi;
-  }
-  .rich-surface blockquote {
-    @apply rounded-r-card border-l-2 border-brand-400 bg-surface-800/60 py-3 pl-5 pr-4 italic text-onDark-hi;
-  }
-  .rich-surface code {
-    @apply rounded bg-surface-800 px-1.5 py-0.5 text-[0.9em] text-brand-200;
-  }
-  .rich-surface pre {
-    @apply overflow-x-auto rounded-card bg-surface-950 p-4 text-sm ring-1 ring-surface-700;
-  }
-  .rich-surface pre code {
-    @apply bg-transparent p-0 text-onDark-md;
-  }
-  .rich-surface hr {
-    @apply my-8 border-surface-700;
-  }
 
   .rich-surface img {
-    @apply h-auto max-w-full rounded-card;
+    @apply h-auto max-w-full rounded-lg;
   }
   .rich-surface img[data-align='center'] {
     @apply mx-auto block;
@@ -491,46 +402,46 @@
     @apply mr-auto block;
   }
   .rich-surface img.ProseMirror-selectednode {
-    @apply ring-2 ring-brand-400 ring-offset-2 ring-offset-surface-850;
+    @apply ring-2 ring-primary-text ring-offset-2 ring-offset-surface;
   }
 
   .rich-surface div[data-youtube-video] {
-    @apply overflow-hidden rounded-card bg-surface-950;
+    @apply overflow-hidden rounded-lg bg-canvas;
   }
   .rich-surface div[data-youtube-video] iframe {
     @apply aspect-video h-auto w-full border-0;
   }
 
   .rich-surface div[data-callout] {
-    @apply rounded-card border-l-2 px-5 py-4;
+    @apply rounded-lg border-l-2 px-5 py-4;
   }
   .rich-surface div[data-callout] > * + * {
     @apply mt-3;
   }
   .rich-surface div[data-callout][data-tone='info'] {
-    @apply border-brand-400 bg-brand-400/10;
+    @apply border-primary-text bg-primary-subtle;
   }
   .rich-surface div[data-callout][data-tone='success'] {
-    @apply border-emerald-400 bg-emerald-400/10;
+    @apply border-success bg-success-subtle;
   }
   .rich-surface div[data-callout][data-tone='warning'] {
-    @apply border-accent-400 bg-accent-400/10;
+    @apply border-warning bg-warning-subtle;
   }
   .rich-surface div[data-callout][data-tone='danger'] {
-    @apply border-red-400 bg-red-400/10;
+    @apply border-danger bg-danger-subtle;
   }
 
   .rich-surface a[data-cta] {
-    @apply mx-auto inline-flex w-fit items-center justify-center rounded-control px-7 py-3.5 text-base font-semibold no-underline;
+    @apply mx-auto inline-flex w-fit items-center justify-center rounded-md px-7 py-3.5 text-base font-semibold no-underline;
   }
   .rich-surface a[data-cta][data-variant='primary'] {
-    @apply bg-brand-500 text-white;
+    @apply bg-primary text-primary-fg;
   }
   .rich-surface a[data-cta][data-variant='accent'] {
-    @apply bg-accent-400 text-surface-950;
+    @apply bg-secondary text-secondary-fg;
   }
   .rich-surface a[data-cta][data-variant='outline'] {
-    @apply border border-brand-400 bg-transparent text-brand-300;
+    @apply border border-primary-text bg-transparent text-primary-text;
   }
   .rich-surface a[data-cta][data-align='left'] {
     @apply ml-0 mr-auto;
@@ -539,7 +450,7 @@
     @apply ml-auto mr-0;
   }
   .rich-surface a[data-cta].ProseMirror-selectednode {
-    @apply ring-2 ring-brand-400 ring-offset-2 ring-offset-surface-850;
+    @apply ring-2 ring-primary-text ring-offset-2 ring-offset-surface;
   }
 
   .rich-surface table {
@@ -547,17 +458,17 @@
   }
   .rich-surface th,
   .rich-surface td {
-    @apply relative border border-surface-700 px-3 py-2 align-top;
+    @apply relative border border-line px-3 py-2 align-top;
   }
   .rich-surface th {
-    @apply bg-surface-800 font-semibold text-onDark-hi;
+    @apply bg-canvas-subtle font-semibold text-fg;
   }
   .rich-surface .selectedCell::after {
-    @apply pointer-events-none absolute inset-0 z-10 bg-brand-400/20;
+    @apply pointer-events-none absolute inset-0 z-10 bg-primary/20;
     content: '';
   }
   .rich-surface .column-resize-handle {
-    @apply absolute -right-0.5 bottom-0 top-0 z-20 w-1 cursor-col-resize bg-brand-400;
+    @apply absolute -right-0.5 bottom-0 top-0 z-20 w-1 cursor-col-resize bg-primary-text;
   }
   .rich-surface .tableWrapper {
     @apply overflow-x-auto;
@@ -570,7 +481,7 @@
   float: left;
   height: 0;
   pointer-events: none;
-  @apply text-onDark-lo;
+  @apply text-fg-subtle;
 }
 
 /* Masque les flèches des champs numériques dans l'admin */

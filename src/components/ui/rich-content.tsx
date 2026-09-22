@@ -44,7 +44,7 @@ export function RichContentView({
   }
 
   return (
-    <div className={cn('prose-dark', className)}>{renderNodes(content.content)}</div>
+    <div className={cn('prose-bz', className)}>{renderNodes(content.content)}</div>
   )
 }
 

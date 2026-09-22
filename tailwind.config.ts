@@ -71,8 +71,16 @@ const config: Config = {
           subtle: 'rgb(var(--info-subtle) / <alpha-value>)',
         },
 
-        /* --- Héritage : à supprimer en fin de migration ------------------- */
-        // Palette Bizelan — vert profond (agriculture / croissance) + ocre (terre)
+        /* --- Échelles littérales, usage désormais NOMMÉ et restreint -----
+           Elles ne sont plus un héritage à purger : chacune sert un cas
+           que les jetons de rôle ne couvrent pas, et rien d'autre.
+
+           `brand`  — le dégradé du bandeau de marque, fixe dans les deux
+                      thèmes, et le texte clair qui se pose dessus.
+           `accent` — `accent-400` seul : l'or des étoiles de notation.
+           `ink`    — `ink-950` seul : le texte d'un surlignage, qui est
+                      clair par nature quel que soit le thème.
+           ------------------------------------------------------------- */
         brand: {
           50: '#f0f9f4',
           100: '#daf1e3',
@@ -127,26 +135,8 @@ const config: Config = {
          */
         surface: {
           DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
-          raised: 'rgb(var(--surface-raised) / <alpha-value>)',
+          raised: 'rgb(var(--surface-raised) / <alpha-value>)',        },
 
-          600: '#27503b', // filets, séparateurs
-          700: '#1b3a2b', // bordures, panneaux surélevés
-          800: '#13291e', // panneaux, cartes
-          850: '#0e1f17', // surface de lecture longue
-          900: '#0a1711', // sections
-          950: '#060f0b', // fond de page
-        },
-
-        /**
-         * Texte sur fond sombre. Le blanc pur est volontairement absent :
-         * il provoque un halo à la lecture. Ce blanc cassé verdâtre tient
-         * un contraste de 14:1 sur surface-950 tout en restant confortable.
-         */
-        onDark: {
-          hi: '#eaf2ed',
-          md: '#a7bdb2',
-          lo: '#718c7f',
-        },
       },
 
       fontFamily: {
@@ -172,19 +162,16 @@ const config: Config = {
         xl: ['1.5rem', { lineHeight: '1.875rem', letterSpacing: '-0.012em' }],
         '2xl': ['1.875rem', { lineHeight: '2.25rem', letterSpacing: '-0.016em' }],
 
+        /* --- Lecture longue ---------------------------------------------
+           Hors de l'echelle d'interface : un corps d'article se lit plus
+           grand et plus aere qu'un libelle de formulaire. C'est la seule
+           taille destinee a etre lue par paragraphes. */
+        reading: ['1.0625rem', { lineHeight: '1.7' }],
+
         /* --- Display : site public uniquement ---------------------------- */
         '3xl': ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.02em' }],
         '4xl': ['2.75rem', { lineHeight: '3rem', letterSpacing: '-0.022em' }],
         '5xl': ['3.5rem', { lineHeight: '3.625rem', letterSpacing: '-0.024em' }],
-
-        /* --- Héritage : à supprimer en fin de migration ------------------- */
-        display: ['3rem', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '700' }],
-        h1: ['2.5rem', { lineHeight: '1.1', letterSpacing: '-0.018em', fontWeight: '700' }],
-        h2: ['2rem', { lineHeight: '1.15', letterSpacing: '-0.014em', fontWeight: '650' }],
-        h3: ['1.375rem', { lineHeight: '1.3', letterSpacing: '-0.008em', fontWeight: '600' }],
-        'body-lg': ['1.0625rem', { lineHeight: '1.7' }],
-        body: ['0.9375rem', { lineHeight: '1.65' }],
-        meta: ['0.8125rem', { lineHeight: '1.5' }],
       },
 
       /* Trois rayons, pas davantage : au-delà, l'œil cesse de percevoir la
@@ -194,11 +181,6 @@ const config: Config = {
         md: '0.625rem', // 10px — boutons, champs, menus
         lg: '0.875rem', // 14px — cartes, panneaux, modales
         pill: '999px',
-
-        /* --- Héritage : à supprimer en fin de migration ------------------- */
-        control: '0.75rem',
-        card: '1.25rem',
-        panel: '1.5rem',
       },
 
       transitionDuration: {
@@ -222,12 +204,6 @@ const config: Config = {
         e1: 'var(--shadow-1)',
         e2: 'var(--shadow-2)',
         e3: 'var(--shadow-3)',
-
-        /* --- Héritage : à supprimer en fin de migration ------------------- */
-        'dark-sm': '0 1px 2px rgba(0, 0, 0, 0.4)',
-        dark: '0 8px 24px -8px rgba(0, 0, 0, 0.6)',
-        'dark-lg': '0 24px 60px -20px rgba(0, 0, 0, 0.75)',
-        glow: '0 0 0 1px rgba(85, 174, 135, 0.2), 0 12px 40px -12px rgba(85, 174, 135, 0.35)',
       },
 
       keyframes: {

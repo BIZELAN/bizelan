@@ -120,6 +120,24 @@ Le blanc pur est écarté du texte sombre au profit d'un blanc cassé verdâtre
 (`#eaf2ed`) : il provoque un halo sur fond sombre, pour 2 points de contraste
 sans utilité à ce niveau.
 
+## Lecture longue : une seule classe
+
+`.prose-bz` habille tout ce qui se lit par paragraphes — pages de vente, corps
+d'articles, contenu markdown — **et la surface d'édition TipTap**.
+
+Il y en avait trois : `.prose-dark` pour le site, `.prose-bizelan` pour le fond
+clair des articles, `.rich-surface` pour l'éditeur. Identiques à la couleur
+près, elles ont divergé. `.prose-dark` écrivait encore en `onDark-md`, un gris
+clair conçu pour un fond sombre : **1,9:1 sur la page claire**, c'est-à-dire un
+corps de page de vente illisible.
+
+Les jetons de rôle rendent la triplication inutile. L'éditeur portant la même
+classe que le rendu public, le WYSIWYG est exact **par construction** et non
+par recopie — c'est la recopie qui avait échoué.
+
+La taille `text-reading` (17 px / 1,7) vit hors de l'échelle d'interface :
+un corps d'article ne se lit pas comme un libellé de formulaire.
+
 ## Typographie
 
 Une seule police d'interface, définie par `--font-sans`. **Trois graisses

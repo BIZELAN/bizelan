@@ -16,7 +16,7 @@ export default async function LegalPage() {
         {settings.legal_notice ? (
           <Markdown content={settings.legal_notice} />
         ) : (
-          <div className="prose-bizelan">
+          <div className="prose-bz">
             <p>
               Ce site est édité par <strong>{settings.site_name}</strong>
               {settings.address ? `, ${settings.address}` : ''}.

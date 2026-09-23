@@ -71,7 +71,7 @@ export function MediaLibrary({ items }: { items: MediaItem[] }) {
       )}
 
       <div className="mb-6">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-line-strong bg-surface px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-line-control bg-surface px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-canvas-subtle">
           <Upload className="h-4 w-4" aria-hidden />
           {uploading ? 'Téléversement…' : 'Téléverser des images'}
           <input

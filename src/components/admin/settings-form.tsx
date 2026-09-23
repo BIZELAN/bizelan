@@ -62,7 +62,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         <Field
           label="Carte Google Maps"
           htmlFor="map_embed_url"
-          help="URL d’intégration obtenue via Google Maps > Partager > Intégrer une carte."
+          help="Sur Google Maps : « Partager » puis l’onglet « Intégrer une carte ». Collez ici ce qui est proposé — le code &lt;iframe&gt; entier convient, l’URL seule aussi."
         >
           <Input id="map_embed_url" name="map_embed_url" defaultValue={settings.map_embed_url ?? ''} />
         </Field>

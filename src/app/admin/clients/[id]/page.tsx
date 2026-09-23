@@ -108,7 +108,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 </thead>
                 <tbody>
                   {orderList.map((order) => (
-                    <tr key={order.id} className="hover:bg-surface">
+                    <tr key={order.id}>
                       <Td>
                         <Link
                           href={`/admin/commandes/${order.id}`}

@@ -64,7 +64,7 @@ export default async function AdminPagesPage() {
           </thead>
           <tbody>
             {pages.map((page) => (
-              <tr key={page.id} className="hover:bg-surface">
+              <tr key={page.id}>
                 <Td>
                   <Link
                     href={`/admin/pages/${page.id}`}

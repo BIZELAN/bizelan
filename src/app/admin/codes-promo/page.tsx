@@ -54,7 +54,7 @@ export default async function AdminCouponsPage() {
               </thead>
               <tbody>
                 {list.map((coupon) => (
-                  <tr key={coupon.id} className="hover:bg-surface">
+                  <tr key={coupon.id}>
                     <Td>
                       <span className="font-mono font-semibold text-fg">{coupon.code}</span>
                       {!coupon.active && (

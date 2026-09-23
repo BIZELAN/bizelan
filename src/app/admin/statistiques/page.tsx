@@ -133,7 +133,7 @@ export default async function AdminStatsPage() {
                     ? Math.round(progress.total / progress.count)
                     : 0
                   return (
-                    <tr key={row.course_id} className="hover:bg-surface">
+                    <tr key={row.course_id}>
                       <Td className="font-medium text-fg">{row.course_title}</Td>
                       <Td className="tabular-nums text-fg-muted">{Number(row.units_sold)}</Td>
                       <Td className="font-semibold tabular-nums">
@@ -167,7 +167,7 @@ export default async function AdminStatsPage() {
             </thead>
             <tbody>
               {rankedPages.map(([path, count]) => (
-                <tr key={path} className="hover:bg-surface">
+                <tr key={path}>
                   <Td className="font-mono text-xs text-fg">{path}</Td>
                   <Td className="tabular-nums text-fg-muted">{count}</Td>
                 </tr>

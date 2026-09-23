@@ -57,7 +57,7 @@ export default async function AdminServicesPage() {
           </thead>
           <tbody>
             {services.map((service) => (
-              <tr key={service.id} className="hover:bg-surface">
+              <tr key={service.id}>
                 <Td>
                   <Link
                     href={`/admin/services/${service.id}`}

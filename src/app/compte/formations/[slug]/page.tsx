@@ -155,7 +155,7 @@ export default async function CourseOverviewPage({
                     <li key={lesson.id}>
                       <Link
                         href={`/compte/formations/${slug}/${lesson.id}`}
-                        className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface"
+                        className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-canvas-subtle"
                       >
                         <span
                           className={

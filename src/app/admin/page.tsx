@@ -106,7 +106,7 @@ export default async function AdminDashboard() {
             <Link
               key={alert.href}
               href={alert.href}
-              className="flex items-center gap-3 rounded-md border border-warning/30 bg-warning-subtle px-4 py-3 text-sm font-medium text-warning transition-colors hover:bg-warning-subtle"
+              className="flex items-center gap-3 rounded-md border border-warning/30 bg-warning-subtle px-4 py-3 text-sm font-medium text-warning transition-colors hover:border-warning/60 hover:bg-warning/15"
             >
               <alert.icon className="h-[1.125rem] w-[1.125rem] shrink-0" aria-hidden />
               <span className="flex-1">{alert.label}</span>
@@ -166,7 +166,7 @@ export default async function AdminDashboard() {
             <tbody>
               {((recentOrders.data ?? []) as Pick<Order, 'id' | 'reference' | 'customer_name' | 'total_cents' | 'currency' | 'status' | 'created_at'>[]).map(
                 (order) => (
-                  <tr key={order.id} className="hover:bg-surface">
+                  <tr key={order.id}>
                     <Td>
                       <Link
                         href={`/admin/commandes/${order.id}`}

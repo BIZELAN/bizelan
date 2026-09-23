@@ -47,6 +47,11 @@ export function Table({ children, className }: { children: React.ReactNode; clas
     <div
       className={cn(
         'overflow-x-auto rounded-lg border border-line bg-surface',
+        // Le survol de ligne est porté ici et non répété sur chaque <tr> :
+        // les onze pages de liste le déclaraient chacune avec la couleur du
+        // conteneur lui-même, donc aucune ne surlignait quoi que ce soit.
+        '[&_tbody_tr]:transition-colors [&_tbody_tr]:duration-fast',
+        '[&_tbody_tr:hover]:bg-canvas-subtle',
         className,
       )}
     >

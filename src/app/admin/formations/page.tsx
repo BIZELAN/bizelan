@@ -75,7 +75,7 @@ export default async function AdminCoursesPage() {
           </thead>
           <tbody>
             {list.map((course) => (
-              <tr key={course.id} className="hover:bg-surface">
+              <tr key={course.id}>
                 <Td>
                   <div className="flex items-center gap-3">
                     {course.cover_url ? (

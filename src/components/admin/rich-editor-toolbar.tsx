@@ -205,7 +205,7 @@ function UrlForm({
       <button
         type="button"
         onClick={() => onSubmit(value.trim())}
-        className="shrink-0 rounded-md bg-primary px-2.5 text-primary-fg hover:bg-primary"
+        className="shrink-0 rounded-md bg-primary px-2.5 text-primary-fg transition-colors hover:bg-primary-hover"
         title={submitLabel}
         aria-label={submitLabel}
       >
@@ -612,7 +612,7 @@ export function RichEditorToolbar({
                     }
                     close()
                   }}
-                  className="block w-full rounded-md px-2.5 py-1.5 text-left text-sm text-fg-muted hover:bg-surface"
+                  className="block w-full rounded-md px-2.5 py-1.5 text-left text-sm text-fg-muted transition-colors hover:bg-canvas-subtle hover:text-fg"
                 >
                   {tone.label}
                 </button>

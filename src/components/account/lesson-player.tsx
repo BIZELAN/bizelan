@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { saveVideoPosition, setLessonCompleted } from '@/app/actions/learning'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -121,18 +122,36 @@ export function VideoFrame({
   )
 }
 
-export function CompleteButton({
+/**
+ * Barre d'actions de fin de leçon.
+ *
+ * Elle réunit les trois gestes qui closent une leçon — revenir, marquer comme
+ * terminée, avancer — là où ils avaient un sens : SOUS le contenu. Le bouton
+ * « Marquer comme terminée » était placé juste sous la vidéo, au-dessus des
+ * notes et des supports : on demandait de conclure avant d'avoir lu.
+ *
+ * La navigation précédente/suivante est rendue ici plutôt qu'en bas de page,
+ * pour que l'apprenant n'ait pas à choisir entre deux rangées de liens qui
+ * font la même chose.
+ */
+export function LessonActions({
   lessonId,
   courseId,
   courseSlug,
   initialCompleted,
+  previousHref,
+  previousLabel,
   nextHref,
+  nextLabel,
 }: {
   lessonId: string
   courseId: string
   courseSlug: string
   initialCompleted: boolean
+  previousHref: string | null
+  previousLabel: string | null
   nextHref: string | null
+  nextLabel: string | null
 }) {
   const [completed, setCompleted] = useState(initialCompleted)
   const [pending, startTransition] = useTransition()
@@ -155,8 +174,8 @@ export function CompleteButton({
   }
 
   return (
-    <div>
-      <div className="flex flex-col gap-3 sm:flex-row">
+    <div className="rounded-lg border border-line bg-surface p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <Button
           type="button"
           onClick={() => toggle(false)}
@@ -167,18 +186,66 @@ export function CompleteButton({
           {pending ? (
             <Loader2 className="h-[1.125rem] w-[1.125rem] animate-spin" aria-hidden />
           ) : (
-            <Check className={cn('h-[1.125rem] w-[1.125rem]', completed && 'text-primary-text')} aria-hidden />
+            <Check
+              className={cn('h-[1.125rem] w-[1.125rem]', completed && 'text-primary-text')}
+              aria-hidden
+            />
           )}
           {completed ? 'Leçon terminée' : 'Marquer comme terminée'}
         </Button>
 
         {nextHref && (
-          <Button type="button" onClick={() => toggle(true)} disabled={pending} variant="accent" size="lg">
-            Leçon suivante
+          <Button
+            type="button"
+            onClick={() => toggle(true)}
+            disabled={pending}
+            variant="accent"
+            size="lg"
+          >
+            Terminer et continuer
+            <ArrowRight className="h-[1.125rem] w-[1.125rem]" aria-hidden />
           </Button>
         )}
       </div>
-      {error && <p className="mt-2 text-sm text-danger">{error}</p>}
+
+      {error && (
+        <p className="mt-3 text-sm text-danger" role="alert">
+          {error}
+        </p>
+      )}
+
+      {(previousHref || nextHref) && (
+        <div className="mt-5 grid gap-3 border-t border-line pt-5 sm:grid-cols-2">
+          {/* Chaque lien annonce OÙ il mène. Les flèches nues « ← titre » ne
+              disaient pas s'il s'agissait d'une leçon, d'un module ou du
+              cours, et se chevauchaient sur mobile. */}
+          {previousHref ? (
+            <Link href={previousHref} className={NEIGHBOUR}>
+              <ArrowLeft className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
+              <span className="min-w-0">
+                <span className="block text-xs text-fg-subtle">Leçon précédente</span>
+                <span className="mt-0.5 block truncate font-medium text-fg">{previousLabel}</span>
+              </span>
+            </Link>
+          ) : (
+            <span aria-hidden />
+          )}
+
+          {nextHref && (
+            <Link href={nextHref} className={cn(NEIGHBOUR, 'sm:text-right')}>
+              <span className="min-w-0 sm:order-1 sm:ml-auto">
+                <span className="block text-xs text-fg-subtle">Leçon suivante</span>
+                <span className="mt-0.5 block truncate font-medium text-fg">{nextLabel}</span>
+              </span>
+              <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-fg-subtle sm:order-2" aria-hidden />
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   )
 }
+
+const NEIGHBOUR =
+  'flex items-start gap-2.5 rounded-md border border-line px-4 py-3 text-sm ' +
+  'transition-colors duration-fast hover:border-line-control hover:bg-canvas-subtle'

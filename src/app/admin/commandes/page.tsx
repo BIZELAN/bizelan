@@ -108,7 +108,7 @@ export default async function AdminOrdersPage({
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-surface">
+              <tr key={order.id}>
                 <Td>
                   <Link
                     href={`/admin/commandes/${order.id}`}

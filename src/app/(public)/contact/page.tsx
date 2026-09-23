@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { ContactForm } from '@/components/public/contact-form'
 import { getSiteSettings } from '@/lib/queries'
+import { safeMapEmbedSrc } from '@/lib/map-embed'
 import { asArray, whatsappLink } from '@/lib/utils'
 import type { OpeningHour } from '@/lib/types'
 
@@ -16,6 +17,7 @@ export default async function ContactPage() {
   const settings = await getSiteSettings()
   const hours = asArray<OpeningHour>(settings.opening_hours)
   const whatsapp = whatsappLink(settings.whatsapp, 'Bonjour, je vous écris depuis votre site.')
+  const mapSrc = safeMapEmbedSrc(settings.map_embed_url)
 
   return (
     <>
@@ -111,22 +113,35 @@ export default async function ContactPage() {
               </a>
             )}
 
-            {settings.map_embed_url && (
-              <div className="overflow-hidden rounded-lg border border-line">
-                <iframe
-                  src={settings.map_embed_url}
-                  title="Localisation du cabinet"
-                  className="h-64 w-full"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-            )}
           </div>
 
           <ContactForm />
         </div>
       </section>
+
+      {/* ---------- Carte ------------------------------------------------
+          Elle occupait une bande de 256 px au fond de la colonne latérale,
+          sous le bouton WhatsApp : trop petite pour situer quoi que ce soit,
+          et reléguée derrière le formulaire. Elle prend maintenant toute la
+          largeur, en fin de page — là où l'on cherche « comment venir »
+          une fois le reste lu.
+
+          La valeur repasse par `safeMapEmbedSrc` bien qu'elle soit déjà
+          normalisée à l'enregistrement : les réglages saisis avant cette
+          validation sont toujours en base, et un `src` d'iframe ne se sert
+          pas sur la foi de ce qui a été écrit un jour. */}
+      {mapSrc && (
+        <section className="border-t border-line">
+          <h2 className="sr-only">Nous situer</h2>
+          <iframe
+            src={mapSrc}
+            title={`Localisation${settings.address ? ` : ${settings.address}` : ''}`}
+            className="block h-[22rem] w-full border-0 sm:h-[26rem]"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </section>
+      )}
     </>
   )
 }

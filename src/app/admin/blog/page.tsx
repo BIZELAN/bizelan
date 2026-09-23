@@ -57,7 +57,7 @@ export default async function AdminBlogPage() {
           </thead>
           <tbody>
             {posts.map((post) => (
-              <tr key={post.id} className="hover:bg-surface">
+              <tr key={post.id}>
                 <Td>
                   <Link
                     href={`/admin/blog/${post.id}`}

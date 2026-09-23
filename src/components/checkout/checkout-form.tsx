@@ -322,7 +322,7 @@ function PaymentOption({
         'flex w-full gap-4 rounded-lg border-2 p-4 text-left transition-colors',
         selected
           ? 'border-primary-text bg-primary-subtle'
-          : 'border-line bg-surface hover:border-line-strong hover:bg-surface',
+          : 'border-line bg-surface hover:border-line-control hover:bg-canvas-subtle',
       )}
     >
       <span

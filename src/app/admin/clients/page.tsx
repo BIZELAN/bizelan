@@ -75,7 +75,7 @@ export default async function AdminClientsPage({
             {profiles.map((profile) => {
               const role = ROLE_LABELS[profile.role] ?? ROLE_LABELS.client
               return (
-                <tr key={profile.id} className="hover:bg-surface">
+                <tr key={profile.id}>
                   <Td>
                     <Link
                       href={`/admin/clients/${profile.id}`}

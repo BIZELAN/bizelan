@@ -8,6 +8,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { fulfillOrder, revokeOrderAccess } from '@/lib/orders'
 import { parseRichContent, richContentToText } from '@/lib/rich-content'
 import { slugify } from '@/lib/utils'
+import { safeMapEmbedSrc } from '@/lib/map-embed'
 
 export interface AdminResult {
   ok: boolean
@@ -879,6 +880,23 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
   const user = await requireAdmin()
   const supabase = createAdminClient()
 
+  // La carte est normalisée AVANT enregistrement : le menu « Intégrer une
+  // carte » de Google donne un snippet `<iframe …>` complet, pas une URL, et
+  // le déposer tel quel dans un attribut `src` donnait une carte muette sans
+  // le moindre message. On accepte donc les deux formes, et on refuse plutôt
+  // que de stocker une valeur inexploitable.
+  const rawMap = nullable(formData, 'map_embed_url')
+  const mapEmbedUrl = safeMapEmbedSrc(rawMap)
+  if (rawMap && !mapEmbedUrl) {
+    return {
+      ok: false,
+      message:
+        'Carte Google Maps : lien non reconnu. Sur Google Maps, ouvrez ' +
+        '« Partager » puis l’onglet « Intégrer une carte », et collez ici ce ' +
+        'qui est proposé — le code <iframe> entier convient.',
+    }
+  }
+
   const payload = {
     site_name: str(formData, 'site_name') || 'BIZELAN',
     tagline: nullable(formData, 'tagline'),
@@ -888,7 +906,7 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
     phone: nullable(formData, 'phone'),
     whatsapp: nullable(formData, 'whatsapp'),
     address: nullable(formData, 'address'),
-    map_embed_url: nullable(formData, 'map_embed_url'),
+    map_embed_url: mapEmbedUrl,
     opening_hours: json(formData, 'opening_hours', [] as unknown[]),
     social_links: json(formData, 'social_links', {} as Record<string, string>),
     bank_transfer_instructions: nullable(formData, 'bank_transfer_instructions'),

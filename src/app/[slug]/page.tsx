@@ -7,7 +7,13 @@ import { SiteHeader } from '@/components/public/site-header'
 import { ViewTracker } from '@/components/public/view-tracker'
 import { getCurrentUser } from '@/lib/auth'
 import { parseBlocks } from '@/lib/blocks'
-import { getCourseBySlug, getPageBySlug, getServiceBySlug, getSiteSettings } from '@/lib/queries'
+import {
+  getBlockData,
+  getCourseBySlug,
+  getPageBySlug,
+  getServiceBySlug,
+  getSiteSettings,
+} from '@/lib/queries'
 import { createClient } from '@/lib/supabase/server'
 import { truncate } from '@/lib/utils'
 import type { Course, Service } from '@/lib/types'
@@ -59,10 +65,13 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
 
   if (!page || page.status !== 'published') notFound()
 
-  const [context, settings, user] = await Promise.all([
+  const [context, settings, user, data] = await Promise.all([
     loadContext(page.course_id, page.service_id),
     getSiteSettings(),
     getCurrentUser(),
+    // Les contenus des grilles partent avec le reste, en parallèle, plutôt
+    // qu'une requête par bloc pendant le rendu.
+    getBlockData(),
   ])
 
   // Une page de vente peut être « nue » : sans navigation ni pied de page,
@@ -78,7 +87,7 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
         />
       )}
       <main className="flex-1">
-        <BlockRenderer blocks={parseBlocks(page.blocks)} context={context} />
+        <BlockRenderer blocks={parseBlocks(page.blocks)} context={{ ...context, data }} />
       </main>
       {!page.hide_footer && <SiteFooter settings={settings} />}
       <ViewTracker />

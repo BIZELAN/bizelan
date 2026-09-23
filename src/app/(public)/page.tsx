@@ -5,6 +5,7 @@ import { HomeLanding } from '@/components/public/home-landing'
 import { parseBlocks } from '@/lib/blocks'
 import {
   getApprovedReviews,
+  getBlockData,
   getHomePage,
   getPublishedCourses,
   getPublishedPosts,
@@ -27,7 +28,9 @@ export default async function HomePage() {
 
   // Une page d'accueil composée dans l'admin prend toujours le dessus.
   if (page) {
-    return <BlockRenderer blocks={parseBlocks(page.blocks)} />
+    // Les contenus partent en UNE requête groupée plutôt qu'une par bloc.
+    const data = await getBlockData()
+    return <BlockRenderer blocks={parseBlocks(page.blocks)} context={{ data }} />
   }
 
   // Repli : accueil généré automatiquement tant qu'aucune page n'est composée.

@@ -13,7 +13,7 @@ import {
 import * as Icons from 'lucide-react'
 
 import type { Block } from '@/lib/blocks'
-import type { Course, FaqItem, Review, Service } from '@/lib/types'
+import type { Course, FaqItem, Post, Review, Service } from '@/lib/types'
 import { Accordion } from '@/components/ui/accordion'
 import { ButtonLink } from '@/components/ui/button'
 import { Markdown } from '@/components/ui/markdown'
@@ -27,13 +27,6 @@ import { VideoPlayer } from '@/components/ui/video-player'
 import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
 import { ContactForm } from '@/components/public/contact-form'
 import { QuoteForm } from '@/components/public/quote-form'
-import {
-  getApprovedReviews,
-  getCourseBySlug,
-  getPublishedCourses,
-  getPublishedPosts,
-  getPublishedServices,
-} from '@/lib/queries'
 import { asArray, cn, discountPercent, formatPrice } from '@/lib/utils'
 
 /* ------------------------------------------------------------------ */
@@ -88,13 +81,35 @@ function themeOf(value: string): ThemeKey {
 export interface BlockContext {
   course?: Course | null
   service?: Service | null
+  /**
+   * Contenus publiés, récupérés UNE fois par la page.
+   *
+   * Les blocs les interrogeaient chacun de leur côté : une page portant une
+   * grille de formations, une de services et une d'articles déclenchait trois
+   * requêtes en cascade, et le moteur ne pouvait vivre que côté serveur.
+   *
+   * Le filtrage qu'ils faisaient — « en avant seulement », « les trois
+   * premiers » — se refait ici sans requête. Le moteur devient NEUTRE : le
+   * site public le rend côté serveur sans envoyer un octet de JavaScript,
+   * l'aperçu de l'administration le rend côté navigateur à chaque frappe.
+   */
+  data?: BlockData
 }
+
+export interface BlockData {
+  courses: Course[]
+  services: Service[]
+  posts: Post[]
+  reviews: Review[]
+}
+
+const EMPTY_DATA: BlockData = { courses: [], services: [], posts: [], reviews: [] }
 
 /* ------------------------------------------------------------------ */
 /* Rendu d'une page complète                                           */
 /* ------------------------------------------------------------------ */
 
-export async function BlockRenderer({
+export function BlockRenderer({
   blocks,
   context,
 }: {
@@ -111,14 +126,14 @@ export async function BlockRenderer({
   )
 }
 
-async function BlockSwitch({ block, context }: { block: Block; context?: BlockContext }) {
+function BlockSwitch({ block, context }: { block: Block; context?: BlockContext }) {
   const data = (block.data ?? {}) as Record<string, unknown>
 
   switch (block.type) {
     case 'hero':
       return <HeroBlock data={data} />
     case 'heroSplit':
-      return <HeroSplitBlock data={data} />
+      return <HeroSplitBlock data={data} pool={context?.data ?? EMPTY_DATA} />
     case 'painPoints':
       return <PainPointsBlock data={data} />
     case 'beforeAfter':
@@ -150,13 +165,19 @@ async function BlockSwitch({ block, context }: { block: Block; context?: BlockCo
     case 'image':
       return <ImageBlock data={data} />
     case 'courseGrid':
-      return <CourseGridBlock data={data} />
+      return <CourseGridBlock data={data} pool={context?.data ?? EMPTY_DATA} />
     case 'serviceGrid':
-      return <ServiceGridBlock data={data} />
+      return <ServiceGridBlock data={data} pool={context?.data ?? EMPTY_DATA} />
     case 'postGrid':
-      return <PostGridBlock data={data} />
+      return <PostGridBlock data={data} pool={context?.data ?? EMPTY_DATA} />
     case 'testimonials':
-      return <TestimonialsBlock data={data} course={context?.course ?? null} />
+      return (
+        <TestimonialsBlock
+          data={data}
+          course={context?.course ?? null}
+          pool={context?.data ?? EMPTY_DATA}
+        />
+      )
     case 'experts':
       return <ExpertsBlock data={data} />
     case 'freeContent':
@@ -179,15 +200,15 @@ async function BlockSwitch({ block, context }: { block: Block; context?: BlockCo
  * Sans formation disponible, la colonne de droite disparaît et le texte
  * occupe toute la largeur — la bannière reste donc utilisable sur un site vide.
  */
-async function HeroSplitBlock({ data }: { data: Record<string, unknown> }) {
+function HeroSplitBlock({ data, pool }: { data: Record<string, unknown>; pool: BlockData }) {
   const f = d(data)
   const slug = f.str('courseSlug')
 
+  // Même choix qu'avant : la formation désignée, sinon la première mise en
+  // avant, sinon la première tout court.
   const course = slug
-    ? await getCourseBySlug(slug)
-    : ((await getPublishedCourses({ limit: 1, featuredOnly: true }))[0] ??
-      (await getPublishedCourses({ limit: 1 }))[0] ??
-      null)
+    ? (pool.courses.find((c) => c.slug === slug) ?? null)
+    : (pool.courses.find((c) => c.featured) ?? pool.courses[0] ?? null)
 
   const guarantees = f.list<string>('guarantees')
 
@@ -864,12 +885,13 @@ function ImageBlock({ data }: { data: Record<string, unknown> }) {
 
 /* --- Blocs alimentés par la base ----------------------------------- */
 
-async function CourseGridBlock({ data }: { data: Record<string, unknown> }) {
+function CourseGridBlock({ data, pool }: { data: Record<string, unknown>; pool: BlockData }) {
   const f = d(data)
-  const courses = await getPublishedCourses({
-    limit: f.num('limit', 3) || 3,
-    featuredOnly: f.bool('featuredOnly'),
-  })
+  // Même filtrage que la requête d'origine — `featured` puis `limit` — mais
+  // appliqué à la liste déjà récupérée par la page.
+  const courses = pool.courses
+    .filter((c) => (f.bool('featuredOnly') ? c.featured : true))
+    .slice(0, f.num('limit', 3) || 3)
   if (!courses.length) return null
 
   return (
@@ -892,9 +914,9 @@ async function CourseGridBlock({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-async function ServiceGridBlock({ data }: { data: Record<string, unknown> }) {
+function ServiceGridBlock({ data, pool }: { data: Record<string, unknown>; pool: BlockData }) {
   const f = d(data)
-  const services = await getPublishedServices(f.num('limit', 3) || 3)
+  const services = pool.services.slice(0, f.num('limit', 3) || 3)
   if (!services.length) return null
 
   return (
@@ -911,9 +933,9 @@ async function ServiceGridBlock({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-async function PostGridBlock({ data }: { data: Record<string, unknown> }) {
+function PostGridBlock({ data, pool }: { data: Record<string, unknown>; pool: BlockData }) {
   const f = d(data)
-  const posts = await getPublishedPosts({ limit: f.num('limit', 3) || 3 })
+  const posts = pool.posts.slice(0, f.num('limit', 3) || 3)
   if (!posts.length) return null
 
   return (
@@ -930,19 +952,24 @@ async function PostGridBlock({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-async function TestimonialsBlock({
+function TestimonialsBlock({
   data,
   course,
+  pool,
 }: {
   data: Record<string, unknown>
   course: Course | null
+  pool: BlockData
 }) {
   const f = d(data)
   const manual = f.list<{ name?: string; role?: string; text?: string; rating?: number }>('items')
 
   let items = manual
   if (f.bool('useApprovedReviews', true)) {
-    const reviews: Review[] = await getApprovedReviews(course?.id)
+    // Les avis d'une formation précise, ou tous quand le bloc n'en vise aucune.
+    const reviews: Review[] = course
+      ? pool.reviews.filter((r) => r.course_id === course.id)
+      : pool.reviews
     if (reviews.length) {
       items = reviews.map((r) => ({
         name: r.author_name,

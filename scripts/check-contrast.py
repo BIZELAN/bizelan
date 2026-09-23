@@ -14,17 +14,49 @@ import sys
 
 src = io.open('src/app/globals.css', encoding='utf-8').read()
 
-# Trois blocs de couleur : :root (clair), la media-query sombre, puis
-# l'override [data-theme='dark']. On decoupe sur les deux premiers reperes
-# seulement — `data-theme` reapparait plus bas pour d'autres regles.
-i_media = src.index('@media (prefers-color-scheme: dark)')
-i_attr = src.index("[data-theme='dark'] {")
 TOKEN = r'--([a-z-]+):\s*(\d+ \d+ \d+);'
-LIGHT = dict(re.findall(TOKEN, src[:i_media]))
-DARK = dict(re.findall(TOKEN, src[i_media:i_attr]))
-# Borne haute : la portee console suit, et ses jetons ne sont pas ceux-ci.
-i_end = src.index('[data-console] {')
-DARK_ATTR = dict(re.findall(TOKEN, src[i_attr:i_end]))
+
+# Les blocs sont reperes par CE QU'ILS DECLARENT, et non par un selecteur
+# exact : ceux-ci ont deja change deux fois (ajout de `[data-theme=light]`,
+# puis de `[data-site]`), et chaque fois le script s'est mis a lire la mauvaise
+# region en silence. Un bloc de palette est ici une regle CSS qui declare
+# `--bg`, ce qui est vrai des six et d'aucune autre.
+# Les commentaires sont retires d'abord : ils CITENT des selecteurs, et le
+# motif les prenait pour du code.
+CLEAN = re.sub(r'/\*.*?\*/', '', src, flags=re.S)
+
+BLOCKS = []
+for match in re.finditer(r'([^{}]*)\{([^{}]*--bg:[^{}]*)\}', CLEAN):
+    selector = ' '.join(match.group(1).split())
+    tokens = dict(re.findall(TOKEN, match.group(2)))
+    if tokens:
+        BLOCKS.append((selector, tokens))
+
+
+def pick(*, console, dark, forced):
+    """Retrouve un bloc par ses caracteristiques de selecteur."""
+    for selector, tokens in BLOCKS:
+        has_console = 'data-console' in selector
+        # `prefers-color-scheme` n'apparait pas dans le selecteur : la
+        # media-query enveloppe la regle. On distingue donc la variante imposee
+        # par la presence de `[data-theme='dark']`.
+        is_forced = "data-theme='dark']" in selector and ':not(' not in selector
+        is_dark = is_forced or ':not(' in selector
+        if has_console == console and is_dark == dark and is_forced == forced:
+            return tokens
+    raise SystemExit(
+        'Bloc de palette introuvable (console=%s, sombre=%s, impose=%s). '
+        'Les selecteurs de globals.css ont-ils change ?' % (console, dark, forced)
+    )
+
+
+LIGHT = pick(console=False, dark=False, forced=False)
+DARK = pick(console=False, dark=True, forced=False)
+DARK_ATTR = pick(console=False, dark=True, forced=True)
+
+CONSOLE_LIGHT = pick(console=True, dark=False, forced=False)
+CONSOLE_DARK = pick(console=True, dark=True, forced=False)
+CONSOLE_DARK_ATTR = pick(console=True, dark=True, forced=True)
 
 # Les deux blocs sombres doivent rester identiques : l'un sert la preference
 # systeme, l'autre le choix explicite. Une divergence serait invisible a l'oeil
@@ -32,6 +64,10 @@ DARK_ATTR = dict(re.findall(TOKEN, src[i_attr:i_end]))
 ecarts = sorted(k for k in DARK if DARK_ATTR.get(k) != DARK[k])
 if ecarts:
     print('  !! les deux blocs sombres divergent : %s' % ecarts)
+
+ecarts_console = sorted(k for k in CONSOLE_DARK if CONSOLE_DARK_ATTR.get(k) != CONSOLE_DARK[k])
+if ecarts_console:
+    print('  !! les deux blocs sombres de la console divergent : %s' % ecarts_console)
 
 
 def rgb(theme, name):
@@ -100,23 +136,6 @@ PAIRS = [
     ('bordure aplat secondaire',   'secondary-text', 'bg',               3.0, 1),
     ('interrupteur actif vs page', 'primary-text',   'bg',               3.0, 1),
 ]
-
-# --- Console d'administration : palette propre, meme mecanique --------------
-# Elle redeclare les jetons pour sa portee, donc elle doit etre mesuree
-# separement. Les memes paires s'y appliquent : c'est le meme vocabulaire.
-# Les deux selecteurs sombres acceptent <html> lui-meme autant qu'un
-# sous-arbre, d'ou la liste de deux selecteurs : on se repere sur sa premiere
-# ligne, qui se termine par une virgule.
-i_console = src.index('[data-console] {')
-i_console_media = src.index(":root:not([data-theme='light']) [data-console],")
-i_console_attr = src.index("[data-theme='dark'] [data-console],")
-CONSOLE_LIGHT = dict(re.findall(TOKEN, src[i_console:i_console_media]))
-CONSOLE_DARK = dict(re.findall(TOKEN, src[i_console_media:i_console_attr]))
-CONSOLE_DARK_ATTR = dict(re.findall(TOKEN, src[i_console_attr:]))
-
-ecarts_console = sorted(k for k in CONSOLE_DARK if CONSOLE_DARK_ATTR.get(k) != CONSOLE_DARK[k])
-if ecarts_console:
-    print('  !! les deux blocs sombres de la console divergent : %s' % ecarts_console)
 
 fails = len(ecarts) + len(ecarts_console)
 for theme_name, theme in (

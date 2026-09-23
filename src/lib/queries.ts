@@ -292,3 +292,34 @@ export async function getUserEnrollments(
 
   return (data as (Enrollment & { course: Course })[]) ?? []
 }
+
+/**
+ * Contenus publiés dont les blocs ont besoin, récupérés en UNE fois.
+ *
+ * Les blocs `courseGrid`, `serviceGrid`, `postGrid`, `testimonials` et
+ * `heroSplit` interrogeaient chacun la base de leur côté : une page qui les
+ * réunit déclenchait cinq requêtes en cascade, et le moteur de rendu ne
+ * pouvait vivre que côté serveur.
+ *
+ * Les quatre requêtes ci-dessous partent en parallèle, et le filtrage que
+ * faisaient les blocs — « en avant seulement », « les trois premiers » — se
+ * refait sans base. Le moteur devient utilisable côté navigateur, ce qui rend
+ * l'aperçu de l'administration possible.
+ *
+ * Les bornes sont larges : elles couvrent le plus gourmand des blocs, et
+ * plusieurs blocs du même type puisent dans la même liste.
+ */
+export async function getBlockData(): Promise<{
+  courses: Course[]
+  services: Service[]
+  posts: Post[]
+  reviews: Review[]
+}> {
+  const [courses, services, posts, reviews] = await Promise.all([
+    getPublishedCourses({ limit: 24 }),
+    getPublishedServices(24),
+    getPublishedPosts({ limit: 24 }),
+    getApprovedReviews(undefined, 24),
+  ])
+  return { courses, services, posts, reviews }
+}

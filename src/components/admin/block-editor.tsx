@@ -26,6 +26,8 @@ import {
   type FieldDef,
 } from '@/lib/blocks'
 import { Button } from '@/components/ui/button'
+import { BlockPreview } from '@/components/admin/block-preview'
+import type { BlockData } from '@/components/public/blocks/block-renderer'
 import { Checkbox, Input, Select, Textarea } from '@/components/ui/field'
 import { EmptyState } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
@@ -38,13 +40,21 @@ import { cn } from '@/lib/utils'
 export function BlockEditor({
   name = 'blocks',
   defaultValue = [],
+  previewData,
 }: {
   name?: string
   defaultValue?: Block[]
+  /**
+   * Contenus publiés, récupérés une fois côté serveur. Leur présence active
+   * l'aperçu : sans eux, les grilles de formations et d'articles s'y
+   * afficheraient vides, ce qui serait pire que pas d'aperçu du tout.
+   */
+  previewData?: BlockData
 }) {
   const [blocks, setBlocks] = useState<Block[]>(defaultValue)
   const [openId, setOpenId] = useState<string | null>(defaultValue[0]?.id ?? null)
   const [picker, setPicker] = useState(false)
+  const [preview, setPreview] = useState(false)
 
   const groups = useMemo(() => {
     const map = new Map<string, typeof BLOCK_DEFS>()
@@ -94,6 +104,28 @@ export function BlockEditor({
   return (
     <div>
       <input type="hidden" name={name} value={JSON.stringify(blocks)} />
+
+      {previewData && blocks.length > 0 && (
+        <div className="mb-4 flex justify-end">
+          <Button
+            type="button"
+            variant={preview ? 'primary' : 'outline'}
+            size="sm"
+            onClick={() => setPreview((v) => !v)}
+            aria-pressed={preview}
+          >
+            <Icons.Eye className="h-4 w-4" aria-hidden />
+            {preview ? 'Masquer l’aperçu' : 'Aperçu en direct'}
+          </Button>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          preview && previewData && 'grid gap-4 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]',
+        )}
+      >
+      <div className="min-w-0">
 
       {blocks.length === 0 ? (
         <EmptyState
@@ -223,6 +255,21 @@ export function BlockEditor({
           </Button>
         </div>
       )}
+
+      </div>
+
+        {/* Le panneau d'aperçu vit dans la grille, à côté de la liste : on voit
+            l'effet d'un réglage sans quitter le champ qu'on est en train de
+            remplir. Sous `xl`, la grille retombe en une colonne et l'aperçu
+            passe dessous. */}
+        {preview && previewData && (
+          <div className="min-w-0 xl:sticky xl:top-4 xl:max-h-[calc(100dvh-8rem)] xl:self-start">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-line bg-surface">
+              <BlockPreview blocks={blocks} data={previewData} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Sélecteur de blocs */}
       {picker && (

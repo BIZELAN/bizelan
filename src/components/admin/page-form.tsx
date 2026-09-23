@@ -13,16 +13,20 @@ import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Alert } from '@/components/ui/misc'
 import { parseBlocks } from '@/lib/blocks'
 import { slugify } from '@/lib/utils'
+import type { BlockData } from '@/components/public/blocks/block-renderer'
 import type { Course, Page, Service } from '@/lib/types'
 
 export function PageForm({
   page,
   courses,
   services,
+  previewData,
 }: {
   page: Page | null
   courses: Pick<Course, 'id' | 'title'>[]
   services: Pick<Service, 'id' | 'title'>[]
+  /** Contenus publiés : leur présence active l’aperçu en direct. */
+  previewData?: BlockData
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(savePage, null)
   const [slug, setSlug] = useState(page?.slug ?? '')
@@ -98,7 +102,7 @@ export function PageForm({
         title="Contenu de la page"
         description="Ajoutez, réorganisez et modifiez les blocs. L’ordre ici est l’ordre d’affichage."
       >
-        <BlockEditor name="blocks" defaultValue={parseBlocks(page?.blocks)} />
+        <BlockEditor name="blocks" defaultValue={parseBlocks(page?.blocks)} previewData={previewData} />
       </FormSection>
 
       <FormSection title="Référencement (SEO)">

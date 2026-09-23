@@ -17,8 +17,13 @@
    moindre classe conditionnelle à l'intérieur.
    =========================================================================== */
 
+/* `[data-site]` restitue la palette PUBLIQUE à l'intérieur d'un sous-arbre.
+   C'est l'inverse exact de `[data-console]` : l'aperçu de l'éditeur vit dans
+   la console, qui porte le cyan sur <html>, et doit pourtant montrer les
+   couleurs que verra le visiteur. Sans cela l'aperçu mentirait. */
 :root,
-[data-theme='light'] {
+[data-theme='light'],
+[data-site] {
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: ui-serif, Georgia, 'Times New Roman', serif;
 
@@ -111,7 +116,8 @@
 
 /* Sombre : appliqué par préférence système, sauf si le clair est imposé. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-theme='light']),
+  :root:not([data-theme='light']) [data-site] {
     --bg: 10 16 13;
     --bg-subtle: 14 21 18;
     --surface: 19 27 23;
@@ -161,7 +167,8 @@
 }
 
 /* Sombre imposé par l'utilisateur — mêmes valeurs, priorité supérieure. */
-[data-theme='dark'] {
+[data-theme='dark'],
+[data-theme='dark'] [data-site] {
   --bg: 10 16 13;
   --bg-subtle: 14 21 18;
   --surface: 19 27 23;

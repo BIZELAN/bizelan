@@ -9,6 +9,7 @@ import { fulfillOrder, revokeOrderAccess } from '@/lib/orders'
 import { parseRichContent, richContentToText } from '@/lib/rich-content'
 import { slugify } from '@/lib/utils'
 import { safeMapEmbedSrc } from '@/lib/map-embed'
+import { getRevision, restorablePayload, snapshot } from '@/lib/revisions'
 import { parseHex } from '@/lib/theme-tokens'
 
 export interface AdminResult {
@@ -480,6 +481,10 @@ export async function savePage(_prev: AdminResult | null, formData: FormData): P
   }
 
   if (id) {
+    // L'état courant est conservé AVANT d'être écrasé : c'est lui qu'on
+    // voudra retrouver si la refonte ne convient pas une fois en ligne.
+    await snapshot('page', id, user.id)
+
     const { error } = await supabase.from('pages').update(payload).eq('id', id)
     if (error) return { ok: false, message: mapError(error.message) }
     await logActivity(user.id, 'page.updated', 'page', id, { title, slug })
@@ -944,6 +949,10 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
     default_seo_description: nullable(formData, 'default_seo_description'),
   }
 
+  // Une couleur mal choisie se voit sur tout le site : l'état précédent est
+  // conservé pour pouvoir y revenir d'un clic.
+  await snapshot('settings', '1', user.id)
+
   const { error } = await supabase.from('site_settings').update(payload).eq('id', 1)
   if (error) return { ok: false, message: mapError(error.message) }
 
@@ -1009,4 +1018,57 @@ function navLinks(formData: FormData, name: string): { label: string; href: stri
     })
     .filter((item): item is { label: string; href: string } => item !== null)
     .slice(0, 20)
+}
+
+/* ------------------------------------------------------------------ */
+/* Retour à une révision                                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Remet une page ou les réglages dans l'état d'une révision.
+ *
+ * La restauration passe par `snapshot` comme n'importe quelle écriture :
+ * l'état qu'on abandonne est donc conservé, et revenir sur une restauration
+ * ne demande aucun code de plus.
+ *
+ * `slug` et `is_home` ne sont jamais réécrits — voir `restorablePayload` :
+ * on restaure un CONTENU, pas une identité. Reprendre une ancienne adresse
+ * casserait les liens entrants, et reprendre `is_home` déplacerait la page
+ * d'accueil sans que personne l'ait demandé.
+ */
+export async function restoreRevision(revisionId: string): Promise<AdminResult> {
+  const user = await requireAdmin()
+  const supabase = createAdminClient()
+
+  const revision = await getRevision(revisionId)
+  if (!revision) return { ok: false, message: 'Cette révision n’existe plus.' }
+
+  const payload = restorablePayload(revision.payload)
+  const table = revision.entity === 'page' ? 'pages' : 'site_settings'
+
+  await snapshot(revision.entity, revision.entity_id, user.id)
+
+  const { error } = await supabase.from(table).update(payload).eq('id', revision.entity_id)
+  if (error) return { ok: false, message: mapError(error.message) }
+
+  await logActivity(user.id, `${revision.entity}.restored`, revision.entity, revision.entity_id, {
+    revision_id: revisionId,
+    revision_date: revision.created_at,
+  })
+
+  // Le site public tout entier peut dépendre de ce qui vient d'être restauré :
+  // une couleur, un menu, une page d'accueil. On revalide largement.
+  revalidatePath('/', 'layout')
+  if (revision.entity === 'page') {
+    revalidatePath('/admin/pages')
+    const slug = typeof revision.payload.slug === 'string' ? revision.payload.slug : null
+    if (slug) revalidatePath(`/${slug}`)
+  } else {
+    revalidatePath('/admin/parametres')
+  }
+
+  return {
+    ok: true,
+    message: `Version du ${new Date(revision.created_at).toLocaleString('fr-FR')} restaurée.`,
+  }
 }

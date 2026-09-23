@@ -13,7 +13,9 @@ import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Alert } from '@/components/ui/misc'
 import { parseBlocks } from '@/lib/blocks'
 import { slugify } from '@/lib/utils'
+import { RevisionHistory } from '@/components/admin/revision-history'
 import type { BlockData } from '@/components/public/blocks/block-renderer'
+import type { Revision } from '@/lib/revisions'
 import type { Course, Page, Service } from '@/lib/types'
 
 export function PageForm({
@@ -21,12 +23,15 @@ export function PageForm({
   courses,
   services,
   previewData,
+  revisions = [],
 }: {
   page: Page | null
   courses: Pick<Course, 'id' | 'title'>[]
   services: Pick<Service, 'id' | 'title'>[]
   /** Contenus publiés : leur présence active l’aperçu en direct. */
   previewData?: BlockData
+  /** États précédents, du plus récent au plus ancien. */
+  revisions?: Revision[]
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(savePage, null)
   const [slug, setSlug] = useState(page?.slug ?? '')
@@ -156,6 +161,8 @@ export function PageForm({
           </Alert>
         )}
       </FormSection>
+
+      <RevisionHistory revisions={revisions} previewData={previewData} />
 
       <FormActions>
         <SaveButton label={page ? 'Enregistrer la page' : 'Créer la page'} />

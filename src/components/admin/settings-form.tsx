@@ -9,10 +9,19 @@ import { ImageInput } from '@/components/admin/image-input'
 import { Checkbox, Field, Input, Textarea } from '@/components/ui/field'
 import { Alert } from '@/components/ui/misc'
 import { asArray } from '@/lib/utils'
+import { RevisionHistory } from '@/components/admin/revision-history'
 import { ThemeSection } from '@/components/admin/theme-section'
+import type { Revision } from '@/lib/revisions'
 import type { NavLink, OpeningHour, SiteSettings } from '@/lib/types'
 
-export function SettingsForm({ settings }: { settings: SiteSettings }) {
+export function SettingsForm({
+  settings,
+  revisions = [],
+}: {
+  settings: SiteSettings
+  /** États précédents des réglages — une couleur se rattrape d'un clic. */
+  revisions?: Revision[]
+}) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveSettings, null)
   const social = settings.social_links ?? {}
 
@@ -218,6 +227,9 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           />
         </Field>
       </FormSection>
+
+      <RevisionHistory revisions={revisions} />
+
 
       <FormActions>
         <SaveButton label="Enregistrer les paramètres" />

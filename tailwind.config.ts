@@ -122,21 +122,16 @@ const config: Config = {
         },
 
         /**
-         * Rampe des fonds sombres — c'est le sol du site.
-         * Teintée de vert plutôt que neutre : sans cette teinte, le vert de
-         * marque paraît rapporté au lieu d'appartenir à la même famille.
-         */
-        /**
-         * `surface` porte à la fois le jeton de rôle et l'échelle héritée.
-         * Les deux ne peuvent pas cohabiter sous des clés séparées : une clé
-         * répétée écrase la précédente en JavaScript, et `bg-surface` cessait
-         * silencieusement d'exister. Les entrées numériques disparaîtront en
-         * fin de migration ; DEFAULT et `raised` resteront.
+         * `surface` a longtemps porté à la fois le jeton de rôle et une échelle
+         * numérique héritée. Les deux ne pouvaient pas cohabiter sous des clés
+         * séparées — une clé répétée écrase la précédente en JavaScript, et
+         * `bg-surface` cessait silencieusement d'exister. L'échelle est
+         * désormais supprimée, faute d'usage.
          */
         surface: {
           DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
-          raised: 'rgb(var(--surface-raised) / <alpha-value>)',        },
-
+          raised: 'rgb(var(--surface-raised) / <alpha-value>)',
+        },
       },
 
       fontFamily: {
@@ -174,12 +169,19 @@ const config: Config = {
         '5xl': ['3.5rem', { lineHeight: '3.625rem', letterSpacing: '-0.024em' }],
       },
 
-      /* Trois rayons, pas davantage : au-delà, l'œil cesse de percevoir la
-         hiérarchie et les écarts passent pour des erreurs. */
+      /**
+       * Trois rayons, pas davantage : au-delà, l'œil cesse de percevoir la
+       * hiérarchie et les écarts passent pour des erreurs.
+       *
+       * Les valeurs vivent dans `globals.css` et non ici, parce que la console
+       * d'administration les redéfinit pour sa portée : `rounded-lg` vaut 14 px
+       * sur le site public et 24 px dans la console. Une seule série de classes
+       * sert les deux, et aucun composant n'a à savoir où il se trouve.
+       */
       borderRadius: {
-        sm: '0.375rem', // 6px  — cases, puces, petits contrôles
-        md: '0.625rem', // 10px — boutons, champs, menus
-        lg: '0.875rem', // 14px — cartes, panneaux, modales
+        sm: 'var(--radius-sm)', // 6px public  / 12px console
+        md: 'var(--radius-md)', // 10px public / 16px console
+        lg: 'var(--radius-lg)', // 14px public / 24px console
         pill: '999px',
       },
 
@@ -196,6 +198,12 @@ const config: Config = {
       maxWidth: {
         content: '72rem',
         reading: '68ch', // mesure de confort pour les textes longs
+
+        /* Console d'administration : la coquille entière, puis la colonne de
+           lecture à l'intérieur du panneau de contenu. Deux bornes, parce
+           qu'un tableau a besoin de largeur mais un formulaire n'en veut pas. */
+        console: '107.5rem', // 1720px
+        panel: '85rem', // 1360px
       },
 
       boxShadow: {

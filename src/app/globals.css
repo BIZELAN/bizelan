@@ -93,6 +93,15 @@
      a replié la barre (voir lib/sidebar.ts). */
   --sidebar-w: 16rem;
 
+  /* --- Rayons ------------------------------------------------------------
+     Pilotes par variables, et non figes dans la config Tailwind : la console
+     d'administration les redefinit pour sa propre portee (voir plus bas).
+     `rounded-lg` vaut donc 14 px sur le site public et 24 px dans la console,
+     sans qu'aucun composant n'ait a le savoir. */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;
@@ -198,6 +207,165 @@
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.55);
   --shadow-3: 0 20px 48px -16px rgb(0 0 0 / 0.7);
+}
+
+/* ===========================================================================
+   CONSOLE D'ADMINISTRATION — portée `[data-console]`.
+
+   Le client a demandé le style de la console Oniix : fond bleu-noir, primaire
+   cyan, accent émeraude, grands rayons, ombres larges et diffuses.
+
+   Elle vit comme un ÎLOT, au même titre que le certificat : les sélecteurs
+   `[data-console]` redéclarent les jetons pour tout le sous-arbre, et rien
+   au-dessus n'est touché. Le site public et l'espace client gardent donc
+   GreenYellow — deux identités assumées, pas une dérive.
+
+   Deux écarts volontaires avec Oniix, tous deux mesurés :
+
+   1. Oniix n'existe qu'en SOMBRE. Ses classes (`border-white/10`,
+      `bg-[#0b0f18]`, `text-zinc-400`) en sont structurellement incapables.
+      Le bloc clair ci-dessous est calculé — mêmes teintes, luminosités
+      inversées — et non transposé à l'œil.
+   2. Les APLATS gardent le cyan et l'émeraude vifs dans les deux thèmes :
+      c'est la signature. Mais un aplat cyan sur une page claire ne vaut que
+      1,72:1, sous le seuil de 3:1 que la règle WCAG 1.4.11 impose à la
+      frontière d'un contrôle. C'est donc une BORDURE en `-text` qui porte
+      cette frontière, jamais le remplissage.
+
+   46 paires vérifiées sur les deux thèmes — `python scripts/check-contrast.py`.
+   =========================================================================== */
+
+[data-console] {
+  --bg: 245 246 250;
+  --bg-subtle: 236 238 244;
+  --surface: 255 255 255;
+  --surface-raised: 255 255 255;
+  --border: 218 222 231;
+  --border-strong: 190 195 208;
+  --control-border: 126 136 154;
+  --text: 19 22 37;
+  --text-muted: 79 87 105;
+  --text-subtle: 101 110 129;
+  --primary: 45 206 251;
+  --primary-hover: 13 193 242;
+  --primary-fg: 13 16 28;
+  --primary-subtle: 226 247 253;
+  --primary-text: 0 101 138;
+  --secondary: 40 195 120;
+  --secondary-hover: 31 173 104;
+  --secondary-fg: 10 26 19;
+  --secondary-subtle: 226 248 238;
+  --secondary-text: 16 117 68;
+  --ring: 0 101 138;
+  --success: 16 117 68;
+  --success-fg: 255 255 255;
+  --success-subtle: 226 248 238;
+  --warning: 138 73 0;
+  --warning-fg: 255 255 255;
+  --warning-subtle: 253 236 211;
+  --danger: 177 27 27;
+  --danger-fg: 255 255 255;
+  --danger-subtle: 253 237 237;
+  --info: 0 108 148;
+  --info-fg: 255 255 255;
+  --info-subtle: 226 247 253;
+
+  /* Rayons d'Oniix : 24 px panneaux, 16 px cartes, 12 px tuiles d'icône. */
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+
+  /* Ombres d'Oniix : très larges, très décalées, très peu opaques. C'est ce
+     qui donne la profondeur sans qu'aucun bord ne paraisse dur. */
+  --shadow-1: 0 8px 24px -20px rgb(0 0 0 / 0.45);
+  --shadow-2: 0 14px 40px -30px rgb(0 0 0 / 0.65);
+  --shadow-3: 0 20px 80px -55px rgb(0 0 0 / 0.75);
+}
+
+/* Sombre par préférence système, sauf si le clair est imposé. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) [data-console],
+  :root:not([data-theme='light'])[data-console] {
+    --bg: 12 14 24;
+    --bg-subtle: 16 19 30;
+    --surface: 20 24 36;
+    --surface-raised: 29 33 48;
+    --border: 49 56 73;
+    --border-strong: 69 80 104;
+    --control-border: 113 126 152;
+    --text: 241 245 248;
+    --text-muted: 172 181 195;
+    --text-subtle: 139 149 167;
+    --primary: 45 206 251;
+    --primary-hover: 95 218 252;
+    --primary-fg: 13 16 28;
+    --primary-subtle: 13 42 53;
+    --primary-text: 45 206 251;
+    --secondary: 40 195 120;
+    --secondary-hover: 73 212 145;
+    --secondary-fg: 10 26 19;
+    --secondary-subtle: 18 48 35;
+    --secondary-text: 81 214 150;
+    --ring: 45 206 251;
+    --success: 52 213 135;
+    --success-fg: 10 26 19;
+    --success-subtle: 18 48 35;
+    --warning: 251 164 65;
+    --warning-fg: 33 20 8;
+    --warning-subtle: 55 36 16;
+    --danger: 232 104 104;
+    --danger-fg: 30 11 11;
+    --danger-subtle: 57 24 24;
+    --info: 90 205 237;
+    --info-fg: 13 16 28;
+    --info-subtle: 16 45 55;
+
+    --shadow-1: 0 8px 24px -20px rgb(0 0 0 / 0.8);
+    --shadow-2: 0 14px 40px -30px rgb(0 0 0 / 0.9);
+    --shadow-3: 0 20px 80px -55px rgb(0 0 0 / 1);
+  }
+}
+
+/* Sombre imposé par l'utilisateur — mêmes valeurs, priorité supérieure. */
+[data-theme='dark'] [data-console],
+[data-theme='dark'][data-console] {
+  --bg: 12 14 24;
+  --bg-subtle: 16 19 30;
+  --surface: 20 24 36;
+  --surface-raised: 29 33 48;
+  --border: 49 56 73;
+  --border-strong: 69 80 104;
+  --control-border: 113 126 152;
+  --text: 241 245 248;
+  --text-muted: 172 181 195;
+  --text-subtle: 139 149 167;
+  --primary: 45 206 251;
+  --primary-hover: 95 218 252;
+  --primary-fg: 13 16 28;
+  --primary-subtle: 13 42 53;
+  --primary-text: 45 206 251;
+  --secondary: 40 195 120;
+  --secondary-hover: 73 212 145;
+  --secondary-fg: 10 26 19;
+  --secondary-subtle: 18 48 35;
+  --secondary-text: 81 214 150;
+  --ring: 45 206 251;
+  --success: 52 213 135;
+  --success-fg: 10 26 19;
+  --success-subtle: 18 48 35;
+  --warning: 251 164 65;
+  --warning-fg: 33 20 8;
+  --warning-subtle: 55 36 16;
+  --danger: 232 104 104;
+  --danger-fg: 30 11 11;
+  --danger-subtle: 57 24 24;
+  --info: 90 205 237;
+  --info-fg: 13 16 28;
+  --info-subtle: 16 45 55;
+
+  --shadow-1: 0 8px 24px -20px rgb(0 0 0 / 0.8);
+  --shadow-2: 0 14px 40px -30px rgb(0 0 0 / 0.9);
+  --shadow-3: 0 20px 80px -55px rgb(0 0 0 / 1);
 }
 
 @layer base {
@@ -327,7 +495,7 @@
     @apply list-decimal space-y-2 pl-6 marker:text-primary-text;
   }
   .prose-bz a {
-    @apply font-medium text-secondary-text underline underline-offset-4 transition-colors hover:text-secondary-hover;
+    @apply font-medium text-secondary-text underline underline-offset-4 transition-colors hover:text-primary-text;
   }
   .prose-bz strong {
     @apply font-semibold text-fg;

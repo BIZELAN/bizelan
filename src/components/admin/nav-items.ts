@@ -15,6 +15,15 @@ export interface AdminNavItem {
   href: string
   label: string
   icon: string
+  /**
+   * Une ligne sous le libellé, dans la barre latérale.
+   *
+   * Ce n'est pas de l'ornement : « Demandes » ou « Pages » ne disent pas
+   * ce qu'on y trouve, et treize entrées se parcourent d'autant plus vite
+   * qu'on n'a pas à ouvrir pour vérifier. Elle sert aussi de matière à la
+   * recherche de la palette de commandes.
+   */
+  description: string
 }
 
 export interface AdminNavGroup {
@@ -25,33 +34,33 @@ export interface AdminNavGroup {
 export const ADMIN_NAV: AdminNavGroup[] = [
   {
     title: null,
-    items: [{ href: '/admin', label: 'Tableau de bord', icon: 'LayoutDashboard' }],
+    items: [{ href: '/admin', label: 'Tableau de bord', icon: 'LayoutDashboard', description: 'Ventes, revenus et tâches en attente' }],
   },
   {
     title: 'Contenu',
     items: [
-      { href: '/admin/formations', label: 'Formations', icon: 'GraduationCap' },
-      { href: '/admin/services', label: 'Services', icon: 'Briefcase' },
-      { href: '/admin/pages', label: 'Pages de vente', icon: 'FileText' },
-      { href: '/admin/blog', label: 'Blog', icon: 'Newspaper' },
-      { href: '/admin/medias', label: 'Médiathèque', icon: 'Image' },
+      { href: '/admin/formations', label: 'Formations', icon: 'GraduationCap', description: 'Catalogue, chapitres et leçons' },
+      { href: '/admin/services', label: 'Services', icon: 'Briefcase', description: 'Prestations et demandes de devis' },
+      { href: '/admin/pages', label: 'Pages de vente', icon: 'FileText', description: 'Pages composées par blocs' },
+      { href: '/admin/blog', label: 'Blog', icon: 'Newspaper', description: 'Articles et référencement' },
+      { href: '/admin/medias', label: 'Médiathèque', icon: 'Image', description: 'Images, vidéos et documents' },
     ],
   },
   {
     title: 'Commerce',
     items: [
-      { href: '/admin/commandes', label: 'Commandes', icon: 'Receipt' },
-      { href: '/admin/clients', label: 'Clients', icon: 'Users' },
-      { href: '/admin/demandes', label: 'Demandes', icon: 'Inbox' },
-      { href: '/admin/avis', label: 'Avis', icon: 'Star' },
-      { href: '/admin/codes-promo', label: 'Codes promo', icon: 'Tag' },
+      { href: '/admin/commandes', label: 'Commandes', icon: 'Receipt', description: 'Paiements et virements à valider' },
+      { href: '/admin/clients', label: 'Clients', icon: 'Users', description: 'Comptes, accès et progression' },
+      { href: '/admin/demandes', label: 'Demandes', icon: 'Inbox', description: 'Messages de contact et devis' },
+      { href: '/admin/avis', label: 'Avis', icon: 'Star', description: 'Témoignages à modérer' },
+      { href: '/admin/codes-promo', label: 'Codes promo', icon: 'Tag', description: 'Remises et campagnes' },
     ],
   },
   {
     title: 'Pilotage',
     items: [
-      { href: '/admin/statistiques', label: 'Statistiques', icon: 'BarChart3' },
-      { href: '/admin/parametres', label: 'Paramètres', icon: 'Settings' },
+      { href: '/admin/statistiques', label: 'Statistiques', icon: 'BarChart3', description: 'Audience, conversion et revenus' },
+      { href: '/admin/parametres', label: 'Paramètres', icon: 'Settings', description: 'Identité, contact et paiements' },
     ],
   },
 ]

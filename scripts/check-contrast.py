@@ -22,7 +22,9 @@ i_attr = src.index("[data-theme='dark'] {")
 TOKEN = r'--([a-z-]+):\s*(\d+ \d+ \d+);'
 LIGHT = dict(re.findall(TOKEN, src[:i_media]))
 DARK = dict(re.findall(TOKEN, src[i_media:i_attr]))
-DARK_ATTR = dict(re.findall(TOKEN, src[i_attr:]))
+# Borne haute : la portee console suit, et ses jetons ne sont pas ceux-ci.
+i_end = src.index('[data-console] {')
+DARK_ATTR = dict(re.findall(TOKEN, src[i_attr:i_end]))
 
 # Les deux blocs sombres doivent rester identiques : l'un sert la preference
 # systeme, l'autre le choix explicite. Une divergence serait invisible a l'oeil
@@ -80,19 +82,49 @@ PAIRS = [
     # Lecture longue : `.prose-bz` sert a la fois le site et l'editeur.
     ('prose : corps sur carte',    'text-muted',     'surface',          4.5, 1),
     ('prose : lien',               'secondary-text', 'surface',          4.5, 1),
-    ('prose : lien survole',       'secondary-hover', 'surface',         4.5, 1),
+    # Le survol d'un lien doit porter un jeton de TEXTE. Il pointait sur
+    # `secondary-hover`, un jeton de REMPLISSAGE : dans la palette publique il
+    # se trouvait sombre et passait ; dans celle de la console il est vif, et
+    # tombait a 2,90:1. Un jeton de remplissage n'est jamais lisible par hasard.
+    ('prose : lien survole',       'primary-text',   'surface',          4.5, 1),
     ('prose : citation',           'text',           'bg-subtle',        4.5, 1),
     ('prose : code',               'text',           'bg-subtle',        4.5, 1),
     ('bordure de champ',           'control-border', 'bg',               3.0, 1),
     ('anneau de focus',            'ring',           'bg',               3.0, 1),
     ('anneau de focus / carte',    'ring',           'surface',          3.0, 1),
     ('bordure primaire active',    'primary-text',   'bg',               3.0, 1),
-    ('aplat bleu vs page',         'secondary',      'bg',               3.0, 1),
+    # 1.4.11 : ce qui identifie un aplat, c'est sa BORDURE, pas son
+    # remplissage. Le cyan de la console vaut 1,72:1 sur page claire et le
+    # GreenYellow 1,15:1 — aucun des deux ne peut porter sa propre frontiere.
+    ('bordure aplat primaire',     'primary-text',   'bg',               3.0, 1),
+    ('bordure aplat secondaire',   'secondary-text', 'bg',               3.0, 1),
     ('interrupteur actif vs page', 'primary-text',   'bg',               3.0, 1),
 ]
 
-fails = len(ecarts)
-for theme_name, theme in (('CLAIR', LIGHT), ('SOMBRE', DARK)):
+# --- Console d'administration : palette propre, meme mecanique --------------
+# Elle redeclare les jetons pour sa portee, donc elle doit etre mesuree
+# separement. Les memes paires s'y appliquent : c'est le meme vocabulaire.
+# Les deux selecteurs sombres acceptent <html> lui-meme autant qu'un
+# sous-arbre, d'ou la liste de deux selecteurs : on se repere sur sa premiere
+# ligne, qui se termine par une virgule.
+i_console = src.index('[data-console] {')
+i_console_media = src.index(":root:not([data-theme='light']) [data-console],")
+i_console_attr = src.index("[data-theme='dark'] [data-console],")
+CONSOLE_LIGHT = dict(re.findall(TOKEN, src[i_console:i_console_media]))
+CONSOLE_DARK = dict(re.findall(TOKEN, src[i_console_media:i_console_attr]))
+CONSOLE_DARK_ATTR = dict(re.findall(TOKEN, src[i_console_attr:]))
+
+ecarts_console = sorted(k for k in CONSOLE_DARK if CONSOLE_DARK_ATTR.get(k) != CONSOLE_DARK[k])
+if ecarts_console:
+    print('  !! les deux blocs sombres de la console divergent : %s' % ecarts_console)
+
+fails = len(ecarts) + len(ecarts_console)
+for theme_name, theme in (
+    ('CLAIR', LIGHT),
+    ('SOMBRE', DARK),
+    ('CONSOLE CLAIR', CONSOLE_LIGHT),
+    ('CONSOLE SOMBRE', CONSOLE_DARK),
+):
     print('\n  %s' % theme_name)
     for label, fg, bg, need, alpha in PAIRS:
         try:

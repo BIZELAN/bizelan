@@ -18,3 +18,7 @@ yarn-error.log*
 next-env.d.ts
 *.tsbuildinfo
 .tmp/
+
+# Clés d'API déposées à la racine — leur place est dans .env, jamais suivi.
+API CHARIOW
+*.key

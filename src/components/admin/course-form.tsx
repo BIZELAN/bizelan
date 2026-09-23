@@ -259,6 +259,35 @@ export function CourseForm({
         />
       </FormSection>
 
+      <FormSection
+        title="Certificat"
+        description="Jusqu’ici le certificat était délivré dès que toutes les leçons étaient cochées — or c’est l’apprenant qui les coche. Ces règles ajoutent une condition mesurée."
+      >
+        <Field
+          label="Visionnage minimum par leçon"
+          htmlFor="min_watch_ratio"
+          help="Part de chaque vidéo à avoir réellement visionnée. « Aucune exigence » reproduit le comportement actuel. Les leçons sans durée renseignée ne sont pas concernées."
+        >
+          <Select
+            id="min_watch_ratio"
+            name="min_watch_ratio"
+            defaultValue={String(course?.min_watch_ratio ?? 0)}
+          >
+            <option value="0">Aucune exigence</option>
+            <option value="0.5">50 % de la durée</option>
+            <option value="0.7">70 % de la durée</option>
+            <option value="0.8">80 % de la durée (recommandé)</option>
+            <option value="0.9">90 % de la durée</option>
+          </Select>
+        </Field>
+
+        <Checkbox
+          name="require_quiz_pass"
+          defaultChecked={course?.require_quiz_pass ?? false}
+          label="Exiger aussi la réussite des questionnaires actifs de ce parcours"
+        />
+      </FormSection>
+
       <FormActions>
         <SaveButton label={course ? 'Enregistrer les modifications' : 'Créer la formation'} />
         {course?.status === 'published' && (

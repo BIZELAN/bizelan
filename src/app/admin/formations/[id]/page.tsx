@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { FileStack, ListOrdered } from 'lucide-react'
+import { Eye, FileStack, ListOrdered } from 'lucide-react'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PageHeader } from '@/components/admin/shell'
@@ -38,6 +38,10 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
             <ButtonLink href={`/admin/formations/${course.id}/supports`} variant="outline">
               <FileStack className="h-4 w-4" aria-hidden />
               Supports
+            </ButtonLink>
+            <ButtonLink href={`/admin/formations/${course.id}/visionnage`} variant="outline">
+              <Eye className="h-4 w-4" aria-hidden />
+              Visionnage
             </ButtonLink>
           </>
         }

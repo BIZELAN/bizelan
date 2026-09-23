@@ -44,26 +44,38 @@ export async function setLessonCompleted(
   return { ok: true }
 }
 
-/** Mémorise la position de lecture pour reprendre la vidéo au bon endroit. */
+/**
+ * Enregistre la position de lecture ET le temps réellement visionné.
+ *
+ * Les deux sont distincts, et c'est tout l'enjeu : `position` est l'endroit où
+ * se trouve la tête de lecture — la faire glisser jusqu'à la fin ne prouve
+ * rien. `watchedDelta` est le temps de lecture effectivement écoulé depuis le
+ * dernier envoi, mesuré côté client en n'additionnant que de petits pas.
+ *
+ * L'écriture passe par `bz_record_watch_time` et non par un `upsert` direct :
+ * la colonne `watched_seconds` a été retirée des droits d'écriture du rôle
+ * `authenticated`, sans quoi n'importe quel apprenant pourrait la fixer
+ * lui-même avec la clé anon, qui est publique par conception. La fonction
+ * revérifie l'accès au cours, borne l'incrément, et l'ajoute au cumul.
+ */
 export async function saveVideoPosition(
   lessonId: string,
   courseId: string,
   seconds: number,
+  watchedDelta = 0,
 ): Promise<LearningResult> {
   const user = await getCurrentUser()
   if (!user) return { ok: false }
 
   const supabase = await createClient()
-  const { error } = await supabase.from('lesson_progress').upsert(
-    {
-      user_id: user.id,
-      lesson_id: lessonId,
-      course_id: courseId,
-      last_position_seconds: Math.max(0, Math.round(seconds)),
-    },
-    { onConflict: 'user_id,lesson_id' },
-  )
+  const { error } = await supabase.rpc('bz_record_watch_time', {
+    p_lesson: lessonId,
+    p_course: courseId,
+    p_seconds: Math.max(0, Math.round(watchedDelta)),
+    p_position: Math.max(0, Math.round(seconds)),
+  })
 
+  if (error) console.error('[visionnage] échec :', error.message)
   return { ok: !error }
 }
 

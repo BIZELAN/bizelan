@@ -121,6 +121,10 @@ export async function saveCourse(_prev: AdminResult | null, formData: FormData):
     status,
     featured: bool(formData, 'featured'),
     position: int(formData, 'position'),
+    // Borné ici en plus de la contrainte SQL : un `select` peut être forcé
+    // côté client, et l'erreur de contrainte serait illisible pour l'admin.
+    min_watch_ratio: Math.min(1, Math.max(0, Number(formData.get('min_watch_ratio') ?? 0) || 0)),
+    require_quiz_pass: bool(formData, 'require_quiz_pass'),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     og_image_url: nullable(formData, 'og_image_url'),

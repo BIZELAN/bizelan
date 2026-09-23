@@ -58,10 +58,25 @@ export function VideoFrame({
   const url = embedUrlFor(source)
   const isDirectFile = Boolean(url && /\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(url))
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const lastSaved = useRef(0)
 
-  // Reprise de lecture et mémorisation de la position (fichiers directs uniquement :
-  // les lecteurs intégrés YouTube/Vimeo ne laissent pas lire leur position).
+  /**
+   * Temps de lecture RÉELLEMENT écoulé depuis le dernier envoi.
+   *
+   * On ne peut pas le déduire de `currentTime` : faire glisser la tête de
+   * lecture jusqu'à la fin la ferait bondir de plusieurs minutes sans qu'une
+   * seule seconde ait été regardée. On additionne donc les écarts entre deux
+   * `timeupdate` consécutifs, et on ne retient que les PETITS pas — l'événement
+   * se déclenche environ quatre fois par seconde, donc un écart normal vaut un
+   * quart de seconde. Tout écart supérieur à deux secondes est un saut, ou un
+   * onglet revenu au premier plan : il n'est pas compté.
+   *
+   * Cela mesure un temps de lecture, pas une couverture : revoir deux fois les
+   * mêmes cinq minutes en donne dix. C'est assez pour distinguer qui regarde
+   * de qui enchaîne les clics, ce qui est la question posée.
+   */
+  const pending = useRef(0)
+  const lastTime = useRef<number | null>(null)
+
   useEffect(() => {
     const video = videoRef.current
     if (!video || !isDirectFile) return
@@ -75,17 +90,51 @@ export function VideoFrame({
 
     if (!lessonId || !courseId) return
 
+    const flush = () => {
+      const delta = Math.round(pending.current)
+      if (delta <= 0) return
+      pending.current = 0
+      void saveVideoPosition(lessonId, courseId, Math.floor(video.currentTime), delta)
+    }
+
     const onTimeUpdate = () => {
-      const now = Math.floor(video.currentTime)
-      // Un enregistrement toutes les 15 secondes suffit largement.
-      if (now - lastSaved.current >= 15) {
-        lastSaved.current = now
-        void saveVideoPosition(lessonId, courseId, now)
+      const now = video.currentTime
+      const previous = lastTime.current
+      lastTime.current = now
+
+      if (previous !== null) {
+        const step = now - previous
+        if (step > 0 && step <= 2) pending.current += step
       }
+
+      // Un envoi toutes les quinze secondes de lecture accumulée. La fonction
+      // serveur borne de toute façon chaque incrément.
+      if (pending.current >= 15) flush()
+    }
+
+    // Une pause ou un saut clôt l'intervalle courant : sans cela, le temps
+    // passé en pause serait recompté au redémarrage.
+    const onBreak = () => {
+      lastTime.current = null
     }
 
     video.addEventListener('timeupdate', onTimeUpdate)
-    return () => video.removeEventListener('timeupdate', onTimeUpdate)
+    video.addEventListener('pause', onBreak)
+    video.addEventListener('seeking', onBreak)
+    video.addEventListener('waiting', onBreak)
+
+    // Quitter la page ne doit pas perdre les secondes non encore envoyées.
+    const onLeave = () => flush()
+    document.addEventListener('visibilitychange', onLeave)
+
+    return () => {
+      flush()
+      video.removeEventListener('timeupdate', onTimeUpdate)
+      video.removeEventListener('pause', onBreak)
+      video.removeEventListener('seeking', onBreak)
+      video.removeEventListener('waiting', onBreak)
+      document.removeEventListener('visibilitychange', onLeave)
+    }
   }, [isDirectFile, lessonId, courseId, resumeAt])
 
   if (!url) {

@@ -76,6 +76,14 @@ export interface Course {
   status: ContentStatus
   featured: boolean
   position: number
+
+  /**
+   * Part de chaque leçon à visionner pour que le certificat soit délivré.
+   * 0 désactive l'exigence, ce qui est le comportement historique.
+   */
+  min_watch_ratio: number
+  /** Exiger en plus la réussite des QCM actifs du parcours. */
+  require_quiz_pass: boolean
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
@@ -271,7 +279,14 @@ export interface LessonProgress {
   lesson_id: string
   course_id: string
   completed: boolean
+  /** Position de la tête de lecture — sert à reprendre là où on s'est arrêté. */
   last_position_seconds: number
+  /**
+   * Temps de lecture cumulé. À ne pas confondre avec la position : elle bondit
+   * quand on fait glisser la barre, celui-ci non. Écrit uniquement par
+   * `bz_record_watch_time`, jamais par le client.
+   */
+  watched_seconds: number
   completed_at: string | null
   updated_at: string
 }
@@ -380,4 +395,95 @@ export interface CourseWithCurriculum extends Course {
 export interface OrderWithItems extends Order {
   items: OrderItem[]
   profile?: Pick<Profile, 'id' | 'full_name' | 'email'> | null
+}
+
+/* ------------------------------------------------------------------ */
+/* Questionnaires à choix multiples                                    */
+/* ------------------------------------------------------------------ */
+
+export interface Quiz {
+  id: string
+  lesson_id: string
+  title: string
+  intro: string | null
+  is_active: boolean
+  pass_percent: number
+  /** 0 = illimité. */
+  max_attempts: number
+  created_at: string
+  updated_at: string
+}
+
+export interface QuizQuestion {
+  id: string
+  quiz_id: string
+  prompt: string
+  /** Affichée après correction seulement. */
+  explanation: string | null
+  position: number
+  created_at: string
+}
+
+/**
+ * `is_correct` est volontairement ABSENT de ce type.
+ *
+ * Le droit de lecture sur cette colonne a été retiré au rôle `authenticated`.
+ * La laisser ici inviterait à l'y chercher, puis à écrire un jour une
+ * correction côté client — qui rendrait le questionnaire décoratif. La
+ * notation passe par `bz_grade_quiz`, seule voie qui lise les bonnes réponses.
+ */
+export interface QuizChoice {
+  id: string
+  question_id: string
+  label: string
+  position: number
+}
+
+/** Vue d'administration : `is_correct` n'est lisible que par ce rôle. */
+export interface QuizChoiceAdmin extends QuizChoice {
+  is_correct: boolean
+}
+
+export interface QuizAttempt {
+  id: string
+  user_id: string
+  quiz_id: string
+  course_id: string
+  score_percent: number
+  passed: boolean
+  answers: Record<string, string[]>
+  created_at: string
+}
+
+/** Retour de `bz_grade_quiz`. */
+export interface QuizResult {
+  score_percent: number
+  pass_percent: number
+  passed: boolean
+  total: number
+  correct: number
+  detail: {
+    question_id: string
+    correct: boolean
+    expected: string[]
+    explanation: string | null
+  }[]
+}
+
+/** Ligne de `bz_learner_watch_stats` — lue côté serveur uniquement. */
+export interface LearnerWatchStats {
+  user_id: string
+  course_id: string
+  full_name: string | null
+  email: string
+  course_title: string
+  min_watch_ratio: number
+  progress_percent: number
+  certificate_code: string | null
+  lessons_total: number
+  lessons_completed: number
+  watched_seconds: number
+  duration_seconds: number
+  /** Leçons cochées sans avoir été visionnées à hauteur du seuil. */
+  lessons_skipped: number
 }

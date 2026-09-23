@@ -9,6 +9,7 @@ import { fulfillOrder, revokeOrderAccess } from '@/lib/orders'
 import { parseRichContent, richContentToText } from '@/lib/rich-content'
 import { slugify } from '@/lib/utils'
 import { safeMapEmbedSrc } from '@/lib/map-embed'
+import { parseHex } from '@/lib/theme-tokens'
 
 export interface AdminResult {
   ok: boolean
@@ -912,6 +913,23 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
     whatsapp: nullable(formData, 'whatsapp'),
     address: nullable(formData, 'address'),
     map_embed_url: mapEmbedUrl,
+
+    // Apparence : seules des couleurs sont stockées. Chacune est validée ici —
+    // une valeur invalide est écartée plutôt qu'enregistrée, sans quoi elle
+    // atteindrait la feuille de style du site public.
+    theme: {
+      primary: hexOrNull(formData, 'theme_primary'),
+      secondary: hexOrNull(formData, 'theme_secondary'),
+      gradientFrom: hexOrNull(formData, 'theme_gradient_from'),
+      gradientTo: hexOrNull(formData, 'theme_gradient_to'),
+      gradientAngle: Math.min(359, Math.max(0, int(formData, 'theme_gradient_angle'))),
+      radius: ['sm', 'md', 'lg'].includes(str(formData, 'theme_radius'))
+        ? str(formData, 'theme_radius')
+        : 'md',
+    },
+
+    nav_links: navLinks(formData, 'nav_links'),
+    legal_links: navLinks(formData, 'legal_links'),
     opening_hours: json(formData, 'opening_hours', [] as unknown[]),
     social_links: json(formData, 'social_links', {} as Record<string, string>),
     bank_transfer_instructions: nullable(formData, 'bank_transfer_instructions'),
@@ -949,4 +967,46 @@ function mapError(message: string): string {
   if (m.includes('violates not-null')) return 'Un champ obligatoire est vide.'
   console.error('[admin] erreur base :', message)
   return 'L’enregistrement a échoué. Merci de réessayer.'
+}
+
+/* ------------------------------------------------------------------ */
+/* Apparence et navigation                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Couleur hexadécimale, ou `null`.
+ *
+ * La valeur finit dans une feuille de style servie au visiteur : elle est
+ * validée ici et pas seulement à l'affichage. Une saisie libre écartée à la
+ * source ne peut pas devenir une surprise plus tard.
+ */
+function hexOrNull(formData: FormData, name: string): string | null {
+  const raw = str(formData, name)
+  return parseHex(raw) ? raw.trim().toLowerCase() : null
+}
+
+/**
+ * Liste de liens de navigation.
+ *
+ * Les entrées sans libellé ou sans adresse sont écartées : l'éditeur de liste
+ * laisse toujours une ligne vide en bas, et l'enregistrer produirait un lien
+ * fantôme dans le menu. L'adresse est bornée aux formes internes et aux URL
+ * http(s) — un `javascript:` dans un menu serait une porte ouverte.
+ */
+function navLinks(formData: FormData, name: string): { label: string; href: string }[] {
+  const raw = json(formData, name, [] as unknown[])
+  if (!Array.isArray(raw)) return []
+
+  return raw
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null
+      const record = item as Record<string, unknown>
+      const label = typeof record.label === 'string' ? record.label.trim() : ''
+      const href = typeof record.href === 'string' ? record.href.trim() : ''
+      if (!label || !href) return null
+      if (!/^(\/|https?:\/\/|mailto:|tel:|#)/i.test(href)) return null
+      return { label: label.slice(0, 80), href: href.slice(0, 500) }
+    })
+    .filter((item): item is { label: string; href: string } => item !== null)
+    .slice(0, 20)
 }

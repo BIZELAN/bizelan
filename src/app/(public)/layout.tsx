@@ -14,6 +14,7 @@ export default async function PublicLayout({ children }: { children: React.React
         logoUrl={settings.logo_url}
         isLoggedIn={Boolean(user)}
         announcement={settings.announcement_active ? settings.announcement : null}
+        navLinks={settings.nav_links}
       />
       <main className="flex-1">{children}</main>
       <SiteFooter settings={settings} />

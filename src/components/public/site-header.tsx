@@ -8,7 +8,8 @@ import { ButtonLink } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { cn } from '@/lib/utils'
 
-const NAV = [
+/** Repli, employé tant que l'administration n'a rien saisi. */
+const FALLBACK_NAV = [
   { href: '/formations', label: 'Formations' },
   { href: '/services', label: 'Services' },
   { href: '/blog', label: 'Blog' },
@@ -25,12 +26,16 @@ export function SiteHeader({
   logoUrl,
   isLoggedIn,
   announcement,
+  navLinks,
 }: {
   siteName: string
   logoUrl: string | null
   isLoggedIn: boolean
   announcement?: string | null
+  /** Menu réglé dans Paramètres > Navigation. */
+  navLinks?: { label: string; href: string }[]
 }) {
+  const NAV = navLinks && navLinks.length > 0 ? navLinks : FALLBACK_NAV
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()

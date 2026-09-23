@@ -9,7 +9,8 @@ import { ImageInput } from '@/components/admin/image-input'
 import { Checkbox, Field, Input, Textarea } from '@/components/ui/field'
 import { Alert } from '@/components/ui/misc'
 import { asArray } from '@/lib/utils'
-import type { OpeningHour, SiteSettings } from '@/lib/types'
+import { ThemeSection } from '@/components/admin/theme-section'
+import type { NavLink, OpeningHour, SiteSettings } from '@/lib/types'
 
 export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveSettings, null)
@@ -18,6 +19,37 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
   return (
     <form action={action} className="space-y-6">
       <ActionFeedback state={state} />
+
+      <ThemeSection settings={settings} />
+
+      <FormSection
+        title="Navigation"
+        description="Les menus de l’en-tête et du pied de page. Ils vivaient dans le code : les modifier demandait un développeur."
+      >
+        <Field label="Menu principal" help="Affiché dans la barre du haut. L’ordre est celui de la liste.">
+          <ObjectListEditor
+            name="nav_links"
+            itemLabel="Lien"
+            fields={[
+              { key: 'label', label: 'Libellé', type: 'text' },
+              { key: 'href', label: 'Adresse', type: 'text' },
+            ]}
+            defaultValue={asArray<NavLink>(settings.nav_links) as unknown as Record<string, unknown>[]}
+          />
+        </Field>
+
+        <Field label="Liens légaux" help="Bas de page : mentions légales, conditions, confidentialité.">
+          <ObjectListEditor
+            name="legal_links"
+            itemLabel="Lien"
+            fields={[
+              { key: 'label', label: 'Libellé', type: 'text' },
+              { key: 'href', label: 'Adresse', type: 'text' },
+            ]}
+            defaultValue={asArray<NavLink>(settings.legal_links) as unknown as Record<string, unknown>[]}
+          />
+        </Field>
+      </FormSection>
 
       <FormSection title="Identité du site">
         <Field label="Nom du site" htmlFor="site_name" required>

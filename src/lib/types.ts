@@ -366,6 +366,17 @@ export interface OpeningHour {
 export interface SiteSettings {
   id: number
   site_name: string
+
+  /**
+   * Apparence choisie dans l'administration : couleurs de marque, dégradé,
+   * rayon. Les jetons dérivés (texte lisible, survol, voile) ne sont PAS
+   * stockés — ils sont recalculés à l'affichage, avec une mesure de contraste.
+   */
+  theme: Record<string, unknown>
+  /** Menu principal. Remplace un tableau autrefois codé en dur. */
+  nav_links: NavLink[]
+  footer_columns: FooterColumn[]
+  legal_links: NavLink[]
   tagline: string | null
   logo_url: string | null
   favicon_url: string | null
@@ -500,4 +511,14 @@ export interface LearnerWatchStats {
   duration_seconds: number
   /** Leçons cochées sans avoir été visionnées à hauteur du seuil. */
   lessons_skipped: number
+}
+
+export interface NavLink {
+  label: string
+  href: string
+}
+
+export interface FooterColumn {
+  title: string
+  links: NavLink[]
 }

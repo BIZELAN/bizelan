@@ -13,7 +13,7 @@ import {
 
 import { NewsletterForm } from '@/components/public/newsletter-form'
 import { Panel } from '@/components/ui/surface'
-import type { OpeningHour, SiteSettings } from '@/lib/types'
+import type { NavLink, OpeningHour, SiteSettings } from '@/lib/types'
 import { asArray, whatsappLink } from '@/lib/utils'
 
 /** Réseaux reconnus. Une clé inconnue en base est simplement ignorée. */
@@ -24,7 +24,14 @@ const SOCIALS: Record<string, { icon: LucideIcon; label: string }> = {
   instagram: { icon: Instagram, label: 'Instagram' },
 }
 
-const NAV_LINKS = [
+/**
+ * Replis, employés tant que l'administration n'a rien saisi.
+ *
+ * Ils ne sont plus la source : les menus se règlent dans Paramètres >
+ * Navigation. Les garder évite qu'un pied de page se vide le jour de la
+ * migration, avant que quiconque ait ouvert le formulaire.
+ */
+const FALLBACK_NAV = [
   { href: '/formations', label: 'Formations' },
   { href: '/services', label: 'Services' },
   { href: '/blog', label: 'Blog' },
@@ -32,7 +39,7 @@ const NAV_LINKS = [
   { href: '/compte', label: 'Mon espace' },
 ]
 
-const LEGAL_LINKS = [
+const FALLBACK_LEGAL = [
   { href: '/mentions-legales', label: 'Mentions légales' },
   { href: '/confidentialite', label: 'Confidentialité' },
   { href: '/conditions', label: 'CGV' },
@@ -40,6 +47,11 @@ const LEGAL_LINKS = [
 
 export function SiteFooter({ settings }: { settings: SiteSettings }) {
   const hours = asArray<OpeningHour>(settings.opening_hours)
+
+  const navLinks = asArray<NavLink>(settings.nav_links)
+  const nav = navLinks.length > 0 ? navLinks : FALLBACK_NAV
+  const legalLinks = asArray<NavLink>(settings.legal_links)
+  const legal = legalLinks.length > 0 ? legalLinks : FALLBACK_LEGAL
   const whatsapp = whatsappLink(settings.whatsapp, 'Bonjour, je vous écris depuis votre site.')
   const year = new Date().getFullYear()
 
@@ -107,7 +119,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
 
         <FooterColumn title="Navigation">
           <ul className="space-y-3 text-base">
-            {NAV_LINKS.map((link) => (
+            {nav.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="transition-colors hover:text-fg">
                   {link.label}
@@ -180,7 +192,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
             © {year} {settings.site_name} · Tous droits réservés
           </p>
           <div className="flex flex-wrap justify-center gap-5">
-            {LEGAL_LINKS.map((link) => (
+            {legal.map((link) => (
               <Link key={link.href} href={link.href} className="hover:text-fg-muted">
                 {link.label}
               </Link>

@@ -3,6 +3,7 @@ import './globals.css'
 import { getSiteSettings } from '@/lib/queries'
 import { env } from '@/lib/env'
 import { THEME_SCRIPT } from '@/lib/theme'
+import { buildThemeCss, parseTheme } from '@/lib/site-theme'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
@@ -36,7 +37,13 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // L'apparence choisie dans l'administration est injectée APRÈS `globals.css`,
+  // sous forme de surcharges de jetons. Les fonds, textes et bordures n'en
+  // font pas partie : ce sont eux qui portent la lisibilité de l'ensemble.
+  const settings = await getSiteSettings()
+  const themeCss = buildThemeCss(parseTheme(settings.theme))
+
   return (
     // `suppressHydrationWarning` est requis : le script ci-dessous pose
     // `data-theme` sur cet élément avant que React n'hydrate, créant un écart
@@ -44,6 +51,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* Chaîne vide quand rien n'est réglé : pas de balise superflue, et le
+            site garde sa palette d'origine. Le contenu est entièrement
+            construit à partir de couleurs validées — aucune saisie brute
+            n'atteint la feuille de style. */}
+        {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
       </head>
       <body>{children}</body>
     </html>

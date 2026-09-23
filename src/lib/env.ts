@@ -21,14 +21,15 @@ export const env = {
     return required('SUPABASE_SERVICE_ROLE_KEY', process.env.SUPABASE_SERVICE_ROLE_KEY)
   },
 
-  kkiapayPublicKey: process.env.NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY ?? '',
-  get kkiapayPrivateKey() {
-    return required('KKIAPAY_PRIVATE_KEY', process.env.KKIAPAY_PRIVATE_KEY)
+  /**
+   * Chariow. La clé donne accès à la boutique entière : elle n'est lue que
+   * côté serveur, et n'a délibérément pas de préfixe `NEXT_PUBLIC_`.
+   */
+  get chariowApiKey() {
+    return required('CHARIOW_API_KEY', process.env.CHARIOW_API_KEY)
   },
-  get kkiapaySecret() {
-    return required('KKIAPAY_SECRET', process.env.KKIAPAY_SECRET)
-  },
-  kkiapaySandbox: process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX !== 'false',
+  /** Secret de signature du Pulse — distinct de la clé d'API. */
+  chariowPulseSecret: process.env.CHARIOW_PULSE_SECRET ?? '',
 
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   siteName: process.env.NEXT_PUBLIC_SITE_NAME ?? 'BIZELAN',

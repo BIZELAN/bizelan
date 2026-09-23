@@ -32,7 +32,7 @@ const FALLBACK_SETTINGS: SiteSettings = {
   legal_notice: null,
   terms: null,
   privacy_policy: null,
-  payments_kkiapay_enabled: true,
+  payments_online_enabled: true,
   payments_transfer_enabled: true,
   announcement: null,
   announcement_active: false,

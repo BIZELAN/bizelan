@@ -117,8 +117,8 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
 
       <FormSection title="Paiements">
         <Checkbox
-          name="payments_kkiapay_enabled"
-          defaultChecked={settings.payments_kkiapay_enabled}
+          name="payments_online_enabled"
+          defaultChecked={settings.payments_online_enabled}
           label="Proposer le paiement Mobile Money (KkiaPay)"
         />
         <Checkbox
@@ -142,7 +142,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
 
         <Alert tone="info">
           Les clés KkiaPay se configurent dans les variables d’environnement du projet
-          (NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY, KKIAPAY_PRIVATE_KEY, KKIAPAY_SECRET), pas ici — elles ne
+          (CHARIOW_API_KEY, CHARIOW_PULSE_SECRET), pas ici — elles ne
           doivent jamais être stockées en base.
         </Alert>
       </FormSection>

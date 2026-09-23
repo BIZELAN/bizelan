@@ -125,6 +125,7 @@ export async function saveCourse(_prev: AdminResult | null, formData: FormData):
     // côté client, et l'erreur de contrainte serait illisible pour l'admin.
     min_watch_ratio: Math.min(1, Math.max(0, Number(formData.get('min_watch_ratio') ?? 0) || 0)),
     require_quiz_pass: bool(formData, 'require_quiz_pass'),
+    chariow_product_id: nullable(formData, 'chariow_product_id'),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     og_image_url: nullable(formData, 'og_image_url'),
@@ -917,7 +918,7 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
     legal_notice: nullable(formData, 'legal_notice'),
     terms: nullable(formData, 'terms'),
     privacy_policy: nullable(formData, 'privacy_policy'),
-    payments_kkiapay_enabled: bool(formData, 'payments_kkiapay_enabled'),
+    payments_online_enabled: bool(formData, 'payments_online_enabled'),
     payments_transfer_enabled: bool(formData, 'payments_transfer_enabled'),
     announcement: nullable(formData, 'announcement'),
     announcement_active: bool(formData, 'announcement_active'),

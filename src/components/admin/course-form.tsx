@@ -260,6 +260,25 @@ export function CourseForm({
       </FormSection>
 
       <FormSection
+        title="Paiement"
+        description="Chariow vend ses propres produits : c'est son prix qui est encaissé, pas celui saisi plus haut. Les deux doivent donc rester cohérents."
+      >
+        <Field
+          label="Produit Chariow"
+          htmlFor="chariow_product_id"
+          help="Identifiant du produit correspondant dans votre boutique Chariow (prd_…). Sans lui, le paiement en ligne reste indisponible pour cette formation et seul le dépôt bancaire est proposé."
+        >
+          <Input
+            id="chariow_product_id"
+            name="chariow_product_id"
+            defaultValue={course?.chariow_product_id ?? ''}
+            placeholder="prd_8hgbaywc"
+            spellCheck={false}
+          />
+        </Field>
+      </FormSection>
+
+      <FormSection
         title="Certificat"
         description="Jusqu’ici le certificat était délivré dès que toutes les leçons étaient cochées — or c’est l’apprenant qui les coche. Ces règles ajoutent une condition mesurée."
       >

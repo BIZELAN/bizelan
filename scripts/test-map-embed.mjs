@@ -56,4 +56,4 @@ for (const [label, input, shouldPass] of CASES) {
 }
 
 console.log(fails ? `\n${fails} CAS EN ECHEC` : '\nTous les cas passent.')
-process.exit(fails ? 1 : 0)
+process.exitCode = fails ? 1 : 0

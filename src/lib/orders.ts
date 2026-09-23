@@ -68,7 +68,12 @@ export async function validateCoupon(
  */
 export async function fulfillOrder(
   orderId: string,
-  options?: { transactionId?: string; method?: 'kkiapay' | 'manual' | 'bank_transfer'; validatedBy?: string },
+  options?: {
+    /** Identifiant chez le prestataire : vente Chariow ou transaction KkiaPay. */
+    transactionId?: string
+    method?: 'chariow' | 'kkiapay' | 'manual' | 'bank_transfer'
+    validatedBy?: string
+  },
 ): Promise<{ ok: boolean; alreadyPaid?: boolean; error?: string }> {
   const supabase = createAdminClient()
 
@@ -117,7 +122,13 @@ export async function fulfillOrder(
     .update({
       status: 'paid',
       paid_at: paidAt,
-      ...(options?.transactionId ? { kkiapay_transaction_id: options.transactionId } : {}),
+      // La colonne dépend du prestataire : `kkiapay_transaction_id` reste
+      // celle de l'historique, les ventes Chariow ont la leur.
+      ...(options?.transactionId
+        ? options.method === 'chariow'
+          ? { chariow_sale_id: options.transactionId }
+          : { kkiapay_transaction_id: options.transactionId }
+        : {}),
       ...(options?.method ? { payment_method: options.method } : {}),
       ...(options?.validatedBy ? { validated_by: options.validatedBy } : {}),
     })

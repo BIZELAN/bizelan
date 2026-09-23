@@ -45,7 +45,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
           <div className="min-w-0">
             <h1 className="mb-2 text-3xl">Finaliser votre commande</h1>
             <p className="mb-8 text-fg-muted">
-              Accès immédiat après confirmation du paiement Mobile Money.
+              Accès immédiat après confirmation du paiement.
             </p>
 
             <CheckoutForm
@@ -57,9 +57,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
               customerName={user.profile.full_name ?? ''}
               customerEmail={user.email}
               customerPhone={user.profile.phone ?? ''}
-              kkiapayPublicKey={env.kkiapayPublicKey}
-              kkiapaySandbox={env.kkiapaySandbox}
-              kkiapayEnabled={settings.payments_kkiapay_enabled && Boolean(env.kkiapayPublicKey)}
+              onlineEnabled={settings.payments_online_enabled && Boolean(course.chariow_product_id)}
               transferEnabled={settings.payments_transfer_enabled}
               transferInstructions={settings.bank_transfer_instructions}
             />

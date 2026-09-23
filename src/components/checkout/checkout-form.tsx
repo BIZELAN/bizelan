@@ -1,27 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import Script from 'next/script'
-import { Banknote, Loader2, Smartphone, Tag } from 'lucide-react'
+import { Banknote, CreditCard, ExternalLink, Loader2, Tag } from 'lucide-react'
 
-import { checkCoupon, confirmKkiapayPayment, createOrder } from '@/app/actions/checkout'
+import { checkCoupon, confirmChariowPayment, createOrder } from '@/app/actions/checkout'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/field'
 import { Alert } from '@/components/ui/misc'
 import { cn, formatPrice } from '@/lib/utils'
 
-/* Le widget KkiaPay expose ces fonctions globales une fois le script chargé. */
-declare global {
-  interface Window {
-    openKkiapayWidget?: (options: Record<string, unknown>) => void
-    addSuccessListener?: (cb: (response: { transactionId: string }) => void) => void
-    addFailedListener?: (cb: (response: unknown) => void) => void
-    addKkiapayCloseListener?: (cb: () => void) => void
-  }
-}
-
-type Method = 'kkiapay' | 'bank_transfer'
+type Method = 'chariow' | 'bank_transfer'
 
 export interface CheckoutProps {
   courseSlug: string
@@ -32,60 +21,105 @@ export interface CheckoutProps {
   customerName: string
   customerEmail: string
   customerPhone: string
-  kkiapayPublicKey: string
-  kkiapaySandbox: boolean
-  kkiapayEnabled: boolean
+  onlineEnabled: boolean
   transferEnabled: boolean
   transferInstructions: string | null
 }
 
+/**
+ * Tunnel d'achat.
+ *
+ * La page de paiement de Chariow ne peut PAS être intégrée : son prestataire
+ * répond `Content-Security-Policy: frame-ancestors 'none'`, une protection
+ * anti-détournement de clic qu'aucun réglage de notre côté ne contourne. Une
+ * iframe n'afficherait qu'un cadre vide.
+ *
+ * Le paiement s'ouvre donc dans une FENÊTRE SECONDAIRE : la page du site reste
+ * affichée derrière, avec l'état du paiement, et reprend la main dès que la
+ * fenêtre se referme. C'est ce qui s'approche le plus de « ne pas quitter le
+ * site » sans mentir au visiteur sur l'endroit où il saisit son paiement.
+ *
+ * La fenêtre est ouverte AVANT l'appel serveur, dans le fil du clic : ouverte
+ * après, le navigateur la traiterait comme une pop-up non sollicitée et la
+ * bloquerait. Si elle est tout de même bloquée, on bascule sur une navigation
+ * classique plutôt que de laisser l'acheteur sans issue.
+ */
 export function CheckoutForm(props: CheckoutProps) {
   const router = useRouter()
   const [method, setMethod] = useState<Method>(
-    props.kkiapayEnabled ? 'kkiapay' : 'bank_transfer',
+    props.onlineEnabled ? 'chariow' : 'bank_transfer',
   )
   const [coupon, setCoupon] = useState('')
   const [couponState, setCouponState] = useState<{ valid: boolean; message: string; discountCents: number } | null>(null)
   const [checkingCoupon, startCouponCheck] = useTransition()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [widgetReady, setWidgetReady] = useState(false)
+  /** Fenêtre de paiement ouverte : on attend son retour. */
+  const [awaiting, setAwaiting] = useState<{ orderId: string; url: string } | null>(null)
   const [phone, setPhone] = useState(props.customerPhone)
   const [name, setName] = useState(props.customerName)
 
   const pendingOrder = useRef<{ id: string; reference: string } | null>(null)
+  const popup = useRef<Window | null>(null)
 
   const discount = couponState?.valid ? couponState.discountCents : 0
   const total = Math.max(0, props.priceCents - discount)
 
-  /* Écoute des retours du widget KkiaPay */
-  useEffect(() => {
-    if (!widgetReady) return
-
-    window.addSuccessListener?.(async (response) => {
-      const order = pendingOrder.current
-      if (!order) return
-
-      setSubmitting(true)
-      const result = await confirmKkiapayPayment(order.id, response.transactionId)
-      setSubmitting(false)
-
+  /**
+   * Relit l'état de la commande auprès du serveur.
+   *
+   * Le webhook reste le canal de livraison : il survit à un acheteur qui ferme
+   * son onglet. Cette relecture ne sert qu'à ne pas faire patienter quelqu'un
+   * dont le paiement vient d'aboutir.
+   */
+  const check = useCallback(
+    async (orderId: string, reference: string) => {
+      const result = await confirmChariowPayment(orderId)
       if (result.ok) {
-        router.push(`/commande/confirmation/${result.reference ?? order.reference}`)
-      } else {
-        setError(result.message)
+        setAwaiting(null)
+        router.push(`/commande/confirmation/${result.reference ?? reference}`)
+        return true
       }
-    })
+      if (!result.pending) {
+        setAwaiting(null)
+        setError(result.message)
+        return true
+      }
+      return false
+    },
+    [router],
+  )
 
-    window.addFailedListener?.(() => {
-      setSubmitting(false)
-      setError(
-        'Le paiement n’a pas abouti. Vérifiez votre solde puis réessayez, ou choisissez le dépôt manuel.',
-      )
-    })
+  /* Surveillance de la fenêtre de paiement. */
+  useEffect(() => {
+    const order = pendingOrder.current
+    if (!awaiting || !order) return
 
-    window.addKkiapayCloseListener?.(() => setSubmitting(false))
-  }, [widgetReady, router])
+    let stopped = false
+
+    // Deux horloges, parce que les deux fins sont possibles : la fenêtre se
+    // referme, ou le webhook arrive pendant qu'elle est encore ouverte.
+    const closed = window.setInterval(() => {
+      if (stopped) return
+      if (popup.current?.closed) {
+        window.clearInterval(closed)
+        void check(order.id, order.reference)
+      }
+    }, 800)
+
+    const poll = window.setInterval(() => {
+      if (stopped) return
+      void check(order.id, order.reference).then((done) => {
+        if (done) window.clearInterval(poll)
+      })
+    }, 5000)
+
+    return () => {
+      stopped = true
+      window.clearInterval(closed)
+      window.clearInterval(poll)
+    }
+  }, [awaiting, check])
 
   function applyCoupon() {
     const formData = new FormData()
@@ -104,6 +138,17 @@ export function CheckoutForm(props: CheckoutProps) {
     setError(null)
     setSubmitting(true)
 
+    // La fenêtre est ouverte MAINTENANT, dans le fil du clic. Ouverte après
+    // l'appel serveur, elle serait tenue pour une pop-up non sollicitée et
+    // bloquée par le navigateur.
+    const window_ = method === 'chariow' ? window.open('', '_blank', 'width=540,height=780') : null
+    popup.current = window_
+    window_?.document.write(
+      '<!doctype html><meta charset="utf-8"><title>Paiement</title>' +
+        '<body style="font:16px system-ui;display:grid;place-items:center;height:100vh;margin:0">' +
+        'Ouverture du paiement…</body>',
+    )
+
     const formData = new FormData()
     formData.set('courseSlug', props.courseSlug)
     formData.set('method', method)
@@ -113,47 +158,54 @@ export function CheckoutForm(props: CheckoutProps) {
 
     const result = await createOrder(null, formData)
 
-    // Le dépôt manuel redirige côté serveur : on n'arrive ici que pour KkiaPay.
-    if (!result.ok || !result.order) {
+    // Le dépôt manuel redirige côté serveur : on n'arrive ici que pour Chariow.
+    if (!result.ok || !result.order || !result.checkoutUrl) {
+      window_?.close()
+      popup.current = null
       setSubmitting(false)
       setError(result.message ?? 'La commande n’a pas pu être créée.')
       return
     }
 
     pendingOrder.current = { id: result.order.id, reference: result.order.reference }
+    setSubmitting(false)
 
-    if (!window.openKkiapayWidget) {
-      setSubmitting(false)
-      setError('Le module de paiement n’est pas encore chargé. Patientez un instant puis réessayez.')
+    if (window_ && !window_.closed) {
+      window_.location.href = result.checkoutUrl
+      window_.focus()
+      setAwaiting({ orderId: result.order.id, url: result.checkoutUrl })
       return
     }
 
-    window.openKkiapayWidget({
-      amount: result.order.totalCents,
-      key: props.kkiapayPublicKey,
-      sandbox: props.kkiapaySandbox,
-      position: 'center',
-      theme: '#1c5d46',
-      phone: phone || undefined,
-      email: props.customerEmail,
-      name,
-      data: result.order.reference,
-      callback: '',
-    })
+    // Fenêtre bloquée : plutôt que de laisser l'acheteur devant un écran mort,
+    // on navigue dans l'onglet courant. Chariow ramènera sur la confirmation.
+    window.location.href = result.checkoutUrl
   }
 
   return (
     <>
-      {props.kkiapayEnabled && (
-        <Script
-          src="https://cdn.kkiapay.me/k.js"
-          strategy="afterInteractive"
-          onLoad={() => setWidgetReady(true)}
-        />
-      )}
-
       <form onSubmit={submit} className="space-y-6">
         {error && <Alert tone="error">{error}</Alert>}
+
+        {awaiting && (
+          <Alert tone="info">
+            <span className="block font-medium">Paiement en cours dans une autre fenêtre.</span>
+            <span className="mt-1 block">
+              Terminez-y votre paiement : cette page se mettra à jour toute seule. Si la fenêtre
+              s’est fermée par erreur,{' '}
+              <a
+                href={awaiting.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline underline-offset-4"
+              >
+                rouvrez-la
+                <ExternalLink className="ml-1 inline h-3.5 w-3.5" aria-hidden />
+              </a>
+              .
+            </span>
+          </Alert>
+        )}
 
         {/* Coordonnées */}
         <div className="rounded-lg border border-line bg-surface p-6">
@@ -169,9 +221,10 @@ export function CheckoutForm(props: CheckoutProps) {
               />
             </Field>
             <Field
-              label="Téléphone Mobile Money"
+              label="Téléphone"
               htmlFor="co-phone"
-              help="Le numéro qui sera débité."
+              required
+              help="Nécessaire au paiement en ligne. Format local, ex. 01 97 00 00 00."
             >
               <Input
                 id="co-phone"
@@ -192,13 +245,13 @@ export function CheckoutForm(props: CheckoutProps) {
         <div className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-5 text-lg font-semibold">Moyen de paiement</h2>
           <div className="space-y-3">
-            {props.kkiapayEnabled && (
+            {props.onlineEnabled && (
               <PaymentOption
-                selected={method === 'kkiapay'}
-                onSelect={() => setMethod('kkiapay')}
-                icon={Smartphone}
-                title="Mobile Money"
-                description="MTN, Moov ou Celtiis — accès ouvert immédiatement après paiement."
+                selected={method === 'chariow'}
+                onSelect={() => setMethod('chariow')}
+                icon={CreditCard}
+                title="Paiement en ligne"
+                description="Mobile Money ou carte bancaire — accès ouvert dès le paiement confirmé."
               />
             )}
             {props.transferEnabled && (
@@ -284,7 +337,7 @@ export function CheckoutForm(props: CheckoutProps) {
               {submitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
               {submitting
                 ? 'Traitement…'
-                : method === 'kkiapay'
+                : method === 'chariow'
                   ? `Payer ${formatPrice(total, props.currency)}`
                   : 'Enregistrer ma commande'}
             </Button>

@@ -13,7 +13,8 @@ export type OrderStatus =
   | 'failed'
   | 'cancelled'
   | 'refunded'
-export type PaymentMethod = 'kkiapay' | 'bank_transfer' | 'manual' | 'free'
+/** `kkiapay` subsiste pour l'historique : les ventes passent par Chariow. */
+export type PaymentMethod = 'chariow' | 'kkiapay' | 'bank_transfer' | 'manual' | 'free'
 export type ItemType = 'course' | 'service'
 export type EnrollmentState = 'active' | 'revoked' | 'completed'
 export type QuoteStatus = 'new' | 'in_progress' | 'won' | 'lost'
@@ -84,6 +85,15 @@ export interface Course {
   min_watch_ratio: number
   /** Exiger en plus la réussite des QCM actifs du parcours. */
   require_quiz_pass: boolean
+
+  /**
+   * Produit Chariow correspondant (`prd_…`).
+   *
+   * Obligatoire pour vendre : l'API de paiement encaisse le prix du produit
+   * CHARIOW, pas celui stocké ici. Les deux doivent donc rester cohérents —
+   * `price_cents` sert à l'affichage, Chariow fait foi à l'encaissement.
+   */
+  chariow_product_id: string | null
   seo_title: string | null
   seo_description: string | null
   og_image_url: string | null
@@ -236,6 +246,9 @@ export interface Order {
   coupon_code: string | null
   status: OrderStatus
   payment_method: PaymentMethod
+  /** Vente Chariow (`SALE…`) — sert de clé de corrélation avec le webhook. */
+  chariow_sale_id: string | null
+  /** Historique : transactions encaissées avant le passage à Chariow. */
   kkiapay_transaction_id: string | null
   payment_reference: string | null
   payment_proof_path: string | null
@@ -367,7 +380,8 @@ export interface SiteSettings {
   legal_notice: string | null
   terms: string | null
   privacy_policy: string | null
-  payments_kkiapay_enabled: boolean
+  /** Paiement en ligne (Chariow). Anciennement `payments_kkiapay_enabled`. */
+  payments_online_enabled: boolean
   payments_transfer_enabled: boolean
   announcement: string | null
   announcement_active: boolean

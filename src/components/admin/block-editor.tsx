@@ -1,8 +1,6 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
-import * as Icons from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import {
   ChevronDown,
   ChevronUp,
@@ -10,6 +8,9 @@ import {
   Eye,
   EyeOff,
   GripVertical,
+  ImagePlus,
+  LayoutTemplate,
+  Loader2,
   Plus,
   Trash2,
   X,
@@ -26,7 +27,10 @@ import {
   type FieldDef,
 } from '@/lib/blocks'
 import { Button } from '@/components/ui/button'
+
+import { blockTypeIcon } from '@/lib/icons'
 import { BlockPreview } from '@/components/admin/block-preview'
+import { IconPicker } from '@/components/admin/icon-picker'
 import type { BlockData } from '@/components/public/blocks/block-renderer'
 import { Checkbox, Input, Select, Textarea } from '@/components/ui/field'
 import { EmptyState } from '@/components/ui/misc'
@@ -114,7 +118,7 @@ export function BlockEditor({
             onClick={() => setPreview((v) => !v)}
             aria-pressed={preview}
           >
-            <Icons.Eye className="h-4 w-4" aria-hidden />
+            <Eye className="h-4 w-4" aria-hidden />
             {preview ? 'Masquer l’aperçu' : 'Aperçu en direct'}
           </Button>
         </div>
@@ -129,7 +133,7 @@ export function BlockEditor({
 
       {blocks.length === 0 ? (
         <EmptyState
-          icon={Icons.LayoutTemplate}
+          icon={LayoutTemplate}
           title="Page vide"
           description="Ajoutez des blocs pour composer votre page : bannière, arguments, offre, FAQ…"
           action={
@@ -144,14 +148,7 @@ export function BlockEditor({
           {blocks.map((block, index) => {
             const def = getBlockDef(block.type)
             const isOpen = openId === block.id
-            const Icon = def
-              ? ((Icons as unknown as Record<string, LucideIcon>)[
-                  def.icon
-                    .split('-')
-                    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-                    .join('')
-                ] ?? Icons.Square)
-              : Icons.Square
+            const Icon = blockTypeIcon(def?.icon)
 
             return (
               <div
@@ -414,6 +411,17 @@ function BlockField({
         </div>
       )
 
+    case 'icon':
+      return (
+        <div>
+          {label}
+          {/* Sans `name` : l'éditeur sérialise tout le tableau de blocs dans
+              un champ caché unique, et un second champ homonyme brouillerait
+              la soumission. */}
+          <IconPicker value={String(value ?? '')} onChange={onChange} />
+        </div>
+      )
+
     case 'stringList': {
       const items = Array.isArray(value) ? (value as string[]) : []
       return (
@@ -615,12 +623,12 @@ function InlineImage({ value, onChange }: { value: string; onChange: (v: string)
         >
           {uploading ? (
             <>
-              <Icons.Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
               Téléversement…
             </>
           ) : (
             <>
-              <Icons.ImagePlus className="h-5 w-5" aria-hidden />
+              <ImagePlus className="h-5 w-5" aria-hidden />
               Choisir une image
             </>
           )}

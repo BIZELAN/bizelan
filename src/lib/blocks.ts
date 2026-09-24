@@ -50,6 +50,7 @@ export type FieldType =
   | 'number'
   | 'boolean'
   | 'image'
+  | 'icon'
   | 'select'
   | 'stringList'
   | 'objectList'
@@ -270,7 +271,7 @@ export const BLOCK_DEFS: BlockDef[] = [
         fields: [
           { key: 'title', label: 'Titre', type: 'text' },
           { key: 'description', label: 'Description', type: 'textarea' },
-          { key: 'icon', label: 'Icône (nom lucide)', type: 'text', placeholder: 'clock' },
+          { key: 'icon', label: 'Icône', type: 'icon' },
         ],
       },
     ],

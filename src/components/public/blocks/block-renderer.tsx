@@ -10,8 +10,8 @@ import {
   X as XIcon,
   type LucideIcon,
 } from 'lucide-react'
-import * as Icons from 'lucide-react'
 
+import { resolveIcon } from '@/lib/icons'
 import type { Block } from '@/lib/blocks'
 import type { Course, FaqItem, Post, Review, Service } from '@/lib/types'
 import { Accordion } from '@/components/ui/accordion'
@@ -42,13 +42,16 @@ const d = (data: Record<string, unknown>) => ({
 })
 
 /** Résout une icône lucide par son nom, avec repli silencieux. */
+/**
+ * Icône choisie dans l'administration.
+ *
+ * Elle passe par la bibliothèque CHOISIE de `lib/icons.ts`, et non par
+ * `import * as Icons`. Cette forme-là, avec une résolution dynamique, annule
+ * l'élagage du paquet : les cinq mille icônes de lucide partaient dans le
+ * navigateur dès que ce moteur s'y rendait.
+ */
 function DynIcon({ name, className }: { name?: string; className?: string }) {
-  if (!name) return null
-  const pascal = name
-    .split(/[-_\s]/)
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-    .join('')
-  const Comp = (Icons as unknown as Record<string, LucideIcon>)[pascal]
+  const Comp = resolveIcon(name)
   if (!Comp) return null
   return <Comp className={className} aria-hidden />
 }

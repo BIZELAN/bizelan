@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import * as Dialog from '@radix-ui/react-dialog'
-import * as Icons from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import { CornerDownLeft, Search } from 'lucide-react'
 
 import { ADMIN_NAV, type AdminNavItem } from '@/components/admin/nav-items'
+import { resolveIcon } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 /** Retire les accents pour que « medias » trouve « Médiathèque ». */
@@ -126,7 +125,7 @@ export function CommandPalette() {
               )}
 
               {results.map((item, index) => {
-                const Icon = (Icons as unknown as Record<string, LucideIcon>)[item.icon]
+                const Icon = resolveIcon(item.icon)
                 const active = index === cursor
                 return (
                   <li key={item.href}>

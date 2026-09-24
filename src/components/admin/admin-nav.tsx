@@ -2,12 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import * as Icons from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { motion, useReducedMotion } from 'motion/react'
 
 import { ADMIN_NAV, type AdminNavItem } from '@/components/admin/nav-items'
+import { resolveIcon } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 /**
@@ -63,7 +62,7 @@ export function AdminNav({
             <ul className="space-y-1.5">
               {group.items.map((item) => {
                 const active = isActive(item)
-                const Icon = (Icons as unknown as Record<string, LucideIcon>)[item.icon]
+                const Icon = resolveIcon(item.icon)
 
                 const link = (
                   <Link

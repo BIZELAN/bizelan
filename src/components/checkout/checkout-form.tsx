@@ -2,15 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Banknote, CreditCard, ExternalLink, Loader2, Tag } from 'lucide-react'
+import { Banknote, Loader2, Smartphone, Tag } from 'lucide-react'
 
-import { checkCoupon, confirmChariowPayment, createOrder } from '@/app/actions/checkout'
+import { checkCoupon, confirmSaspayPayment, createOrder } from '@/app/actions/checkout'
 import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/field'
 import { Alert } from '@/components/ui/misc'
+// Le module client : `lib/saspay` importe `node:crypto` et ne peut pas
+// atteindre le navigateur.
+import { SASPAY_NETWORKS } from '@/lib/saspay-networks'
 import { cn, formatPrice } from '@/lib/utils'
 
-type Method = 'chariow' | 'bank_transfer'
+type Method = 'saspay' | 'bank_transfer'
 
 export interface CheckoutProps {
   courseSlug: string
@@ -29,59 +32,58 @@ export interface CheckoutProps {
 /**
  * Tunnel d'achat.
  *
- * La page de paiement de Chariow ne peut PAS être intégrée : son prestataire
- * répond `Content-Security-Policy: frame-ancestors 'none'`, une protection
- * anti-détournement de clic qu'aucun réglage de notre côté ne contourne. Une
- * iframe n'afficherait qu'un cadre vide.
+ * L'acheteur ne quitte PAS le site. Les trois réseaux béninois — MTN, Moov,
+ * Celtiis — fonctionnent en push : SasPay envoie une demande de validation sur
+ * le téléphone, et cette page reste ouverte pendant qu'il compose son code.
+ * C'est ce qui avait été demandé dès le départ, et que la passerelle
+ * précédente ne pouvait pas tenir : sa page de paiement répondait
+ * `frame-ancestors 'none'` et refusait toute intégration.
  *
- * Le paiement s'ouvre donc dans une FENÊTRE SECONDAIRE : la page du site reste
- * affichée derrière, avec l'état du paiement, et reprend la main dès que la
- * fenêtre se referme. C'est ce qui s'approche le plus de « ne pas quitter le
- * site » sans mentir au visiteur sur l'endroit où il saisit son paiement.
- *
- * La fenêtre est ouverte AVANT l'appel serveur, dans le fil du clic : ouverte
- * après, le navigateur la traiterait comme une pop-up non sollicitée et la
- * bloquerait. Si elle est tout de même bloquée, on bascule sur une navigation
- * classique plutôt que de laisser l'acheteur sans issue.
+ * Un repli existe malgré tout. La documentation prévient qu'un même réseau
+ * peut basculer vers une page hébergée sans préavis selon le routage : quand
+ * la réponse porte une adresse de paiement, on y conduit l'acheteur plutôt que
+ * de le laisser attendre un appel qui ne viendra jamais.
  */
 export function CheckoutForm(props: CheckoutProps) {
   const router = useRouter()
   const [method, setMethod] = useState<Method>(
-    props.onlineEnabled ? 'chariow' : 'bank_transfer',
+    props.onlineEnabled ? 'saspay' : 'bank_transfer',
   )
   const [coupon, setCoupon] = useState('')
   const [couponState, setCouponState] = useState<{ valid: boolean; message: string; discountCents: number } | null>(null)
   const [checkingCoupon, startCouponCheck] = useTransition()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  /** Fenêtre de paiement ouverte : on attend son retour. */
-  const [awaiting, setAwaiting] = useState<{ orderId: string; url: string } | null>(null)
+  const [network, setNetwork] = useState<string>(SASPAY_NETWORKS[0].code)
+  /** Demande poussée sur le téléphone : on attend que le client valide. */
+  const [pushed, setPushed] = useState<{ orderId: string; instructions: string | null } | null>(
+    null,
+  )
   const [phone, setPhone] = useState(props.customerPhone)
   const [name, setName] = useState(props.customerName)
 
   const pendingOrder = useRef<{ id: string; reference: string } | null>(null)
-  const popup = useRef<Window | null>(null)
 
   const discount = couponState?.valid ? couponState.discountCents : 0
   const total = Math.max(0, props.priceCents - discount)
 
   /**
-   * Relit l'état de la commande auprès du serveur.
+   * Relit l'état du paiement auprès du serveur.
    *
-   * Le webhook reste le canal de livraison : il survit à un acheteur qui ferme
-   * son onglet. Cette relecture ne sert qu'à ne pas faire patienter quelqu'un
-   * dont le paiement vient d'aboutir.
+   * Le webhook reste le canal de livraison — il survit à un onglet fermé.
+   * Cette relecture sert à ne pas faire patienter quelqu'un dont le paiement
+   * vient d'aboutir sous ses yeux.
    */
   const check = useCallback(
     async (orderId: string, reference: string) => {
-      const result = await confirmChariowPayment(orderId)
+      const result = await confirmSaspayPayment(orderId)
       if (result.ok) {
-        setAwaiting(null)
+        setPushed(null)
         router.push(`/commande/confirmation/${result.reference ?? reference}`)
         return true
       }
       if (!result.pending) {
-        setAwaiting(null)
+        setPushed(null)
         setError(result.message)
         return true
       }
@@ -90,36 +92,40 @@ export function CheckoutForm(props: CheckoutProps) {
     [router],
   )
 
-  /* Surveillance de la fenêtre de paiement. */
+  /* Interrogation pendant que le client compose son code. */
   useEffect(() => {
     const order = pendingOrder.current
-    if (!awaiting || !order) return
+    if (!pushed || !order) return
 
     let stopped = false
-
-    // Deux horloges, parce que les deux fins sont possibles : la fenêtre se
-    // referme, ou le webhook arrive pendant qu'elle est encore ouverte.
-    const closed = window.setInterval(() => {
-      if (stopped) return
-      if (popup.current?.closed) {
-        window.clearInterval(closed)
-        void check(order.id, order.reference)
-      }
-    }, 800)
-
+    // Toutes les quatre secondes : assez pour que la confirmation paraisse
+    // immédiate, assez peu pour ne pas marteler l'API pendant deux minutes.
     const poll = window.setInterval(() => {
       if (stopped) return
       void check(order.id, order.reference).then((done) => {
         if (done) window.clearInterval(poll)
       })
-    }, 5000)
+    }, 4000)
+
+    // Une validation mobile money aboutit ou expire en quelques minutes.
+    // Au-delà, on cesse d'interroger et on s'en remet au webhook plutôt que
+    // de laisser un compteur tourner indéfiniment dans un onglet oublié.
+    const giveUp = window.setTimeout(() => {
+      stopped = true
+      window.clearInterval(poll)
+      setPushed(null)
+      setError(
+        'Aucune confirmation reçue. Si vous avez validé le paiement, l’accès s’ouvrira ' +
+          'automatiquement et vous recevrez un e-mail. Sinon, réessayez.',
+      )
+    }, 180_000)
 
     return () => {
       stopped = true
-      window.clearInterval(closed)
       window.clearInterval(poll)
+      window.clearTimeout(giveUp)
     }
-  }, [awaiting, check])
+  }, [pushed, check])
 
   function applyCoupon() {
     const formData = new FormData()
@@ -138,48 +144,39 @@ export function CheckoutForm(props: CheckoutProps) {
     setError(null)
     setSubmitting(true)
 
-    // La fenêtre est ouverte MAINTENANT, dans le fil du clic. Ouverte après
-    // l'appel serveur, elle serait tenue pour une pop-up non sollicitée et
-    // bloquée par le navigateur.
-    const window_ = method === 'chariow' ? window.open('', '_blank', 'width=540,height=780') : null
-    popup.current = window_
-    window_?.document.write(
-      '<!doctype html><meta charset="utf-8"><title>Paiement</title>' +
-        '<body style="font:16px system-ui;display:grid;place-items:center;height:100vh;margin:0">' +
-        'Ouverture du paiement…</body>',
-    )
-
     const formData = new FormData()
     formData.set('courseSlug', props.courseSlug)
     formData.set('method', method)
     formData.set('name', name)
     formData.set('phone', phone)
+    formData.set('network', network)
     if (couponState?.valid) formData.set('coupon', coupon)
 
     const result = await createOrder(null, formData)
+    setSubmitting(false)
 
-    // Le dépôt manuel redirige côté serveur : on n'arrive ici que pour Chariow.
-    if (!result.ok || !result.order || !result.checkoutUrl) {
-      window_?.close()
-      popup.current = null
-      setSubmitting(false)
+    // Le dépôt manuel redirige côté serveur : on n'arrive ici que pour SasPay.
+    if (!result.ok || !result.order) {
       setError(result.message ?? 'La commande n’a pas pu être créée.')
       return
     }
 
     pendingOrder.current = { id: result.order.id, reference: result.order.reference }
-    setSubmitting(false)
 
-    if (window_ && !window_.closed) {
-      window_.location.href = result.checkoutUrl
-      window_.focus()
-      setAwaiting({ orderId: result.order.id, url: result.checkoutUrl })
+    if (result.push) {
+      // Cas courant au Bénin : la demande est sur le téléphone, la page reste.
+      setPushed({ orderId: result.order.id, instructions: result.push.instructions })
       return
     }
 
-    // Fenêtre bloquée : plutôt que de laisser l'acheteur devant un écran mort,
-    // on navigue dans l'onglet courant. Chariow ramènera sur la confirmation.
-    window.location.href = result.checkoutUrl
+    if (result.checkoutUrl) {
+      // Le réseau a basculé sur une page hébergée. Rare ici, mais la
+      // documentation prévient que cela peut arriver sans préavis.
+      window.location.href = result.checkoutUrl
+      return
+    }
+
+    setError('Le paiement n’a pas pu être lancé. Réessayez ou choisissez le dépôt bancaire.')
   }
 
   return (
@@ -187,22 +184,21 @@ export function CheckoutForm(props: CheckoutProps) {
       <form onSubmit={submit} className="space-y-6">
         {error && <Alert tone="error">{error}</Alert>}
 
-        {awaiting && (
+        {pushed && (
           <Alert tone="info">
-            <span className="block font-medium">Paiement en cours dans une autre fenêtre.</span>
-            <span className="mt-1 block">
-              Terminez-y votre paiement : cette page se mettra à jour toute seule. Si la fenêtre
-              s’est fermée par erreur,{' '}
-              <a
-                href={awaiting.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium underline underline-offset-4"
-              >
-                rouvrez-la
-                <ExternalLink className="ml-1 inline h-3.5 w-3.5" aria-hidden />
-              </a>
-              .
+            <span className="flex items-start gap-3">
+              <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin" aria-hidden />
+              <span>
+                <span className="block font-medium">
+                  Validez le paiement sur votre téléphone.
+                </span>
+                <span className="mt-1 block">
+                  {pushed.instructions ??
+                    'Une demande vient d’être envoyée au ' +
+                      `${phone}. Composez votre code secret pour confirmer — ` +
+                      'cette page se met à jour toute seule.'}
+                </span>
+              </span>
             </span>
           </Alert>
         )}
@@ -247,11 +243,11 @@ export function CheckoutForm(props: CheckoutProps) {
           <div className="space-y-3">
             {props.onlineEnabled && (
               <PaymentOption
-                selected={method === 'chariow'}
-                onSelect={() => setMethod('chariow')}
-                icon={CreditCard}
-                title="Paiement en ligne"
-                description="Mobile Money ou carte bancaire — accès ouvert dès le paiement confirmé."
+                selected={method === 'saspay'}
+                onSelect={() => setMethod('saspay')}
+                icon={Smartphone}
+                title="Mobile Money"
+                description="MTN, Moov ou Celtiis. Vous validez sur votre téléphone, sans quitter cette page."
               />
             )}
             {props.transferEnabled && (
@@ -264,6 +260,36 @@ export function CheckoutForm(props: CheckoutProps) {
               />
             )}
           </div>
+
+          {method === 'saspay' && (
+            <div className="mt-5">
+              <p className="mb-2.5 text-sm font-medium text-fg">Votre opérateur</p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {SASPAY_NETWORKS.map((option) => {
+                  const selected = network === option.code
+                  return (
+                    <button
+                      key={option.code}
+                      type="button"
+                      onClick={() => setNetwork(option.code)}
+                      aria-pressed={selected}
+                      className={cn(
+                        'rounded-md border-2 px-4 py-3 text-sm font-medium transition-colors duration-fast',
+                        selected
+                          ? 'border-primary-text bg-primary-subtle text-primary-text'
+                          : 'border-line bg-surface text-fg-muted hover:border-line-control hover:bg-canvas-subtle',
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="mt-2.5 text-xs text-fg-subtle">
+                Le numéro saisi plus haut recevra la demande de validation.
+              </p>
+            </div>
+          )}
 
           {method === 'bank_transfer' && props.transferInstructions && (
             <div className="mt-5 rounded-md bg-primary-subtle px-4 py-3.5 text-sm leading-relaxed text-primary-text">
@@ -337,7 +363,7 @@ export function CheckoutForm(props: CheckoutProps) {
               {submitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
               {submitting
                 ? 'Traitement…'
-                : method === 'chariow'
+                : method === 'saspay'
                   ? `Payer ${formatPrice(total, props.currency)}`
                   : 'Enregistrer ma commande'}
             </Button>

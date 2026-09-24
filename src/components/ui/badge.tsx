@@ -70,7 +70,9 @@ export const QUOTE_STATUS_LABELS: Record<string, { label: string; tone: Tone }> 
 }
 
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  chariow: 'Paiement en ligne',
+  saspay: 'Mobile Money',
+  // Conservés : les commandes déjà encaissées les portent.
+  chariow: 'Paiement en ligne (Chariow)',
   // Conservé : les commandes encaissées avant le passage à Chariow le portent.
   kkiapay: 'Mobile Money (KkiaPay)',
   bank_transfer: 'Dépôt / virement',

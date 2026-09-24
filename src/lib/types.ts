@@ -13,8 +13,8 @@ export type OrderStatus =
   | 'failed'
   | 'cancelled'
   | 'refunded'
-/** `kkiapay` subsiste pour l'historique : les ventes passent par Chariow. */
-export type PaymentMethod = 'chariow' | 'kkiapay' | 'bank_transfer' | 'manual' | 'free'
+/** `kkiapay` et `chariow` subsistent pour l'historique : on encaisse via SasPay. */
+export type PaymentMethod = 'saspay' | 'chariow' | 'kkiapay' | 'bank_transfer' | 'manual' | 'free'
 export type ItemType = 'course' | 'service'
 export type EnrollmentState = 'active' | 'revoked' | 'completed'
 export type QuoteStatus = 'new' | 'in_progress' | 'won' | 'lost'
@@ -87,11 +87,12 @@ export interface Course {
   require_quiz_pass: boolean
 
   /**
-   * Produit Chariow correspondant (`prd_…`).
+   * Vestige de Chariow, conservé sans usage.
    *
-   * Obligatoire pour vendre : l'API de paiement encaisse le prix du produit
-   * CHARIOW, pas celui stocké ici. Les deux doivent donc rester cohérents —
-   * `price_cents` sert à l'affichage, Chariow fait foi à l'encaissement.
+   * Chariow vendait SES produits : chaque formation devait y être appariée, et
+   * c'était son prix qui était encaissé, pas le nôtre. SasPay encaisse un
+   * montant que nous dictons — l'appariement et la contrainte disparaissent
+   * ensemble, et nos codes promo redeviennent effectifs.
    */
   chariow_product_id: string | null
   seo_title: string | null
@@ -246,7 +247,11 @@ export interface Order {
   coupon_code: string | null
   status: OrderStatus
   payment_method: PaymentMethod
-  /** Vente Chariow (`SALE…`) — sert de clé de corrélation avec le webhook. */
+  /** Paiement SasPay (UUID) — clé de corrélation avec le webhook. */
+  saspay_payment_id: string | null
+  /** Réseau mobile money employé, conservé pour le service après-vente. */
+  saspay_network: string | null
+  /** Historique : ventes encaissées via Chariow. */
   chariow_sale_id: string | null
   /** Historique : transactions encaissées avant le passage à Chariow. */
   kkiapay_transaction_id: string | null
@@ -391,7 +396,7 @@ export interface SiteSettings {
   legal_notice: string | null
   terms: string | null
   privacy_policy: string | null
-  /** Paiement en ligne (Chariow). Anciennement `payments_kkiapay_enabled`. */
+  /** Paiement en ligne. Anciennement `payments_kkiapay_enabled`. */
   payments_online_enabled: boolean
   payments_transfer_enabled: boolean
   announcement: string | null

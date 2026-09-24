@@ -22,14 +22,14 @@ export const env = {
   },
 
   /**
-   * Chariow. La clé donne accès à la boutique entière : elle n'est lue que
-   * côté serveur, et n'a délibérément pas de préfixe `NEXT_PUBLIC_`.
+   * SasPay. La clé autorise à encaisser ET à virer des fonds : elle n'est lue
+   * que côté serveur, et n'a délibérément pas de préfixe `NEXT_PUBLIC_`.
    */
-  get chariowApiKey() {
-    return required('CHARIOW_API_KEY', process.env.CHARIOW_API_KEY)
+  get saspayApiKey() {
+    return required('SASPAY_API_KEY', process.env.SASPAY_API_KEY)
   },
-  /** Secret de signature du Pulse — distinct de la clé d'API. */
-  chariowPulseSecret: process.env.CHARIOW_PULSE_SECRET ?? '',
+  /** Secret de signature du webhook — distinct de la clé d'API. */
+  saspayWebhookSecret: process.env.SASPAY_WEBHOOK_SECRET ?? '',
 
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   siteName: process.env.NEXT_PUBLIC_SITE_NAME ?? 'BIZELAN',

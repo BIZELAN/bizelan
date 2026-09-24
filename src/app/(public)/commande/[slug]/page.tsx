@@ -57,7 +57,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
               customerName={user.profile.full_name ?? ''}
               customerEmail={user.email}
               customerPhone={user.profile.phone ?? ''}
-              onlineEnabled={settings.payments_online_enabled && Boolean(course.chariow_product_id)}
+              onlineEnabled={settings.payments_online_enabled}
               transferEnabled={settings.payments_transfer_enabled}
               transferInstructions={settings.bank_transfer_instructions}
             />

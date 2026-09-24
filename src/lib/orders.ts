@@ -69,9 +69,9 @@ export async function validateCoupon(
 export async function fulfillOrder(
   orderId: string,
   options?: {
-    /** Identifiant chez le prestataire : vente Chariow ou transaction KkiaPay. */
+    /** Identifiant chez le prestataire qui a encaissé. */
     transactionId?: string
-    method?: 'chariow' | 'kkiapay' | 'manual' | 'bank_transfer'
+    method?: 'saspay' | 'chariow' | 'kkiapay' | 'manual' | 'bank_transfer'
     validatedBy?: string
   },
 ): Promise<{ ok: boolean; alreadyPaid?: boolean; error?: string }> {
@@ -123,12 +123,10 @@ export async function fulfillOrder(
       status: 'paid',
       paid_at: paidAt,
       // La colonne dépend du prestataire : `kkiapay_transaction_id` reste
-      // celle de l'historique, les ventes Chariow ont la leur.
-      ...(options?.transactionId
-        ? options.method === 'chariow'
-          ? { chariow_sale_id: options.transactionId }
-          : { kkiapay_transaction_id: options.transactionId }
-        : {}),
+      // La colonne dépend du prestataire. Les anciennes restent : les
+      // commandes déjà encaissées les portent, et les effacer ferait perdre
+      // la trace de paiements bien réels.
+      ...(options?.transactionId ? transactionColumn(options) : {}),
       ...(options?.method ? { payment_method: options.method } : {}),
       ...(options?.validatedBy ? { validated_by: options.validatedBy } : {}),
     })
@@ -183,6 +181,16 @@ export async function fulfillOrder(
   })
 
   return { ok: true }
+}
+
+/** Colonne où loger l'identifiant du prestataire qui a encaissé. */
+function transactionColumn(options: {
+  transactionId?: string
+  method?: 'saspay' | 'chariow' | 'kkiapay' | 'manual' | 'bank_transfer'
+}): Record<string, string | undefined> {
+  if (options.method === 'saspay') return { saspay_payment_id: options.transactionId }
+  if (options.method === 'chariow') return { chariow_sale_id: options.transactionId }
+  return { kkiapay_transaction_id: options.transactionId }
 }
 
 /** Retire les accès liés à une commande (remboursement, erreur). */

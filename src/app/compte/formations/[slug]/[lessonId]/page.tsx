@@ -10,6 +10,8 @@ import { parseRichContent } from '@/lib/rich-content'
 import { ProgressBar } from '@/components/ui/misc'
 import { ResourceList } from '@/components/account/resource-list'
 import { LessonActions, VideoFrame } from '@/components/account/lesson-player'
+import { LessonQuiz, type QuizView } from '@/components/account/lesson-quiz'
+import { createClient } from '@/lib/supabase/server'
 import { env } from '@/lib/env'
 import { cn, formatDuration } from '@/lib/utils'
 
@@ -38,6 +40,55 @@ export default async function LessonPage({
   const previous = flat[index - 1] ?? null
   const doneCount = flat.filter((l) => l.progress?.completed).length
   const progressPercent = flat.length ? Math.round((doneCount / flat.length) * 100) : 0
+
+  // Le questionnaire est chargé avec la session de l'APPRENANT, pas la clé de
+  // service : `is_correct` lui est retiré au niveau des droits, et la requête
+  // ne le demande de toute façon pas. Les bonnes réponses ne quittent jamais
+  // le serveur — la correction passe par `bz_grade_quiz`.
+  const supabase = await createClient()
+  const { data: quizRow } = await supabase
+    .from('quizzes')
+    .select(
+      'id, title, intro, pass_percent, max_attempts, quiz_questions ( id, prompt, position, quiz_choices ( id, label, position ) )',
+    )
+    .eq('lesson_id', lesson.id)
+    .eq('is_active', true)
+    .maybeSingle<{
+      id: string
+      title: string
+      intro: string | null
+      pass_percent: number
+      max_attempts: number
+      quiz_questions:
+        | { id: string; prompt: string; position: number; quiz_choices: { id: string; label: string; position: number }[] | null }[]
+        | null
+    }>()
+
+  let quiz: QuizView | null = null
+  if (quizRow) {
+    const { data: attempts } = await supabase
+      .from('quiz_attempts')
+      .select('passed')
+      .eq('quiz_id', quizRow.id)
+      .eq('user_id', user.id)
+
+    quiz = {
+      id: quizRow.id,
+      title: quizRow.title,
+      intro: quizRow.intro,
+      passPercent: quizRow.pass_percent,
+      maxAttempts: quizRow.max_attempts,
+      attemptsUsed: attempts?.length ?? 0,
+      alreadyPassed: Boolean(attempts?.some((a) => a.passed)),
+      questions: [...(quizRow.quiz_questions ?? [])]
+        .sort((a, b) => a.position - b.position)
+        .map((q) => ({
+          id: q.id,
+          prompt: q.prompt,
+          choices: [...(q.quiz_choices ?? [])].sort((a, b) => a.position - b.position),
+        })),
+    }
+  }
 
   const hasNotes = Boolean(lesson.content)
   // Normalisé ici plutôt que testé en place : TypeScript n'affine pas un
@@ -116,6 +167,12 @@ export default async function LessonPage({
               </section>
             )}
           </div>
+        )}
+
+        {/* Le questionnaire se place APRÈS le contenu et AVANT les actions :
+            on vérifie ses acquis une fois la leçon lue, pas avant. */}
+        {quiz && quiz.questions.length > 0 && (
+          <LessonQuiz quiz={quiz} courseId={course.id} courseSlug={slug} />
         )}
 
         <LessonActions

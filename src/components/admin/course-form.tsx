@@ -17,14 +17,18 @@ import { ImageInput } from '@/components/admin/image-input'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { asArray, slugify } from '@/lib/utils'
 import { parseRichContent } from '@/lib/rich-content'
-import type { Category, Course, FaqItem } from '@/lib/types'
+import { Alert } from '@/components/ui/misc'
+import type { Category, Course, CourseWatchCoverage, FaqItem } from '@/lib/types'
 
 export function CourseForm({
   course,
   categories,
+  coverage = null,
 }: {
   course: Course | null
   categories: Category[]
+  /** Absent à la création : la formation n'a pas encore de leçons. */
+  coverage?: CourseWatchCoverage | null
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveCourse, null)
 
@@ -263,6 +267,43 @@ export function CourseForm({
         title="Certificat"
         description="Jusqu’ici le certificat était délivré dès que toutes les leçons étaient cochées — or c’est l’apprenant qui les coche. Ces règles ajoutent une condition mesurée."
       >
+        {/* Le réglage ne s'applique qu'aux leçons dont la lecture est
+            observable. Une vidéo YouTube, Vimeo ou Bunny vit dans une iframe
+            d'un autre domaine : rien n'en remonte, et exiger une part de
+            visionnage y retiendrait le certificat de tout le monde. Le dire
+            ici évite d'avoir à le découvrir sur une réclamation. */}
+        {coverage && coverage.lessons_total > 0 && coverage.lessons_measurable === 0 && (
+          <Alert tone="warning">
+            Aucune leçon de cette formation n’est mesurable : les vidéos sont
+            hébergées chez YouTube, Vimeo ou Bunny, et leur lecture se déroule dans
+            un cadre dont rien ne remonte. Une exigence de visionnage n’aurait donc
+            aucun effet. Pour l’activer, servez les vidéos en fichier direct
+            (MP4&nbsp;: « Hébergeur vidéo » → « Lien direct »).
+          </Alert>
+        )}
+
+        {coverage &&
+          coverage.lessons_measurable > 0 &&
+          coverage.lessons_measurable < coverage.lessons_total && (
+            <Alert tone="info">
+              {coverage.lessons_measurable} leçon
+              {coverage.lessons_measurable > 1 ? 's' : ''} sur {coverage.lessons_total} peu
+              {coverage.lessons_measurable > 1 ? 'vent' : 't'} être mesurée
+              {coverage.lessons_measurable > 1 ? 's' : ''}. L’exigence ne portera que sur
+              celles-là — les vidéos lues dans un cadre externe en sont exclues plutôt
+              que comptées comme non visionnées.
+            </Alert>
+          )}
+
+        {coverage && coverage.lessons_without_duration > 0 && (
+          <Alert tone="info">
+            {coverage.lessons_without_duration} leçon
+            {coverage.lessons_without_duration > 1 ? 's' : ''} sans durée renseignée. On ne
+            peut pas exiger une part d’une durée inconnue : elle
+            {coverage.lessons_without_duration > 1 ? 's sont' : ' est'} hors du calcul.
+          </Alert>
+        )}
+
         <Field
           label="Visionnage minimum par leçon"
           htmlFor="min_watch_ratio"

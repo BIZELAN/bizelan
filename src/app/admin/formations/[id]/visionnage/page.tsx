@@ -33,6 +33,9 @@ export default async function WatchTimePage({ params }: { params: Promise<{ id: 
 
   const learners = (data ?? []) as LearnerWatchStats[]
   const threshold = course.min_watch_ratio
+  // Identique pour toutes les lignes : c'est une propriété du parcours, pas
+  // de l'apprenant. On la lit sur la première.
+  const unmeasurable = learners[0]?.lessons_unmeasurable ?? 0
 
   return (
     <>
@@ -42,6 +45,17 @@ export default async function WatchTimePage({ params }: { params: Promise<{ id: 
         backHref={`/admin/formations/${id}`}
         backLabel="Retour à la formation"
       />
+
+      {unmeasurable > 0 && (
+        <Alert tone="warning" className="mb-6">
+          {unmeasurable} leçon{unmeasurable > 1 ? 's' : ''} de cette formation
+          {unmeasurable > 1 ? ' ne peuvent' : ' ne peut'} pas être mesurée
+          {unmeasurable > 1 ? 's' : ''} : la vidéo est lue dans un cadre externe
+          (YouTube, Vimeo, Bunny), d’où rien ne remonte. {unmeasurable > 1 ? 'Elles sont' : 'Elle est'}{' '}
+          exclue{unmeasurable > 1 ? 's' : ''} du calcul plutôt que comptée
+          {unmeasurable > 1 ? 's' : ''} comme non visionnée{unmeasurable > 1 ? 's' : ''}.
+        </Alert>
+      )}
 
       {threshold > 0 ? (
         <Alert tone="info" className="mb-6">

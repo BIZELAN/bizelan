@@ -514,8 +514,14 @@ export interface LearnerWatchStats {
   lessons_completed: number
   watched_seconds: number
   duration_seconds: number
-  /** Leçons cochées sans avoir été visionnées à hauteur du seuil. */
+  /** Leçons MESURABLES cochées sans avoir été visionnées à hauteur du seuil. */
   lessons_skipped: number
+  /**
+   * Leçons dont la lecture ne peut pas être observée — vidéo servie dans une
+   * iframe YouTube, Vimeo ou Bunny. Elles sont hors du calcul, et le dire
+   * évite de lire `lessons_skipped` comme s'il couvrait tout le parcours.
+   */
+  lessons_unmeasurable: number
 }
 
 export interface NavLink {
@@ -526,4 +532,19 @@ export interface NavLink {
 export interface FooterColumn {
   title: string
   links: NavLink[]
+}
+
+/**
+ * Ligne de `bz_course_watch_coverage` — lue côté serveur uniquement.
+ *
+ * Sert à prévenir l'administration quand une exigence de visionnage ne
+ * s'appliquera à rien : le temps de lecture ne se mesure que sur un fichier
+ * direct, jamais dans une iframe YouTube, Vimeo ou Bunny.
+ */
+export interface CourseWatchCoverage {
+  course_id: string
+  min_watch_ratio: number
+  lessons_total: number
+  lessons_measurable: number
+  lessons_without_duration: number
 }

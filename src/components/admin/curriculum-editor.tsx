@@ -1,13 +1,14 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { ChevronDown, Pencil, Plus, Video } from 'lucide-react'
+import { Check, ChevronDown, Pencil, Plus, Video } from 'lucide-react'
 
 import { saveLesson, saveModule, deleteLesson, deleteModule, type AdminResult } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
 import { ActionFeedback, DeleteButton, SaveButton } from '@/components/admin/form-bits'
+import { FileUploader } from '@/components/admin/file-uploader'
 import { RichEditor } from '@/components/admin/rich-editor'
 import { EmptyState } from '@/components/ui/misc'
 import { cn, formatDuration } from '@/lib/utils'
@@ -276,7 +277,9 @@ function LessonForm({
   onDone: () => void
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveLesson, null)
-  const [provider, setProvider] = useState(lesson?.video_provider ?? 'youtube')
+  const [provider, setProvider] = useState(lesson?.video_provider ?? 'upload')
+  /** Chemin du fichier fraîchement déposé, tant que la leçon n'est pas enregistrée. */
+  const [videoPath, setVideoPath] = useState<string | null>(null)
 
   if (state?.ok) setTimeout(onDone, 300)
 
@@ -302,10 +305,15 @@ function LessonForm({
             value={provider}
             onChange={(e) => setProvider(e.target.value as typeof provider)}
           >
+            {/* `upload` en tête : c'est le seul choix dont le temps de
+                visionnage soit mesurable, et donc le seul qui permette de
+                conditionner le certificat. Les autres servent une iframe d'un
+                autre domaine, d'où rien ne remonte. */}
+            <option value="upload">Téléverser la vidéo (recommandé)</option>
+            <option value="url">Lien direct (MP4)</option>
             <option value="youtube">YouTube (non répertorié)</option>
             <option value="bunny">Bunny Stream</option>
             <option value="vimeo">Vimeo</option>
-            <option value="url">Lien direct (MP4)</option>
           </Select>
         </Field>
 
@@ -319,7 +327,41 @@ function LessonForm({
         </Field>
       </div>
 
-      {provider === 'url' ? (
+      {provider === 'upload' ? (
+        <div className="space-y-3">
+          <FileUploader
+            target="video"
+            label="Fichier vidéo"
+            help="MP4, WebM ou MOV. Le fichier part directement vers l’espace privé, sans transiter par le site : la taille n’est donc plus limitée par l’hébergement."
+            onUploaded={(file) => setVideoPath(file.path)}
+          />
+
+          {videoPath ? (
+            <p className="flex items-center gap-2 text-sm text-success">
+              <Check className="h-4 w-4 shrink-0" aria-hidden />
+              Vidéo déposée. Enregistrez la leçon pour l’attacher.
+            </p>
+          ) : (
+            lesson?.video_provider === 'upload' &&
+            lesson.video_id && (
+              <p className="text-sm text-fg-subtle">
+                Vidéo actuelle : <span className="font-mono text-xs">{lesson.video_id}</span>.
+                Déposez-en une autre pour la remplacer.
+              </p>
+            )
+          )}
+
+          {/* Le chemin dans le bucket tient lieu d'identifiant pour ce
+              fournisseur : `video_id` le porte, comme il porte l'identifiant
+              YouTube ou Bunny pour les autres. */}
+          <input
+            type="hidden"
+            name="video_id"
+            value={videoPath ?? (lesson?.video_provider === 'upload' ? (lesson.video_id ?? '') : '')}
+          />
+          <input type="hidden" name="video_url" value="" />
+        </div>
+      ) : provider === 'url' ? (
         <Field label="URL de la vidéo" help="Lien direct vers le fichier MP4.">
           <Input name="video_url" defaultValue={lesson?.video_url ?? ''} placeholder="https://…/video.mp4" />
         </Field>

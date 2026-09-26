@@ -21,6 +21,7 @@ import { signOut } from '@/app/actions/auth'
 import { AdminNav } from '@/components/admin/admin-nav'
 import { CommandPalette } from '@/components/admin/command-palette'
 import { findNavItem } from '@/components/admin/nav-items'
+import { SiteLogo } from '@/components/ui/site-logo'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { applySidebar, readStoredSidebar } from '@/lib/sidebar'
 import { cn } from '@/lib/utils'
@@ -46,11 +47,13 @@ import { cn } from '@/lib/utils'
  */
 export function AdminChrome({
   siteName,
+  logoUrl,
   userName,
   userRole,
   children,
 }: {
   siteName: string
+  logoUrl: string | null
   userName: string
   userRole: string
   children: ReactNode
@@ -87,7 +90,7 @@ export function AdminChrome({
           className="hidden shrink-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-e2 transition-[width] duration-base ease-out lg:flex"
           style={{ width: 'var(--sidebar-w)' }}
         >
-          <SidebarHeader siteName={siteName} collapsed={collapsed} />
+          <SidebarHeader siteName={siteName} logoUrl={logoUrl} collapsed={collapsed} />
           {/* Seule cette zone déborde : l'en-tête et le pied restent visibles. */}
           <AdminNav collapsed={collapsed} />
           <SidebarFooter
@@ -107,7 +110,7 @@ export function AdminChrome({
             >
               <Dialog.Title className="sr-only">Navigation</Dialog.Title>
               <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line p-4">
-                <Brand siteName={siteName} />
+                <Brand siteName={siteName} logoUrl={logoUrl} />
                 <Dialog.Close className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-sm text-fg-muted transition-colors duration-fast hover:bg-canvas-subtle hover:text-fg">
                   <X className="h-5 w-5" aria-hidden />
                   <span className="sr-only">Fermer</span>
@@ -174,11 +177,17 @@ export function AdminChrome({
 
 /* ------------------------------------------------------------------ */
 
-/** Marque : tuile d'icône + deux lignes, comme les entrées de navigation. */
-function Brand({ siteName }: { siteName: string }) {
+/** Marque : logo ou tuile d'icône, puis deux lignes. */
+function Brand({ siteName, logoUrl }: { siteName: string; logoUrl: string | null }) {
   return (
     <span className="flex min-w-0 items-center gap-3">
-      <BrandTile />
+      {/* Le logo prend la place de la tuile quand il existe : la console est
+          un outil de travail quotidien, et y retrouver sa marque compte. */}
+      {logoUrl ? (
+        <SiteLogo siteName={siteName} logoUrl={logoUrl} height="h-11" className="shrink-0" />
+      ) : (
+        <BrandTile />
+      )}
       <span className="min-w-0">
         <span className="block truncate text-base font-bold text-fg">{siteName}</span>
         <span className="mt-0.5 block truncate text-xs text-fg-subtle">
@@ -202,7 +211,15 @@ function BrandTile() {
   )
 }
 
-function SidebarHeader({ siteName, collapsed }: { siteName: string; collapsed: boolean }) {
+function SidebarHeader({
+  siteName,
+  logoUrl,
+  collapsed,
+}: {
+  siteName: string
+  logoUrl: string | null
+  collapsed: boolean
+}) {
   return (
     <div
       className={cn('shrink-0 border-b border-line', collapsed ? 'flex justify-center p-3' : 'p-4')}
@@ -210,11 +227,15 @@ function SidebarHeader({ siteName, collapsed }: { siteName: string; collapsed: b
       <Link href="/admin" className="block min-w-0" title={siteName}>
         {collapsed ? (
           <>
-            <BrandTile />
+            {logoUrl ? (
+              <SiteLogo siteName={siteName} logoUrl={logoUrl} height="h-11" />
+            ) : (
+              <BrandTile />
+            )}
             <span className="sr-only">{siteName} — console d’administration</span>
           </>
         ) : (
-          <Brand siteName={siteName} />
+          <Brand siteName={siteName} logoUrl={logoUrl} />
         )}
       </Link>
     </div>

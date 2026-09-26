@@ -19,7 +19,13 @@ export type ItemType = 'course' | 'service'
 export type EnrollmentState = 'active' | 'revoked' | 'completed'
 export type QuoteStatus = 'new' | 'in_progress' | 'won' | 'lost'
 export type ReviewStatus = 'pending' | 'approved' | 'rejected'
-export type VideoProvider = 'bunny' | 'youtube' | 'vimeo' | 'url'
+/**
+ * `upload` : vidéo hébergée par nos soins, dans le bucket privé
+ * `lesson-videos`. C'est le SEUL fournisseur dont le temps de visionnage soit
+ * mesurable — les autres servent une iframe d'un autre domaine, d'où rien ne
+ * remonte. Voir `bz_lesson_is_measurable`.
+ */
+export type VideoProvider = 'upload' | 'bunny' | 'youtube' | 'vimeo' | 'url'
 export type DiscountType = 'percent' | 'amount'
 
 export interface Profile {

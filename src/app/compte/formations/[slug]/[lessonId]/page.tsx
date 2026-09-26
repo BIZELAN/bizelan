@@ -12,6 +12,7 @@ import { ResourceList } from '@/components/account/resource-list'
 import { LessonActions, VideoFrame } from '@/components/account/lesson-player'
 import { LessonQuiz, type QuizView } from '@/components/account/lesson-quiz'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { env } from '@/lib/env'
 import { cn, formatDuration } from '@/lib/utils'
 
@@ -90,6 +91,19 @@ export default async function LessonPage({
     }
   }
 
+  // Une vidéo déposée vit dans un bucket privé : aucune URL publique
+  // n'existe. On en signe une, valable le temps de la séance, APRÈS avoir
+  // vérifié l'accès plus haut. Un lien recopié depuis l'inspecteur cesse donc
+  // de fonctionner au bout de quelques heures.
+  let videoUrl = lesson.video_url
+  if (lesson.video_provider === 'upload' && lesson.video_id) {
+    const admin = createAdminClient()
+    const { data: signed } = await admin.storage
+      .from('lesson-videos')
+      .createSignedUrl(lesson.video_id, 60 * 60 * 4)
+    videoUrl = signed?.signedUrl ?? null
+  }
+
   const hasNotes = Boolean(lesson.content)
   // Normalisé ici plutôt que testé en place : TypeScript n'affine pas un
   // tableau optionnel à travers un booléen intermédiaire, et la solution
@@ -137,7 +151,7 @@ export default async function LessonPage({
           source={{
             provider: lesson.video_provider,
             videoId: lesson.video_id,
-            videoUrl: lesson.video_url,
+            videoUrl,
             bunnyHostname: env.bunnyCdnHostname || undefined,
           }}
         />

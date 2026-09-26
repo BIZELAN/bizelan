@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export interface PlayerSource {
-  provider: 'bunny' | 'youtube' | 'vimeo' | 'url' | null
+  provider: 'upload' | 'bunny' | 'youtube' | 'vimeo' | 'url' | null
   videoId: string | null
   videoUrl: string | null
   bunnyHostname?: string
@@ -28,6 +28,11 @@ export function embedUrlFor(source: PlayerSource): string | null {
   if (provider === 'bunny' && videoId && bunnyHostname) {
     return `https://${bunnyHostname}/embed/${videoId}`
   }
+  // Vidéo hébergée par nos soins : `videoUrl` porte une URL SIGNÉE, produite
+  // par la page après vérification de l'inscription. Elle expire, ce qui
+  // empêche un lien recopié de servir durablement — et comme c'est un fichier
+  // direct, c'est le seul cas où le temps de visionnage se mesure.
+  if (provider === 'upload' && videoUrl) return videoUrl
   if (provider === 'url' && videoUrl) return videoUrl
 
   // Repli : une URL YouTube collée telle quelle dans l'admin

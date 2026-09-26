@@ -50,3 +50,16 @@ bien ». Sans elles, tout le reste serait décoratif.
 droits ou aux politiques RLS**. Supabase ré-accorde parfois des privilèges de
 table lors d'opérations d'administration, et un privilège rendu referme
 silencieusement la correction de 0011.
+
+### `test-uploads.mjs`
+
+    node scripts/test-uploads.mjs
+
+Assainissement du chemin de dépôt et classement des documents. 29 cas.
+
+Le nom de fichier est choisi par l'utilisateur dans son navigateur : les cas
+hostiles (`../../etc/passwd.pdf`, barres inversées, encodage pourcent, nom de
+300 caractères) doivent tous atterrir dans `AAAA/horodatage-nom.ext`, sans
+jamais sortir du dossier. Vérifie aussi qu'aucun format autre que le PDF n'est
+annoncé lisible dans la page — un cadre vide vaut moins qu'un bouton
+« Télécharger ».

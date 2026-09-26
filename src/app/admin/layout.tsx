@@ -22,6 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
       <AdminChrome
         siteName={settings.site_name}
+        logoUrl={settings.logo_url}
         userName={user.profile.full_name ?? user.email}
         userRole={user.profile.role}
       >

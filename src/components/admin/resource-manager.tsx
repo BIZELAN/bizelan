@@ -1,11 +1,11 @@
 'use client'
 
-import { useRef, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { FileText, Loader2, Upload } from 'lucide-react'
+import { FileText } from 'lucide-react'
 
 import { deleteResource } from '@/app/actions/admin'
-import { Button } from '@/components/ui/button'
+import { FileUploader } from '@/components/admin/file-uploader'
 import { Field, Input } from '@/components/ui/field'
 import { Alert, EmptyState } from '@/components/ui/misc'
 import { DeleteButton } from '@/components/admin/form-bits'
@@ -21,53 +21,47 @@ export function ResourceManager({
 }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [, startTransition] = useTransition()
-  const fileRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  async function handleUpload(file: File) {
-    setUploading(true)
+  /**
+   * Enregistre un fichier DEJA depose.
+   *
+   * Le televersement ne passe plus par l'application : `FileUploader` obtient
+   * une URL signee et envoie en direct au stockage. L'ancienne voie relayait
+   * tout le contenu par une route serveur, ce qui plafonnait a la limite de
+   * corps de requete de l'hebergeur — la promesse « jusqu'a 100 Mo » ne tenait
+   * qu'en developpement local.
+   */
+  async function register(file: {
+    path: string
+    fileName: string
+    size: number
+    mimeType: string
+  }) {
     setError(null)
     setSuccess(null)
 
     try {
-      const body = new FormData()
-      body.set('file', file)
-      body.set('bucket', 'resources')
-
-      const uploadResponse = await fetch('/api/admin/upload', { method: 'POST', body })
-      const uploaded = (await uploadResponse.json()) as {
-        path?: string
-        error?: string
-        size?: number
-        mimeType?: string
-      }
-
-      if (!uploadResponse.ok || !uploaded.path) {
-        setError(uploaded.error ?? 'Téléversement impossible.')
-        return
-      }
-
-      const registerResponse = await fetch('/api/admin/ressources', {
+      const response = await fetch('/api/admin/ressources', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           courseId,
-          title: title || file.name,
+          title: title || file.fileName,
           description: description || null,
-          storagePath: uploaded.path,
-          fileName: file.name,
-          fileSize: uploaded.size ?? file.size,
-          mimeType: uploaded.mimeType ?? file.type,
+          storagePath: file.path,
+          fileName: file.fileName,
+          fileSize: file.size,
+          mimeType: file.mimeType,
           position: resources.length,
         }),
       })
 
-      if (!registerResponse.ok) {
-        const payload = (await registerResponse.json()) as { error?: string }
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string }
         setError(payload.error ?? 'Enregistrement impossible.')
         return
       }
@@ -77,9 +71,7 @@ export function ResourceManager({
       setSuccess('Support ajouté.')
       startTransition(() => router.refresh())
     } catch {
-      setError('Téléversement impossible. Vérifiez votre connexion.')
-    } finally {
-      setUploading(false)
+      setError('Enregistrement impossible. Vérifiez votre connexion.')
     }
   }
 
@@ -108,34 +100,13 @@ export function ResourceManager({
             />
           </Field>
 
-          <Button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-            variant="outline"
-          >
-            {uploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <Upload className="h-4 w-4" aria-hidden />
-            )}
-            {uploading ? 'Téléversement…' : 'Choisir un fichier'}
-          </Button>
-
-          <input
-            ref={fileRef}
-            type="file"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) void handleUpload(file)
-              e.target.value = ''
-            }}
+          <FileUploader
+            target="document"
+            label="Fichier"
+            help="PDF, Word, Excel, PowerPoint, OpenDocument, CSV ou archive. Le fichier part directement vers l’espace privé : il n’est jamais servi publiquement."
+            onUploaded={register}
           />
 
-          <p className="text-xs text-fg-subtle">
-            Formats acceptés : Excel, Word, PowerPoint, PDF, ZIP… — 100 Mo maximum par fichier.
-          </p>
         </div>
       </section>
 

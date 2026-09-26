@@ -4,6 +4,7 @@ import { requireUser } from '@/lib/auth'
 import { getSiteSettings } from '@/lib/queries'
 import { signOut } from '@/app/actions/auth'
 import { AccountNav } from '@/components/account/account-nav'
+import { SiteLogo } from '@/components/ui/site-logo'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { initials } from '@/lib/utils'
@@ -16,8 +17,8 @@ export default async function AccountLayout({ children }: { children: React.Reac
     <div className="flex min-h-screen flex-col bg-canvas-subtle">
       <header className="border-b border-line bg-surface">
         <div className="container-page flex h-16 items-center justify-between gap-4">
-          <Link href="/" className="text-lg font-bold tracking-[0.12em] text-primary-text">
-            {settings.site_name}
+          <Link href="/" className="shrink-0">
+            <SiteLogo siteName={settings.site_name} logoUrl={settings.logo_url} height="h-9" />
           </Link>
 
           <div className="flex items-center gap-3">

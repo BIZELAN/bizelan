@@ -68,7 +68,7 @@ annoncé lisible dans la page — un cadre vide vaut moins qu'un bouton
 
     node scripts/test-video.mjs
 
-Résolution des vidéos et concordance avec la base. 55 cas.
+Résolution des vidéos et concordance avec la base. 54 cas.
 
 Couvre l'aiguillage qui a remplacé quatre implémentations divergentes (page de
 leçon, bloc « Vidéo », contenu riche, lecteur public), les URI `storage://`

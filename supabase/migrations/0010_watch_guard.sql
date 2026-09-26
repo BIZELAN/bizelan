@@ -22,9 +22,10 @@
 /**
  * Une leçon est mesurable quand sa vidéo est servie en fichier direct.
  *
- * Doit rester cohérent avec `isDirectFile` dans `components/account/
- * lesson-player.tsx` : c'est la même question posée des deux côtés, et deux
- * réponses divergentes produiraient un certificat retenu sans raison.
+ * Doit rester cohérent avec `isMeasurableVideoUrl` dans `src/lib/video.ts` :
+ * c'est la même question posée des deux côtés, et deux réponses divergentes
+ * produiraient un certificat retenu sans raison visible. `scripts/test-video.mjs`
+ * vérifie que les deux listes d'extensions concordent.
  */
 create or replace function public.bz_lesson_is_measurable(
   p_provider bz_video_provider,
@@ -35,12 +36,17 @@ language sql
 immutable
 as $$
   select
-    -- 'upload' : fichier hébergé par nos soins, donc toujours mesurable.
-    p_provider = 'upload'
+    -- Fichier déposé par nos soins. Reconnu à son URI et NON à une valeur de
+    -- fournisseur : `'upload'` n'existe pas dans l'enum, et la version
+    -- précédente de cette fonction était donc inapplicable telle quelle.
+    -- La liste blanche de dépôt garantit déjà un format vidéo ; on vérifie
+    -- tout de même l'extension, car `.mov` et `.mkv` y sont admis sans être
+    -- décodables par la plupart des navigateurs.
+    coalesce(p_video_url, '') ~* '^storage://[a-z0-9-]+/.*\.(mp4|webm|ogg|ogv|m3u8|m4v)$'
     -- 'url' ou absence de fournisseur : mesurable si le lien pointe un média.
     or (
       (p_provider is null or p_provider = 'url')
-      and coalesce(p_video_url, '') ~* '\.(mp4|webm|ogg|m3u8)(\?|$)'
+      and coalesce(p_video_url, '') ~* '\.(mp4|webm|ogg|ogv|m3u8|m4v)(\?|#|$)'
     );
 $$;
 

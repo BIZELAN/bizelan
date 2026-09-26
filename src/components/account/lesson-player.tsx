@@ -6,62 +6,32 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { saveVideoPosition, setLessonCompleted } from '@/app/actions/learning'
 import { Button } from '@/components/ui/button'
+import type { PlayableVideo } from '@/lib/video'
 import { cn } from '@/lib/utils'
 
-export interface PlayerSource {
-  provider: 'upload' | 'bunny' | 'youtube' | 'vimeo' | 'url' | null
-  videoId: string | null
-  videoUrl: string | null
-  bunnyHostname?: string
-}
-
-/** Construit l'URL d'intégration selon l'hébergeur vidéo choisi. */
-export function embedUrlFor(source: PlayerSource): string | null {
-  const { provider, videoId, videoUrl, bunnyHostname } = source
-
-  if (provider === 'youtube' && videoId) {
-    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`
-  }
-  if (provider === 'vimeo' && videoId) {
-    return `https://player.vimeo.com/video/${videoId}`
-  }
-  if (provider === 'bunny' && videoId && bunnyHostname) {
-    return `https://${bunnyHostname}/embed/${videoId}`
-  }
-  // Vidéo hébergée par nos soins : `videoUrl` porte une URL SIGNÉE, produite
-  // par la page après vérification de l'inscription. Elle expire, ce qui
-  // empêche un lien recopié de servir durablement — et comme c'est un fichier
-  // direct, c'est le seul cas où le temps de visionnage se mesure.
-  if (provider === 'upload' && videoUrl) return videoUrl
-  if (provider === 'url' && videoUrl) return videoUrl
-
-  // Repli : une URL YouTube collée telle quelle dans l'admin
-  if (videoUrl) {
-    const yt = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/.exec(videoUrl)
-    if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0&modestbranding=1`
-    const vimeo = /vimeo\.com\/(?:video\/)?(\d+)/.exec(videoUrl)
-    if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`
-    return videoUrl
-  }
-
-  return null
-}
-
+/**
+ * Cadre vidéo.
+ *
+ * Il ne DEVINE plus rien : la page lui remet une vidéo déjà résolue et déjà
+ * signée. La version précédente recevait la ligne de base brute, reconstruisait
+ * l'URL d'intégration, puis relisait l'extension de cette URL pour décider
+ * entre <video> et <iframe> — trois occasions de se tromper, dont deux le
+ * faisaient effectivement (voir `src/lib/video.ts`).
+ */
 export function VideoFrame({
-  source,
+  playable,
   title,
   lessonId,
   courseId,
   resumeAt = 0,
 }: {
-  source: PlayerSource
+  playable: PlayableVideo | null
   title: string
   lessonId?: string
   courseId?: string
   resumeAt?: number
 }) {
-  const url = embedUrlFor(source)
-  const isDirectFile = Boolean(url && /\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(url))
+  const isDirectFile = playable?.kind === 'file'
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   /**
@@ -142,7 +112,7 @@ export function VideoFrame({
     }
   }, [isDirectFile, lessonId, courseId, resumeAt])
 
-  if (!url) {
+  if (!playable) {
     return (
       <div className="flex aspect-video items-center justify-center rounded-lg bg-canvas text-center text-sm text-fg-subtle">
         <p className="max-w-sm px-6">
@@ -154,18 +124,22 @@ export function VideoFrame({
 
   return (
     <div className="aspect-video overflow-hidden rounded-lg bg-canvas">
-      {isDirectFile ? (
+      {playable.kind === 'file' ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
           ref={videoRef}
-          src={url}
+          src={playable.url}
           controls
           controlsList="nodownload"
+          playsInline
+          preload="metadata"
           className="h-full w-full"
-        />
+        >
+          Votre navigateur ne peut pas lire cette vidéo.
+        </video>
       ) : (
         <iframe
-          src={url}
+          src={playable.url}
           title={title}
           className="h-full w-full"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"

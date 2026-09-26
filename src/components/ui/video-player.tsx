@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Play } from 'lucide-react'
+import type { PlayableVideo } from '@/lib/video'
 import { cn } from '@/lib/utils'
 
 /**
@@ -90,4 +91,53 @@ export function VideoPlayer({
       )}
     </div>
   )
+}
+
+/**
+ * Surface vidéo polyvalente : intégration ou fichier, sans que l'appelant ait
+ * à trancher.
+ *
+ * C'est ce qui manquait pour que « les vidéos se jouent partout où il le
+ * faut » : chaque emplacement réécrivait son propre aiguillage entre <iframe>
+ * et <video>, et l'encart d'achat des formations n'en avait aucun — la colonne
+ * `promo_video_url` était donc collectée sans jamais être affichée.
+ *
+ * Le composant reçoit une vidéo DÉJÀ résolue. Il ne lit ni fournisseur ni
+ * extension : c'est `src/lib/video.ts` qui en décide, une fois pour tout le
+ * site.
+ */
+export function VideoSurface({
+  playable,
+  poster,
+  title,
+  className,
+}: {
+  playable: PlayableVideo | null
+  poster?: string | null
+  title?: string
+  className?: string
+}) {
+  if (!playable) return null
+
+  if (playable.kind === 'embed') {
+    return (
+      <div
+        className={cn(
+          'aspect-video overflow-hidden rounded-lg bg-canvas ring-1 ring-line',
+          className,
+        )}
+      >
+        <iframe
+          src={playable.url}
+          title={title ?? 'Vidéo'}
+          loading="lazy"
+          className="h-full w-full border-0"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    )
+  }
+
+  return <VideoPlayer src={playable.url} poster={poster} title={title} className={className} />
 }

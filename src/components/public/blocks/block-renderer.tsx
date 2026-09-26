@@ -24,6 +24,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Scroller } from '@/components/ui/scroller'
 import { VideoPlayer } from '@/components/ui/video-player'
+import { resolveVideoUrl } from '@/lib/video'
 import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
 import { ContactForm } from '@/components/public/contact-form'
 import { QuoteForm } from '@/components/public/quote-form'
@@ -808,22 +809,22 @@ function LogosBlock({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-/** Convertit une URL YouTube/Vimeo en URL d'intégration. */
-function toEmbedUrl(url: string): string | null {
-  if (!url) return null
-  const yt = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/.exec(url)
-  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`
-  const vimeo = /vimeo\.com\/(?:video\/)?(\d+)/.exec(url)
-  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`
-  return null
-}
-
 function VideoBlock({ data }: { data: Record<string, unknown> }) {
   const f = d(data)
-  const url = f.str('url')
-  const embed = toEmbedUrl(url)
 
-  if (!url) return null
+  // Résolution partagée avec la page de leçon. Ce bloc portait sa propre
+  // expression régulière YouTube, qui ignorait `/live/` et `/shorts/` et
+  // omettait `rel=0` : deux lecteurs sur le même site, deux comportements.
+  const target = resolveVideoUrl(f.str('url'))
+
+  // Un URI `storage://` ne peut PAS être signé ici : ce composant est aussi
+  // rendu dans l'aperçu de l'éditeur, côté navigateur, où la clé de service
+  // n'existe pas. Une vidéo de page publique se colle donc par URL — et c'est
+  // cohérent : une vidéo de vente est faite pour être vue, la ranger dans un
+  // espace privé puis la signer à chaque rendu casserait sa mise en cache.
+  if (!target || target.kind === 'storage') return null
+
+  const embed = target.kind === 'embed' ? target.url : null
 
   return (
     <section className="section bg-canvas">
@@ -845,7 +846,7 @@ function VideoBlock({ data }: { data: Record<string, unknown> }) {
             /* Lien direct : rien n'est téléchargé avant que le visiteur ne
                clique — voir le commentaire de VideoPlayer. */
             <VideoPlayer
-              src={url}
+              src={target.url}
               poster={f.str('poster') || null}
               title={f.str('title', 'Vidéo de présentation')}
               className="shadow-e3"

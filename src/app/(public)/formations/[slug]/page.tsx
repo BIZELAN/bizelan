@@ -22,6 +22,11 @@ import { parseRichContent } from '@/lib/rich-content'
 import { SectionHeading, Stars } from '@/components/ui/misc'
 import { getApprovedReviews, getCourseStats, getCourseWithCurriculum } from '@/lib/queries'
 import { getCurrentUser, hasCourseAccess } from '@/lib/auth'
+import { LessonRow } from '@/components/public/lesson-row'
+import { VideoSurface } from '@/components/ui/video-player'
+import { env } from '@/lib/env'
+import { resolveVideoRef, resolveVideoUrl } from '@/lib/video'
+import { signVideoTarget } from '@/lib/video-sign'
 import { asArray, discountPercent, formatDuration, formatPrice, truncate } from '@/lib/utils'
 import type { FaqItem } from '@/lib/types'
 
@@ -68,6 +73,40 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   const totalSeconds = course.modules.reduce(
     (sum, m) => sum + m.lessons.reduce((s, l) => s + (l.duration_seconds ?? 0), 0),
     0,
+  )
+
+  // Vidéo de présentation. Pas de contrôle d'accès : elle sert justement à
+  // convaincre un visiteur qui n'a pas encore acheté. `signVideoTarget` ne fait
+  // donc ici que laisser passer une URL publique — il ne signe que si
+  // l'administration a déposé un fichier dans un espace privé.
+  const promo = await signVideoTarget(resolveVideoUrl(course.promo_video_url))
+
+  /**
+   * Vidéos des leçons marquées en aperçu gratuit.
+   *
+   * Signées pour un visiteur NON inscrit, et c'est voulu : une leçon d'aperçu
+   * est publique par définition. Seules celles-là sont résolues — signer les
+   * cent leçons d'un catalogue à chaque affichage coûterait autant d'appels au
+   * stockage pour des vidéos que personne ne peut ouvrir.
+   */
+  const previewLessons = course.modules.flatMap((m) => m.lessons).filter((l) => l.is_preview)
+  const previews = new Map(
+    await Promise.all(
+      previewLessons.map(
+        async (l) =>
+          [
+            l.id,
+            await signVideoTarget(
+              resolveVideoRef({
+                provider: l.video_provider,
+                videoId: l.video_id,
+                videoUrl: l.video_url,
+                bunnyHostname: env.bunnyCdnHostname || null,
+              }),
+            ),
+          ] as const,
+      ),
+    ),
   )
 
   return (
@@ -117,8 +156,20 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
           {/* Encart d'achat */}
           <aside className="overflow-hidden rounded-2xl bg-surface text-fg shadow-xl lg:sticky lg:top-24">
-            {course.cover_url && (
-              <img src={course.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
+            {/* La vidéo passe DEVANT l'image : quand les deux existent,
+                l'image sert d'affiche au lecteur, et rien n'est téléchargé
+                avant que le visiteur ne clique. */}
+            {promo ? (
+              <VideoSurface
+                playable={promo}
+                poster={course.cover_url}
+                title={course.title}
+                className="rounded-none ring-0"
+              />
+            ) : (
+              course.cover_url && (
+                <img src={course.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
+              )
             )}
             <div className="p-6">
               {discount && (
@@ -219,33 +270,17 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                     )}
                   </div>
                   <ul className="divide-y divide-line">
-                    {courseModule.lessons.map((lesson) => {
-                      const openable = lesson.is_preview || enrolled
-                      return (
-                        <li key={lesson.id}>
-                          <div className="flex items-center gap-3 px-5 py-3.5">
-                            {openable ? (
-                              <PlayCircle className="h-[1.125rem] w-[1.125rem] shrink-0 text-primary-text" aria-hidden />
-                            ) : (
-                              <Lock className="h-4 w-4 shrink-0 text-fg-subtle" aria-hidden />
-                            )}
-                            <span className="min-w-0 flex-1 text-[0.9375rem] text-fg">
-                              {lesson.title}
-                              {lesson.is_preview && !enrolled && (
-                                <Badge tone="success" className="ml-2">
-                                  Aperçu gratuit
-                                </Badge>
-                              )}
-                            </span>
-                            {lesson.duration_seconds > 0 && (
-                              <span className="shrink-0 text-xs tabular-nums text-fg-subtle">
-                                {formatDuration(lesson.duration_seconds)}
-                              </span>
-                            )}
-                          </div>
-                        </li>
-                      )
-                    })}
+                    {courseModule.lessons.map((lesson) => (
+                      <LessonRow
+                        key={lesson.id}
+                        title={lesson.title}
+                        durationSeconds={lesson.duration_seconds}
+                        isPreview={lesson.is_preview}
+                        enrolled={enrolled}
+                        href={`/compte/formations/${course.slug}/${lesson.id}`}
+                        playable={previews.get(lesson.id) ?? null}
+                      />
+                    ))}
                     {courseModule.lessons.length === 0 && (
                       <li className="px-5 py-4 text-sm text-fg-subtle">
                         Contenu de ce module en préparation.

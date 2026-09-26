@@ -99,6 +99,20 @@ export function CourseForm({
         <Field label="Image de couverture">
           <ImageInput name="cover_url" defaultValue={course?.cover_url} />
         </Field>
+
+        {/* La colonne `promo_video_url` existait et l'action serveur la lisait
+            déjà — mais aucun formulaire ne la remplissait et aucune page ne
+            l'affichait. Une colonne morte des deux côtés à la fois. */}
+        <Field
+          label="Vidéo de présentation"
+          help="Affichée en tête de l’encart d’achat, à la place de l’image de couverture. YouTube, Vimeo ou lien direct MP4."
+        >
+          <Input
+            name="promo_video_url"
+            defaultValue={course?.promo_video_url ?? ''}
+            placeholder="https://www.youtube.com/watch?v=…"
+          />
+        </Field>
       </FormSection>
 
       <FormSection title="Tarif" description="Les montants sont en FCFA, sans décimales.">

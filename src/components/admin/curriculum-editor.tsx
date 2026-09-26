@@ -9,6 +9,8 @@ import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
 import { ActionFeedback, DeleteButton, SaveButton } from '@/components/admin/form-bits'
 import { FileUploader } from '@/components/admin/file-uploader'
+import { UPLOAD_TARGETS } from '@/lib/uploads'
+import { parseStorageUri, toStorageUri } from '@/lib/video'
 import { RichEditor } from '@/components/admin/rich-editor'
 import { EmptyState } from '@/components/ui/misc'
 import { cn, formatDuration } from '@/lib/utils'
@@ -18,6 +20,11 @@ import type { CourseModule, Lesson } from '@/lib/types'
 export interface ModuleWithLessonsAdmin extends CourseModule {
   lessons: Lesson[]
 }
+
+/** Modes d'interface. `file` n'est PAS un fournisseur : il s'enregistre en `url`. */
+type VideoMode = 'file' | 'url' | 'youtube' | 'bunny' | 'vimeo'
+
+const VIDEO_BUCKET = UPLOAD_TARGETS.video.bucket
 
 export function CurriculumEditor({
   courseId,
@@ -277,7 +284,25 @@ function LessonForm({
   onDone: () => void
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveLesson, null)
-  const [provider, setProvider] = useState(lesson?.video_provider ?? 'upload')
+  /**
+   * Le chemin déjà en base, s'il y en a un. Une vidéo déposée se reconnaît à son
+   * URI `storage://`, et non à une valeur de fournisseur — voir `src/lib/video.ts`.
+   */
+  const storedVideo = parseStorageUri(lesson?.video_url)
+
+  /**
+   * MODE D'INTERFACE, et non fournisseur enregistré.
+   *
+   * Les deux étaient confondus, et c'est ce qui empêchait TOUTE vidéo d'être
+   * ajoutée : le sélecteur soumettait `video_provider="upload"`, valeur que
+   * l'enum de la base n'a jamais comportée. L'enregistrement échouait avec
+   * `22P02`, et comme `upload` était le choix par défaut, il échouait toujours.
+   */
+  const [mode, setMode] = useState<VideoMode>(
+    storedVideo || lesson?.video_provider === 'upload'
+      ? 'file'
+      : ((lesson?.video_provider as VideoMode | null) ?? 'file'),
+  )
   /** Chemin du fichier fraîchement déposé, tant que la leçon n'est pas enregistrée. */
   const [videoPath, setVideoPath] = useState<string | null>(null)
 
@@ -301,20 +326,23 @@ function LessonForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Hébergeur vidéo">
           <Select
-            name="video_provider"
-            value={provider}
-            onChange={(e) => setProvider(e.target.value as typeof provider)}
+            value={mode}
+            onChange={(e) => setMode(e.target.value as VideoMode)}
           >
-            {/* `upload` en tête : c'est le seul choix dont le temps de
+            {/* Le fichier déposé en tête : c'est le seul choix dont le temps de
                 visionnage soit mesurable, et donc le seul qui permette de
                 conditionner le certificat. Les autres servent une iframe d'un
                 autre domaine, d'où rien ne remonte. */}
-            <option value="upload">Téléverser la vidéo (recommandé)</option>
+            <option value="file">Téléverser la vidéo (recommandé)</option>
             <option value="url">Lien direct (MP4)</option>
             <option value="youtube">YouTube (non répertorié)</option>
             <option value="bunny">Bunny Stream</option>
             <option value="vimeo">Vimeo</option>
           </Select>
+          {/* Un fichier déposé s'enregistre comme `url` : c'en est bien une, de
+              schème `storage://`. Aucune valeur d'enum nouvelle, donc rien à
+              migrer avant que cela fonctionne. */}
+          <input type="hidden" name="video_provider" value={mode === 'file' ? 'url' : mode} />
         </Field>
 
         <Field label="Durée (minutes)">
@@ -327,7 +355,7 @@ function LessonForm({
         </Field>
       </div>
 
-      {provider === 'upload' ? (
+      {mode === 'file' ? (
         <div className="space-y-3">
           <FileUploader
             target="video"
@@ -342,26 +370,26 @@ function LessonForm({
               Vidéo déposée. Enregistrez la leçon pour l’attacher.
             </p>
           ) : (
-            lesson?.video_provider === 'upload' &&
-            lesson.video_id && (
+            storedVideo && (
               <p className="text-sm text-fg-subtle">
-                Vidéo actuelle : <span className="font-mono text-xs">{lesson.video_id}</span>.
+                Vidéo actuelle : <span className="font-mono text-xs">{storedVideo.path}</span>.
                 Déposez-en une autre pour la remplacer.
               </p>
             )
           )}
 
-          {/* Le chemin dans le bucket tient lieu d'identifiant pour ce
-              fournisseur : `video_id` le porte, comme il porte l'identifiant
-              YouTube ou Bunny pour les autres. */}
+          {/* L'URI porte le bucket ET le chemin. C'est ce qui permet à la même
+              valeur de servir dans `lessons.video_url`, dans
+              `courses.promo_video_url` et dans un bloc de page — aucune de ces
+              colonnes n'a de fournisseur à côté d'elle. */}
           <input
             type="hidden"
-            name="video_id"
-            value={videoPath ?? (lesson?.video_provider === 'upload' ? (lesson.video_id ?? '') : '')}
+            name="video_url"
+            value={videoPath ? toStorageUri(VIDEO_BUCKET, videoPath) : (lesson?.video_url ?? '')}
           />
-          <input type="hidden" name="video_url" value="" />
+          <input type="hidden" name="video_id" value="" />
         </div>
-      ) : provider === 'url' ? (
+      ) : mode === 'url' ? (
         <Field label="URL de la vidéo" help="Lien direct vers le fichier MP4.">
           <Input name="video_url" defaultValue={lesson?.video_url ?? ''} placeholder="https://…/video.mp4" />
         </Field>
@@ -369,9 +397,9 @@ function LessonForm({
         <Field
           label="Identifiant de la vidéo"
           help={
-            provider === 'youtube'
+            mode === 'youtube'
               ? 'Les 11 caractères après « v= » dans l’URL YouTube. Vous pouvez aussi coller l’URL complète.'
-              : provider === 'vimeo'
+              : mode === 'vimeo'
                 ? 'Le numéro de la vidéo Vimeo.'
                 : 'L’identifiant GUID fourni par Bunny Stream.'
           }

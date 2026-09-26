@@ -63,3 +63,19 @@ hostiles (`../../etc/passwd.pdf`, barres inversées, encodage pourcent, nom de
 jamais sortir du dossier. Vérifie aussi qu'aucun format autre que le PDF n'est
 annoncé lisible dans la page — un cadre vide vaut moins qu'un bouton
 « Télécharger ».
+
+### `test-video.mjs`
+
+    node scripts/test-video.mjs
+
+Résolution des vidéos et concordance avec la base. 55 cas.
+
+Couvre l'aiguillage qui a remplacé quatre implémentations divergentes (page de
+leçon, bloc « Vidéo », contenu riche, lecteur public), les URI `storage://`
+hostiles, et les URL complètes collées dans le champ « identifiant » — le cas
+qui cassait la seule vidéo en ligne du catalogue.
+
+Le dernier groupe compare les listes d'extensions de `src/lib/video.ts` et de
+`public.bz_lesson_is_measurable` (migration 0010). C'est la même question posée
+des deux côtés — « ce visionnage est-il mesurable ? » — et deux réponses
+divergentes retiendraient un certificat sans message.

@@ -394,6 +394,10 @@ export interface SiteSettings {
   email: string | null
   phone: string | null
   whatsapp: string | null
+  whatsapp_float_enabled: boolean
+  whatsapp_float_message: string | null
+  /** `left` ou `right` — contraint en base. */
+  whatsapp_float_position: string | null
   address: string | null
   map_embed_url: string | null
   opening_hours: OpeningHour[]

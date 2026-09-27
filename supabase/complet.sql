@@ -13,22 +13,22 @@
 -- genre d'écart qui ne se découvre qu'en production. Le script vérifie au
 -- passage que chaque section est identique à sa migration d'origine.
 --
--- Les sections 13 et 14 sont écrites à la main, dans
+-- Les sections 14 et 15 sont écrites à la main, dans
 -- `supabase/_pied_complet.sql` ; cet en-tête dans `_entete_complet.sql`.
 --
 -- Il réunit, dans l'ordre :
 --
---   §1  à §11  les onze migrations, telles quelles
---   §12        le contenu de départ (formation, services, articles) — SUPPRIMABLE
---   §13        promotion de votre compte en administrateur
---   §14        vérification : ce que l'installation a réellement créé
+--   §1  à §12  les douze migrations, telles quelles
+--   §13        le contenu de départ (formation, services, articles) — SUPPRIMABLE
+--   §14        promotion de votre compte en administrateur
+--   §15        vérification : ce que l'installation a réellement créé
 --
 --
 -- COMMENT L'EXÉCUTER
 -- ------------------
 --   1. Projet Supabase > SQL Editor > New query
 --   2. Collez TOUT ce fichier, puis « Run »
---   3. Lisez le tableau final de la §14 : il dit ce qui existe vraiment
+--   3. Lisez le tableau final de la §15 : il dit ce qui existe vraiment
 --
 -- Une exécution prend quelques secondes. Si l'éditeur refuse la taille, coupez
 -- aux barres `====` : chaque section est autonome, dans l'ordre.
@@ -52,7 +52,7 @@
 --   1. Reporter les trois valeurs ci-dessus dans `.env`
 --   2. Créer votre compte par la page d'inscription du site
 --      (un déclencheur crée le profil automatiquement)
---   3. Revenir exécuter la §13 avec votre adresse, pour devenir administrateur
+--   3. Revenir exécuter la §14 avec votre adresse, pour devenir administrateur
 --   4. Vérifier que les quatre espaces de stockage figurent bien dans
 --      Storage : public-media, resources, payment-proofs, lesson-videos
 --
@@ -63,7 +63,7 @@
 --
 -- IDEMPOTENCE
 -- -----------
--- Les sections §1 à §11 se relancent sans dommage : `create ... if not exists`,
+-- Les sections §1 à §12 se relancent sans dommage : `create ... if not exists`,
 -- `create or replace`, `drop policy if exists` avant chaque politique. La §12,
 -- elle, INSÈRE du contenu : la relancer créerait des doublons de formations et
 -- d'articles. Ne l'exécutez qu'une fois.
@@ -2391,7 +2391,59 @@ comment on column public.lesson_progress.watched_seconds is
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 12 — Contenu de depart (supprimable)
+--   SECTION 12 — Bouton WhatsApp flottant, réglable
+--
+--   Source : supabase/migrations/0012_whatsapp_float.sql
+--
+-- =========================================================================
+-- =========================================================================
+
+
+-- ===========================================================================
+-- BIZELAN — Bouton WhatsApp flottant, réglable depuis la console
+--
+-- Le numéro WhatsApp existait déjà (`site_settings.whatsapp`) et servait au
+-- pied de page et à la page Contact. Ce qui manquait : un accès permanent,
+-- visible depuis n'importe quelle page.
+--
+-- Trois réglages, et non un simple interrupteur. Le côté parce qu'un bouton
+-- fixé en bas à droite recouvre, sur certains gabarits, le dernier élément
+-- d'une colonne ; le message pré-rempli parce qu'un message qui nomme la page
+-- d'origine fait gagner un aller-retour à l'équipe ; l'interrupteur parce
+-- qu'une campagne peut vouloir concentrer les demandes sur le formulaire.
+-- ===========================================================================
+
+alter table public.site_settings
+  add column if not exists whatsapp_float_enabled boolean not null default true;
+
+alter table public.site_settings
+  add column if not exists whatsapp_float_message text;
+
+alter table public.site_settings
+  add column if not exists whatsapp_float_position text not null default 'right';
+
+-- La valeur atterrit dans un nom de classe côté rendu. La contrainte est donc
+-- une barrière de sécurité autant qu'une garantie de cohérence : sans elle,
+-- une valeur inattendue produirait un bouton sans position, collé au flux.
+do $$ begin
+  alter table public.site_settings
+    add constraint site_settings_whatsapp_float_position_check
+    check (whatsapp_float_position in ('left', 'right'));
+exception when duplicate_object then null; end $$;
+
+comment on column public.site_settings.whatsapp_float_enabled is
+  'Affiche le bouton WhatsApp flottant sur tout le site public.';
+comment on column public.site_settings.whatsapp_float_message is
+  'Message pré-rempli dans la conversation. Vide = aucun message.';
+comment on column public.site_settings.whatsapp_float_position is
+  'Coin d''ancrage du bouton : left ou right. Contraint en base.';
+
+
+
+-- =========================================================================
+-- =========================================================================
+--
+--   SECTION 13 — Contenu de depart (supprimable)
 --
 --   Source : supabase/seed.sql
 --
@@ -2855,7 +2907,7 @@ on conflict (code) do nothing;
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 13 — Devenir administrateur
+--   SECTION 14 — Devenir administrateur
 --
 -- =========================================================================
 -- =========================================================================
@@ -2877,7 +2929,7 @@ declare
   touches int;
 begin
   if cible = 'remplacez-moi@exemple.com' then
-    raise notice '§13 ignoree : remplacez d abord l adresse dans le bloc.';
+    raise notice '§14 ignoree : remplacez d abord l adresse dans le bloc.';
     return;
   end if;
 
@@ -2899,7 +2951,7 @@ end $$;
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 14 — Vérification
+--   SECTION 15 — Vérification
 --
 -- =========================================================================
 -- =========================================================================
@@ -3014,13 +3066,26 @@ with controles as (
   union all
   select 11,
          'Administrateur designe',
-         coalesce(string_agg(email, ', '), 'AUCUN — executez la §13'),
+         coalesce(string_agg(email, ', '), 'AUCUN — executez la §14'),
          count(*) >= 1
     from public.bz_profiles
    where role = 'admin'
 
   union all
+  -- Les trois colonnes de 0012. Sans elles, la console enregistre les reglages
+  -- du bouton dans le vide et l'administrateur ne comprend pas pourquoi.
   select 12,
+         'Reglages du bouton WhatsApp flottant',
+         count(*)::text || ' / 3',
+         count(*) = 3
+    from information_schema.columns
+   where table_schema = 'public'
+     and table_name   = 'site_settings'
+     and column_name in ('whatsapp_float_enabled', 'whatsapp_float_message',
+                         'whatsapp_float_position')
+
+  union all
+  select 13,
          'Contenu de depart (formations publiees)',
          count(*)::text,
          true
@@ -3038,10 +3103,10 @@ select case when ok then 'OK' else '!!  A REGARDER' end as verdict,
 -- ###########################################################################
 --
 --   Toutes les lignes doivent porter « OK », sauf la 11 si vous n'avez pas
---   encore exécuté la §13 — ce qui est normal à ce stade, puisque votre compte
+--   encore exécuté la §14 — ce qui est normal à ce stade, puisque votre compte
 --   n'existe pas avant votre première inscription sur le site.
 --
---   La ligne 12 n'a pas de verdict : elle compte simplement ce que la §12 a
+--   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §12 a
 --   déposé, pour que vous sachiez si le site démarre avec du contenu ou vide.
 --
 -- ###########################################################################

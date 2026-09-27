@@ -5,12 +5,12 @@ import {
   Linkedin,
   Mail,
   MapPin,
-  MessageCircle,
   Phone,
   Youtube,
   type LucideIcon,
 } from 'lucide-react'
 
+import { WhatsAppIcon } from '@/components/ui/brand-icons'
 import { NewsletterForm } from '@/components/public/newsletter-form'
 import { Panel } from '@/components/ui/surface'
 import type { NavLink, OpeningHour, SiteSettings } from '@/lib/types'
@@ -164,7 +164,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-pill bg-primary px-4 py-2 text-xs font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
                 >
-                  <MessageCircle className="h-4 w-4" aria-hidden />
+                  <WhatsAppIcon size={16} aria-hidden />
                   Écrire sur WhatsApp
                 </a>
               </li>

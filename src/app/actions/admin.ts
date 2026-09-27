@@ -915,6 +915,14 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
     email: nullable(formData, 'email'),
     phone: nullable(formData, 'phone'),
     whatsapp: nullable(formData, 'whatsapp'),
+    whatsapp_float_enabled: bool(formData, 'whatsapp_float_enabled'),
+    whatsapp_float_message: nullable(formData, 'whatsapp_float_message'),
+    // La base contraint cette colonne à `left` ou `right`. On filtre ici
+    // aussi : la contrainte rejetterait l'enregistrement ENTIER, et
+    // l'administrateur perdrait toutes ses autres modifications à cause
+    // d'une valeur qu'il n'a pas saisie lui-même.
+    whatsapp_float_position:
+      str(formData, 'whatsapp_float_position') === 'left' ? 'left' : 'right',
     address: nullable(formData, 'address'),
     map_embed_url: mapEmbedUrl,
 

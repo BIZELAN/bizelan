@@ -3,7 +3,7 @@
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 13 — Devenir administrateur
+--   SECTION 14 — Devenir administrateur
 --
 -- =========================================================================
 -- =========================================================================
@@ -25,7 +25,7 @@ declare
   touches int;
 begin
   if cible = 'remplacez-moi@exemple.com' then
-    raise notice '§13 ignoree : remplacez d abord l adresse dans le bloc.';
+    raise notice '§14 ignoree : remplacez d abord l adresse dans le bloc.';
     return;
   end if;
 
@@ -47,7 +47,7 @@ end $$;
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 14 — Vérification
+--   SECTION 15 — Vérification
 --
 -- =========================================================================
 -- =========================================================================
@@ -162,13 +162,26 @@ with controles as (
   union all
   select 11,
          'Administrateur designe',
-         coalesce(string_agg(email, ', '), 'AUCUN — executez la §13'),
+         coalesce(string_agg(email, ', '), 'AUCUN — executez la §14'),
          count(*) >= 1
     from public.bz_profiles
    where role = 'admin'
 
   union all
+  -- Les trois colonnes de 0012. Sans elles, la console enregistre les reglages
+  -- du bouton dans le vide et l'administrateur ne comprend pas pourquoi.
   select 12,
+         'Reglages du bouton WhatsApp flottant',
+         count(*)::text || ' / 3',
+         count(*) = 3
+    from information_schema.columns
+   where table_schema = 'public'
+     and table_name   = 'site_settings'
+     and column_name in ('whatsapp_float_enabled', 'whatsapp_float_message',
+                         'whatsapp_float_position')
+
+  union all
+  select 13,
          'Contenu de depart (formations publiees)',
          count(*)::text,
          true
@@ -186,10 +199,10 @@ select case when ok then 'OK' else '!!  A REGARDER' end as verdict,
 -- ###########################################################################
 --
 --   Toutes les lignes doivent porter « OK », sauf la 11 si vous n'avez pas
---   encore exécuté la §13 — ce qui est normal à ce stade, puisque votre compte
+--   encore exécuté la §14 — ce qui est normal à ce stade, puisque votre compte
 --   n'existe pas avant votre première inscription sur le site.
 --
---   La ligne 12 n'a pas de verdict : elle compte simplement ce que la §12 a
+--   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §12 a
 --   déposé, pour que vous sachiez si le site démarre avec du contenu ou vide.
 --
 -- ###########################################################################

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
-import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
+import { Clock, Mail, MapPin, Phone } from 'lucide-react'
 import { ContactForm } from '@/components/public/contact-form'
 import { getSiteSettings } from '@/lib/queries'
 import { safeMapEmbedSrc } from '@/lib/map-embed'
 import { asArray, whatsappLink } from '@/lib/utils'
 import type { OpeningHour } from '@/lib/types'
+import { WhatsAppIcon } from '@/components/ui/brand-icons'
 
 export const revalidate = 300
 
@@ -108,7 +109,7 @@ export default async function ContactPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
               >
-                <MessageCircle className="h-5 w-5" aria-hidden />
+                <WhatsAppIcon size={20} aria-hidden />
                 Discuter sur WhatsApp
               </a>
             )}

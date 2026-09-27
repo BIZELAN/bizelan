@@ -6,7 +6,7 @@ import { saveSettings, type AdminResult } from '@/app/actions/admin'
 import { FormActions, FormSection } from '@/components/admin/shell'
 import { ActionFeedback, ObjectListEditor, SaveButton } from '@/components/admin/form-bits'
 import { ImageInput } from '@/components/admin/image-input'
-import { Checkbox, Field, Input, Textarea } from '@/components/ui/field'
+import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Alert } from '@/components/ui/misc'
 import { asArray } from '@/lib/utils'
 import { RevisionHistory } from '@/components/admin/revision-history'
@@ -95,6 +95,45 @@ export function SettingsForm({
         >
           <Input id="whatsapp" name="whatsapp" defaultValue={settings.whatsapp ?? ''} />
         </Field>
+
+        {/* Le bouton flottant. Groupé sous le numéro plutôt que dans une section
+            à part : ces réglages n'ont aucun sens sans lui, et les voir juste
+            en dessous évite de chercher pourquoi rien ne s'affiche. */}
+        <Checkbox
+          name="whatsapp_float_enabled"
+          defaultChecked={settings.whatsapp_float_enabled}
+          label="Afficher le bouton WhatsApp flottant sur le site"
+        />
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field
+            label="Message pré-rempli"
+            htmlFor="whatsapp_float_message"
+            help="Inséré dans la conversation avant l’envoi. Laissez vide pour n’en mettre aucun."
+          >
+            <Input
+              id="whatsapp_float_message"
+              name="whatsapp_float_message"
+              defaultValue={settings.whatsapp_float_message ?? ''}
+              placeholder="Bonjour, je vous écris depuis votre site."
+            />
+          </Field>
+
+          <Field
+            label="Position du bouton"
+            htmlFor="whatsapp_float_position"
+            help="En bas à droite par convention. À gauche si le coin droit gêne un contenu."
+          >
+            <Select
+              id="whatsapp_float_position"
+              name="whatsapp_float_position"
+              defaultValue={settings.whatsapp_float_position ?? 'right'}
+            >
+              <option value="right">En bas à droite</option>
+              <option value="left">En bas à gauche</option>
+            </Select>
+          </Field>
+        </div>
 
         <Field label="Adresse" htmlFor="address">
           <Input id="address" name="address" defaultValue={settings.address ?? ''} />

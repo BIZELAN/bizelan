@@ -114,6 +114,8 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+import { WhatsAppIcon } from '@/components/ui/brand-icons'
+
 /**
  * Bibliothèque d'icônes du site.
  *
@@ -250,7 +252,11 @@ export const ICON_GROUPS: IconGroup[] = [
     ['Phone', 'Téléphone', 'appel contact numéro', Phone],
     ['Smartphone', 'Mobile', 'téléphone portable sms', Smartphone],
     ['Mail', 'E-mail', 'courriel message contact', Mail],
-    ['MessageCircle', 'Message', 'discussion whatsapp échange', MessageCircle],
+    // Le mot « whatsapp » est retiré des synonymes de la bulle générique :
+    // l'icone de marque existe désormais, et c'est elle que la recherche doit
+    // remonter.
+    ['MessageCircle', 'Message', 'discussion bulle échange', MessageCircle],
+    ['WhatsApp', 'WhatsApp', 'whatsapp discussion contact messagerie', WhatsAppIcon],
     ['MessagesSquare', 'Échanges', 'conversation forum discussion', MessagesSquare],
     ['Send', 'Envoyer', 'transmettre expédier message', Send],
     ['Megaphone', 'Annonce', 'communication promotion diffusion', Megaphone],

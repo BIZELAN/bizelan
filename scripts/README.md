@@ -109,3 +109,47 @@ exactement ce qui a laissé deux failles ouvertes pendant des semaines ici.
 Ce script ne peut PAS exécuter le SQL : ni Postgres ni Docker ne sont
 disponibles dans cet environnement. La section 14 du fichier généré prend le
 relais à l'exécution et dit, sur le projet réel, si les protections tiennent.
+
+### `test-whatsapp.mjs`
+
+    node scripts/test-whatsapp.mjs
+
+Bouton WhatsApp flottant et icône de marque. 41 cas.
+
+Trois choses y sont éprouvées. `whatsappLink` d'abord : le numéro vient d'une
+saisie libre, avec espaces, tirets ou un « + », et un lien mal formé mène à une
+page d'erreur WhatsApp que personne ne signale — le visiteur s'en va.
+
+Ensuite l'intégrité du tracé SVG, gelée par une somme de contrôle SHA-256
+calculée sur la **source amont** (simple-icons v13, `icons/whatsapp.svg`), et
+non sur notre copie. Un logo retapé de mémoire ou « simplifié » donne un glyphe
+approximatif qui se remarque et engage l'image du client.
+
+Enfin que la position soit filtrée aux deux bouts. La base contraint la colonne
+à `left` ou `right` ; si l'action serveur ne filtrait pas elle aussi, une valeur
+inattendue ferait rejeter l'enregistrement **entier** des réglages, et
+l'administrateur perdrait toutes ses autres modifications.
+
+### `tsalias.mjs`
+
+    node --import ./scripts/tsalias.mjs scripts/test-icons.mjs
+
+Ce n'est pas un test : c'est un crochet de résolution qui apprend à Node l'alias
+`@/` du projet. Next le résout grâce à `paths` dans `tsconfig.json`, Node non —
+si bien qu'un module du projet devenait inchargeable dès qu'il importait un
+autre module par son alias. Cela a déjà abîmé trois vérifications :
+
+- `src/lib/uploads.ts` a dû être détaché de `slugify` pour rester testable
+- `safeYoutubeSrc` n'a pu être vérifié qu'en lisant sa source, faute de pouvoir
+  l'exécuter
+- `src/lib/icons.ts` est devenu inchargeable dès qu'il a importé une icône de
+  marque depuis `@/components`
+
+À utiliser pour tout test qui importe un module employant l'alias. Il est sans
+effet sur les autres.
+
+**Une limite qui n'est pas la sienne** : Node retire les annotations de type
+mais ne transforme pas le JSX. Un fichier `.tsx` reste donc inchargeable, quel
+que soit le crochet. C'est la raison pour laquelle `src/components/ui/
+brand-icons.ts` est écrit avec `createElement` : un seul `.tsx` dans la chaîne
+d'imports rendait tout le registre d'icônes invérifiable.

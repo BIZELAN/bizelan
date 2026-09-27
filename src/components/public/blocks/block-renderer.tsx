@@ -24,7 +24,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Scroller } from '@/components/ui/scroller'
 import { VideoPlayer } from '@/components/ui/video-player'
-import { resolveVideoUrl } from '@/lib/video'
+import { resolveVideoUrl, VIDEO_IFRAME_ALLOW } from '@/lib/video'
 import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
 import { ContactForm } from '@/components/public/contact-form'
 import { QuoteForm } from '@/components/public/quote-form'
@@ -838,7 +838,7 @@ function VideoBlock({ data }: { data: Record<string, unknown> }) {
                 title={f.str('title', 'Vidéo')}
                 loading="lazy"
                 className="h-full w-full border-0"
-                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow={VIDEO_IFRAME_ALLOW}
                 allowFullScreen
               />
             </div>

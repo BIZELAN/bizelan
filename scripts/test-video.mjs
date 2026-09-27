@@ -23,6 +23,7 @@ import {
   resolveVideoRef,
   resolveVideoUrl,
   toStorageUri,
+  VIDEO_IFRAME_ALLOW,
 } from '../src/lib/video.ts'
 
 let fails = 0
@@ -122,6 +123,114 @@ for (const [url, kind] of [
   const got = resolveVideoUrl(url)
   const ok = kind === null ? got === null : got?.kind === kind
   check(`${JSON.stringify(url)?.slice(0, 48)}`, ok, got ? got.kind : 'null')
+}
+
+/* ------------------------------------------------------------------ */
+console.log('\n  FORMES REELLES DE LIEN YOUTUBE')
+
+// Toutes doivent donner EXACTEMENT la même adresse d'intégration. Trois d'entre
+// elles ne le faisaient pas : l'ancienne expression régulière exigeait que `v`
+// soit le PREMIER paramètre de la requête, alors que le bouton « Partager »,
+// l'application et une playlist en placent d'autres devant. Ces liens tombaient
+// dans le repli générique, qui encadrait la page `youtube.com/watch` — refusée
+// par `X-Frame-Options`. Un rectangle blanc, sans message d'aucune sorte.
+const ATTENDU = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1'
+
+for (const url of [
+  'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+  'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=30s',
+  'https://www.youtube.com/watch?app=desktop&v=dQw4w9WgXcQ',
+  'https://www.youtube.com/watch?feature=shared&v=dQw4w9WgXcQ',
+  'https://www.youtube.com/watch?list=PL123&v=dQw4w9WgXcQ&index=2',
+  'https://m.youtube.com/watch?v=dQw4w9WgXcQ',
+  'https://music.youtube.com/watch?v=dQw4w9WgXcQ',
+  'https://youtube.com/watch?v=dQw4w9WgXcQ',
+  'http://www.youtube.com/watch?v=dQw4w9WgXcQ',
+  'https://youtu.be/dQw4w9WgXcQ',
+  'https://youtu.be/dQw4w9WgXcQ?si=AbCdEf',
+  'https://youtu.be/dQw4w9WgXcQ?t=42',
+  'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ',
+  'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+  'https://www.youtube.com/live/dQw4w9WgXcQ',
+  'https://www.youtube.com/v/dQw4w9WgXcQ',
+  'https://www.youtube.com/watch/dQw4w9WgXcQ',
+  'https://www.youtube.com/e/dQw4w9WgXcQ',
+  'www.youtube.com/watch?v=dQw4w9WgXcQ',
+  'youtu.be/dQw4w9WgXcQ',
+  '  https://youtu.be/dQw4w9WgXcQ  ',
+]) {
+  const got = resolveVideoUrl(url)
+  check(url.trim().slice(0, 50), got?.kind === 'embed' && got.url === ATTENDU, got?.url?.slice(0, 38) ?? 'null')
+}
+
+// Le contenu riche doit répondre pareil. `safeYoutubeSrc` portait sa PROPRE
+// expression régulière, avec exactement le même travers : un lien de partage ne
+// rendait donc rien du tout dans un article ni dans les notes d'une leçon.
+//
+// Vérifié sur la SOURCE et non à l'exécution, parce que `rich-content.ts` emploie
+// l'alias `@/` que Node ne résout pas hors de Next. Le contrôle vaut mieux
+// ainsi : il échouerait aussi si quelqu'un y réintroduisait une expression
+// régulière locale, ce qu'un test de comportement laisserait passer tant qu'elle
+// donne le bon résultat sur les cas déjà connus.
+const richContent = readFileSync(new URL('../src/lib/rich-content.ts', import.meta.url), 'utf8')
+const safeYoutube = richContent.slice(
+  richContent.indexOf('export function safeYoutubeSrc'),
+  richContent.indexOf('\n}', richContent.indexOf('export function safeYoutubeSrc')),
+)
+check('le contenu riche délègue à youtubeIdFrom', safeYoutube.includes('youtubeIdFrom(value)'))
+check('il ne garde aucune expression régulière propre', !safeYoutube.includes('match('))
+check(
+  'et il importe la source partagée',
+  richContent.includes("youtubeIdFrom } from '@/lib/video'"),
+)
+
+console.log('\n  CE QUI N EST PAS UNE VIDEO YOUTUBE')
+
+// Rendre `null` plutôt qu'encadrer : l'interface affiche alors son message
+// d'absence, au lieu d'un cadre muet que personne ne sait diagnostiquer.
+for (const [url, why] of [
+  ['https://www.youtube.com/playlist?list=PL123456', 'une playlist'],
+  ['https://www.youtube.com/@chaine', 'une chaîne'],
+  ['https://www.youtube.com/c/abcdefghijk', 'une chaîne au nom de 11 caractères'],
+  ['https://www.youtube.com/watch?v=trop-court', 'un identifiant mal formé'],
+  ['https://vimeo.com/channels/staffpicks', 'une chaîne Vimeo'],
+]) {
+  check(`refuse ${why}`, resolveVideoUrl(url) === null, url.slice(0, 42))
+}
+
+// L'hôte est contrôlé par liste FERMÉE : un `includes('youtube.com')` aurait
+// accepté ce domaine et fabriqué une adresse d'intégration vers lui.
+const usurpe = resolveVideoUrl('https://youtube.com.pirate.test/watch?v=dQw4w9WgXcQ')
+check(
+  'un domaine usurpateur n’est pas traité comme YouTube',
+  usurpe !== null && !usurpe.url.includes('nocookie'),
+  usurpe?.url?.slice(0, 42) ?? 'null',
+)
+
+console.log('\n  VIMEO')
+
+for (const [url, attendu, why] of [
+  ['https://vimeo.com/76979871', 'https://player.vimeo.com/video/76979871', 'URL simple'],
+  ['https://vimeo.com/video/76979871', 'https://player.vimeo.com/video/76979871', 'forme /video/'],
+  ['https://player.vimeo.com/video/76979871', 'https://player.vimeo.com/video/76979871', 'URL de lecteur'],
+  ['https://vimeo.com/channels/staffpicks/76979871', 'https://player.vimeo.com/video/76979871', 'dans une chaîne'],
+  // Sans le jeton `h`, une vidéo non répertoriée répond « page introuvable ».
+  // Ce sont précisément celles d'une formation payante.
+  ['https://vimeo.com/76979871/abc123def', 'https://player.vimeo.com/video/76979871?h=abc123def', 'jeton en second segment'],
+  ['https://vimeo.com/76979871?h=abc123def', 'https://player.vimeo.com/video/76979871?h=abc123def', 'jeton en paramètre'],
+]) {
+  const got = resolveVideoUrl(url)
+  check(why, got?.kind === 'embed' && got.url === attendu, got?.url?.slice(0, 46) ?? 'null')
+}
+
+console.log('\n  PERMISSIONS DE L IFRAME')
+
+// Une seule liste pour les quatre lecteurs intégrés. Il en existait trois : la
+// page de leçon accordait `autoplay` et `fullscreen`, les autres non, donc un
+// même lien n'offrait pas les mêmes commandes selon l'endroit.
+for (const permission of ['autoplay', 'fullscreen', 'picture-in-picture', 'encrypted-media']) {
+  check(`accorde ${permission}`, VIDEO_IFRAME_ALLOW.includes(permission))
 }
 
 /* ------------------------------------------------------------------ */

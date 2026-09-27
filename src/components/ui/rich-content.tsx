@@ -16,6 +16,7 @@ import {
   type RichMark,
   type RichNode,
 } from '@/lib/rich-content'
+import { VIDEO_IFRAME_ALLOW } from '@/lib/video'
 
 /**
  * Rendu public du contenu riche.
@@ -190,7 +191,7 @@ function renderYoutube(node: RichNode): ReactNode {
           src={src}
           title="Vidéo"
           loading="lazy"
-          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow={VIDEO_IFRAME_ALLOW}
           allowFullScreen
           className="absolute inset-0 h-full w-full border-0"
         />

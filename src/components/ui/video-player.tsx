@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Play } from 'lucide-react'
-import type { PlayableVideo } from '@/lib/video'
+import { VIDEO_IFRAME_ALLOW, type PlayableVideo } from '@/lib/video'
 import { cn } from '@/lib/utils'
 
 /**
@@ -132,7 +132,7 @@ export function VideoSurface({
           title={title ?? 'Vidéo'}
           loading="lazy"
           className="h-full w-full border-0"
-          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow={VIDEO_IFRAME_ALLOW}
           allowFullScreen
         />
       </div>

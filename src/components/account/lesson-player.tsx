@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { saveVideoPosition, setLessonCompleted } from '@/app/actions/learning'
 import { Button } from '@/components/ui/button'
-import type { PlayableVideo } from '@/lib/video'
+import { VIDEO_IFRAME_ALLOW, type PlayableVideo } from '@/lib/video'
 import { cn } from '@/lib/utils'
 
 /**
@@ -142,7 +142,7 @@ export function VideoFrame({
           src={playable.url}
           title={title}
           className="h-full w-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allow={VIDEO_IFRAME_ALLOW}
           allowFullScreen
         />
       )}

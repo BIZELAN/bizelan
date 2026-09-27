@@ -90,8 +90,32 @@ export function parseStorageUri(value: string | null | undefined): { bucket: str
 /* Hébergeurs                                                          */
 /* ------------------------------------------------------------------ */
 
-const YOUTUBE_ID = /(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([\w-]{11})/
-const VIMEO_ID = /vimeo\.com\/(?:video\/)?(\d+)/
+/**
+ * Hôtes YouTube. Liste FERMÉE : c'est elle qui autorise l'intégration, et un
+ * `includes('youtube.com')` accepterait `youtube.com.pirate.test`.
+ */
+const YOUTUBE_HOSTS = new Set([
+  'youtube.com',
+  'www.youtube.com',
+  'm.youtube.com',
+  'music.youtube.com',
+  'youtube-nocookie.com',
+  'www.youtube-nocookie.com',
+  'youtu.be',
+  'www.youtu.be',
+])
+
+/**
+ * Segments de chemin qui précèdent un identifiant de vidéo sur youtube.com.
+ *
+ * Le contrôle est nécessaire : `/c/abcdefghijk` est une chaîne dont le dernier
+ * segment fait onze caractères valides, et serait pris pour une vidéo.
+ */
+const YOUTUBE_VIDEO_SEGMENTS = new Set(['embed', 'live', 'shorts', 'v', 'e', 'watch'])
+
+const YOUTUBE_ID_SHAPE = /^[\w-]{11}$/
+
+const VIMEO_HOSTS = new Set(['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'])
 
 /**
  * Extensions traitées comme un fichier lisible directement.
@@ -141,39 +165,120 @@ export function isMeasurableVideoUrl(value: string | null | undefined): boolean 
 }
 
 /**
+ * Lit une URL, même écrite sans schème.
+ *
+ * Un administrateur colle volontiers `www.youtube.com/watch?v=…` : sans
+ * schème, `new URL` lève une exception. On préfixe alors, plutôt que de perdre
+ * l'URL pour un détail de saisie.
+ */
+function parseLooseUrl(value: string): URL | null {
+  for (const candidate of [value, `https://${value}`]) {
+    try {
+      const url = new URL(candidate)
+      if (url.protocol === 'http:' || url.protocol === 'https:') return url
+    } catch {
+      // On essaie la forme suivante.
+    }
+  }
+  return null
+}
+
+/**
  * Extrait un identifiant YouTube, que l'on ait reçu l'identifiant ou une URL.
  *
- * L'aide du champ, dans l'administration, dit : « Vous pouvez aussi coller
- * l'URL complète. » Elle le disait déjà, mais rien ne l'honorait : la seule
- * leçon du catalogue qui portait une vidéo avait une URL dans `video_id`, et
- * produisait donc
+ * La version précédente cherchait `watch?v=` par expression régulière, donc
+ * exigeait que `v` soit le PREMIER paramètre. Or les liens du quotidien ne le
+ * sont pas :
  *
- *     https://www.youtube-nocookie.com/embed/https://youtu.be/XXXXXXXXXXX
+ *     ?app=desktop&v=…      lien copié depuis l'application
+ *     ?feature=shared&v=…   bouton « Partager »
+ *     ?list=PL…&v=…         copié depuis une playlist
  *
- * soit un lecteur vide. C'était la panne visible du lecteur de l'espace
- * client : une seule vidéo en ligne, et elle ne partait pas.
+ * Ces trois formes tombaient dans le repli générique, qui encadrait la page
+ * `youtube.com/watch` — que YouTube refuse de laisser encadrer. Résultat : un
+ * rectangle blanc, sans message d'aucune sorte. On lit donc la requête, au lieu
+ * de parier sur l'ordre des paramètres.
  */
 export function youtubeIdFrom(value: string): string | null {
   const trimmed = value.trim()
-  if (/^[\w-]{11}$/.test(trimmed)) return trimmed
-  const match = YOUTUBE_ID.exec(trimmed)
-  return match ? match[1] : null
+  if (YOUTUBE_ID_SHAPE.test(trimmed)) return trimmed
+
+  const url = parseLooseUrl(trimmed)
+  if (!url) return null
+
+  const host = url.hostname.toLowerCase()
+  if (!YOUTUBE_HOSTS.has(host)) return null
+
+  // `?v=` où qu'il se trouve dans la requête.
+  const v = url.searchParams.get('v')
+  if (v && YOUTUBE_ID_SHAPE.test(v)) return v
+
+  const segments = url.pathname.split('/').filter(Boolean)
+  const last = segments[segments.length - 1]
+  if (!last || !YOUTUBE_ID_SHAPE.test(last)) return null
+
+  // `youtu.be/ID` : l'identifiant est le chemin entier.
+  if (host === 'youtu.be' || host === 'www.youtu.be') {
+    return segments.length === 1 ? last : null
+  }
+
+  // Sur youtube.com, l'identifiant doit être annoncé par son segment — sans
+  // quoi `/c/abcdefghijk`, une chaîne, passerait pour une vidéo.
+  return segments.length >= 2 && YOUTUBE_VIDEO_SEGMENTS.has(segments[segments.length - 2])
+    ? last
+    : null
 }
 
-/** Même tolérance pour Vimeo : numéro seul ou URL complète. */
-export function vimeoIdFrom(value: string): string | null {
+/**
+ * Même tolérance pour Vimeo : numéro seul ou URL complète.
+ *
+ * Le jeton `h` des vidéos non répertoriées est conservé. Sans lui, une vidéo
+ * non répertoriée répond « Nous n'avons pas trouvé cette page » : c'est le cas
+ * de toutes celles qu'on ne veut pas voir figurer dans la recherche Vimeo, donc
+ * précisément celles d'une formation payante. Vimeo l'écrit tantôt en
+ * paramètre `?h=`, tantôt comme second segment du chemin.
+ */
+export function vimeoIdFrom(value: string): { id: string; hash: string | null } | null {
   const trimmed = value.trim()
-  if (/^\d+$/.test(trimmed)) return trimmed
-  const match = VIMEO_ID.exec(trimmed)
-  return match ? match[1] : null
+  if (/^\d+$/.test(trimmed)) return { id: trimmed, hash: null }
+
+  const url = parseLooseUrl(trimmed)
+  if (!url || !VIMEO_HOSTS.has(url.hostname.toLowerCase())) return null
+
+  const segments = url.pathname.split('/').filter(Boolean)
+  const index = segments.findIndex((segment) => /^\d+$/.test(segment))
+  if (index === -1) return null
+
+  const next = segments[index + 1]
+  return {
+    id: segments[index],
+    hash: url.searchParams.get('h') ?? (next && /^[a-z0-9]+$/i.test(next) ? next : null),
+  }
 }
+
+/**
+ * Permissions accordées à un lecteur intégré.
+ *
+ * Il en existait TROIS listes différentes pour quatre iframes : la page de
+ * leçon accordait `autoplay` et `fullscreen`, les trois autres non. Un même
+ * lien YouTube n'offrait donc pas les mêmes commandes selon l'endroit où il
+ * était placé.
+ *
+ * `autoplay` NE déclenche rien : il autorise le lecteur à le demander. Aucune
+ * de nos URL ne passe `autoplay=1`.
+ */
+export const VIDEO_IFRAME_ALLOW =
+  'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; ' +
+  'picture-in-picture; web-share; fullscreen'
 
 export function youtubeEmbedUrl(id: string): string {
   return `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1`
 }
 
-export function vimeoEmbedUrl(id: string): string {
-  return `https://player.vimeo.com/video/${id}`
+export function vimeoEmbedUrl(id: string, hash?: string | null): string {
+  return hash
+    ? `https://player.vimeo.com/video/${id}?h=${encodeURIComponent(hash)}`
+    : `https://player.vimeo.com/video/${id}`
 }
 
 /**
@@ -183,11 +288,27 @@ export function vimeoEmbedUrl(id: string): string {
  * fichier direct ou de rien du tout.
  */
 export function embedUrlFromUrl(url: string): string | null {
-  const yt = YOUTUBE_ID.exec(url)
-  if (yt) return youtubeEmbedUrl(yt[1])
-  const vimeo = VIMEO_ID.exec(url)
-  if (vimeo) return vimeoEmbedUrl(vimeo[1])
+  const yt = youtubeIdFrom(url)
+  if (yt) return youtubeEmbedUrl(yt)
+  const vimeo = vimeoIdFrom(url)
+  if (vimeo) return vimeoEmbedUrl(vimeo.id, vimeo.hash)
   return null
+}
+
+/**
+ * L'URL désigne-t-elle une plate-forme dont la PAGE refuse d'être encadrée ?
+ *
+ * YouTube et Vimeo posent `X-Frame-Options` sur leurs pages de visionnage :
+ * seule l'adresse `/embed/` est encadrable. Quand l'identifiant n'a pas pu être
+ * extrait, encadrer l'URL telle quelle donne donc un rectangle blanc, muet. Il
+ * vaut mieux ne rien rendre : l'interface affiche alors son message d'absence,
+ * et l'administrateur comprend qu'il doit revoir le lien.
+ */
+export function refusesFraming(url: string): boolean {
+  const parsed = parseLooseUrl(url)
+  if (!parsed) return false
+  const host = parsed.hostname.toLowerCase()
+  return YOUTUBE_HOSTS.has(host) || VIMEO_HOSTS.has(host)
 }
 
 /* ------------------------------------------------------------------ */
@@ -216,8 +337,8 @@ export function resolveVideoRef(ref: VideoRef): VideoTarget | null {
     if (id) return { kind: 'embed', url: youtubeEmbedUrl(id) }
   }
   if (provider === 'vimeo' && videoId) {
-    const id = vimeoIdFrom(videoId)
-    if (id) return { kind: 'embed', url: vimeoEmbedUrl(id) }
+    const vimeo = vimeoIdFrom(videoId)
+    if (vimeo) return { kind: 'embed', url: vimeoEmbedUrl(vimeo.id, vimeo.hash) }
   }
   if (provider === 'bunny' && videoId && bunnyHostname) {
     return { kind: 'embed', url: `https://${bunnyHostname}/embed/${videoId.trim()}` }
@@ -251,8 +372,15 @@ export function resolveVideoUrl(value: string | null | undefined): VideoTarget |
 
   if (isVideoFileUrl(url)) return { kind: 'file', url }
 
-  // Une URL http(s) quelconque : on l'intègre, faute de mieux. Tout autre
-  // schéma est écarté — `javascript:` dans un attribut `src` s'exécuterait.
+  // Une URL YouTube ou Vimeo dont l'identifiant n'a pas pu être lu : on
+  // s'arrête. L'encadrer produirait un rectangle blanc (voir `refusesFraming`),
+  // et c'est précisément ce qui faisait que trois formes de lien YouTube
+  // courantes ne se jouaient pas.
+  if (refusesFraming(url)) return null
+
+  // Une autre URL http(s) : on l'intègre, faute de mieux — un lien Loom ou
+  // Dailymotion collé tel quel fonctionne ainsi. Tout autre schème est écarté :
+  // `javascript:` dans un attribut `src` s'exécuterait.
   if (/^https?:\/\//i.test(url)) return { kind: 'embed', url }
 
   return null

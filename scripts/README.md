@@ -68,12 +68,19 @@ annoncé lisible dans la page — un cadre vide vaut moins qu'un bouton
 
     node scripts/test-video.mjs
 
-Résolution des vidéos et concordance avec la base. 54 cas.
+Résolution des vidéos et concordance avec la base. 95 cas.
 
 Couvre l'aiguillage qui a remplacé quatre implémentations divergentes (page de
 leçon, bloc « Vidéo », contenu riche, lecteur public), les URI `storage://`
 hostiles, et les URL complètes collées dans le champ « identifiant » — le cas
 qui cassait la seule vidéo en ligne du catalogue.
+
+Le groupe « formes réelles de lien YouTube » compte vingt-deux écritures d'une
+même vidéo, qui doivent toutes donner la même adresse d'intégration. Trois ne
+le faisaient pas — `?app=desktop&v=`, `?feature=shared&v=`, `?list=…&v=` —
+parce que l'ancienne expression régulière exigeait que `v` soit le premier
+paramètre. Ce sont les liens que donnent l'application, le bouton « Partager »
+et une playlist, donc les plus courants.
 
 Le dernier groupe compare les listes d'extensions de `src/lib/video.ts` et de
 `public.bz_lesson_is_measurable` (migration 0010). C'est la même question posée

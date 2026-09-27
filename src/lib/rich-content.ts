@@ -11,6 +11,8 @@
  * `RichContent` accepte les deux, et le rendu bascule automatiquement.
  */
 
+import { youtubeEmbedUrl, youtubeIdFrom } from '@/lib/video'
+
 export interface RichMark {
   type: string
   attrs?: Record<string, unknown> | null
@@ -181,10 +183,18 @@ export function safeAlign(value: unknown): TextAlign | null {
 /** Identifiant de vidéo YouTube extrait d'une URL d'intégration TipTap. */
 export function safeYoutubeSrc(value: unknown): string | null {
   if (typeof value !== 'string') return null
-  const match = value.trim().match(
-    /^https?:\/\/(?:www\.)?(?:youtube(?:-nocookie)?\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([\w-]{6,20})/i,
-  )
-  return match ? `https://www.youtube-nocookie.com/embed/${match[1]}` : null
+  // Délégué à `src/lib/video.ts`, qui porte la liste fermée d'hôtes et lit la
+  // requête au lieu d'exiger que `v` soit le premier paramètre.
+  //
+  // L'expression régulière qui se trouvait ici avait le même travers que celle
+  // de la page de leçon : elle n'acceptait `watch?v=` qu'en tête de requête.
+  // Un lien issu du bouton « Partager » (`?feature=shared&v=…`) renvoyait donc
+  // `null`, et le nœud vidéo ne rendait RIEN du tout dans un article ou dans
+  // les notes d'une leçon. La délégation resserre au passage le contrôle :
+  // l'identifiant doit faire exactement onze caractères, contre six à vingt
+  // auparavant.
+  const id = youtubeIdFrom(value)
+  return id ? youtubeEmbedUrl(id) : null
 }
 
 export const CALLOUT_TONES = [

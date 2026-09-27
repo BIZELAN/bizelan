@@ -194,7 +194,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
               <div className="mt-6">
                 {enrolled ? (
-                  <ButtonLink href={`/compte/formations/${course.slug}`} size="lg" fullWidth>
+                  <ButtonLink href={`/compte/${course.slug}`} size="lg" fullWidth>
                     Continuer la formation
                     <ArrowRight className="h-5 w-5" aria-hidden />
                   </ButtonLink>

@@ -86,3 +86,26 @@ Le dernier groupe compare les listes d'extensions de `src/lib/video.ts` et de
 `public.bz_lesson_is_measurable` (migration 0010). C'est la même question posée
 des deux côtés — « ce visionnage est-il mesurable ? » — et deux réponses
 divergentes retiendraient un certificat sans message.
+
+### `build-complet-sql.py`
+
+    python scripts/build-complet-sql.py
+
+Assemble `supabase/complet.sql` — l'installation complète sur un projet
+Supabase neuf — puis le vérifie. 42 contrôles.
+
+Réunit les onze migrations, le contenu de départ et deux sections écrites à la
+main (promotion de l'administrateur, vérification post-installation). À relancer
+après toute modification dans `supabase/migrations/`, sans quoi le projet neuf
+et le projet existant divergent — et l'écart ne se découvre qu'en production.
+
+Le script prouve que chaque section est **identique** à sa migration d'origine.
+Seule exception : six instructions de 0004 qui ne font rien (un `revoke` de
+colonne ne peut pas retirer un privilège accordé au niveau de la table) et que
+la section 11 corrige. Elles sont commentées plutôt que recopiées, car une
+instruction inopérante qui ressemble à une protection est un piège — c'est
+exactement ce qui a laissé deux failles ouvertes pendant des semaines ici.
+
+Ce script ne peut PAS exécuter le SQL : ni Postgres ni Docker ne sont
+disponibles dans cet environnement. La section 14 du fichier généré prend le
+relais à l'exécution et dit, sur le projet réel, si les protections tiennent.

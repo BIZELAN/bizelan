@@ -1,0 +1,71 @@
+-- ###########################################################################
+-- #                                                                         #
+-- #   BIZELAN — INSTALLATION COMPLÈTE SUR UN PROJET SUPABASE NEUF           #
+-- #                                                                         #
+-- ###########################################################################
+--
+-- Ce fichier est GÉNÉRÉ. Ne le modifiez pas à la main : éditez les migrations
+-- dans `supabase/migrations/`, puis relancez
+--
+--     python scripts/build-complet-sql.py
+--
+-- Sans cela, le projet neuf et le projet existant divergeront, et c'est le
+-- genre d'écart qui ne se découvre qu'en production. Le script vérifie au
+-- passage que chaque section est identique à sa migration d'origine.
+--
+-- Les sections 13 et 14 sont écrites à la main, dans
+-- `supabase/_pied_complet.sql` ; cet en-tête dans `_entete_complet.sql`.
+--
+-- Il réunit, dans l'ordre :
+--
+--   §1  à §11  les onze migrations, telles quelles
+--   §12        le contenu de départ (formation, services, articles) — SUPPRIMABLE
+--   §13        promotion de votre compte en administrateur
+--   §14        vérification : ce que l'installation a réellement créé
+--
+--
+-- COMMENT L'EXÉCUTER
+-- ------------------
+--   1. Projet Supabase > SQL Editor > New query
+--   2. Collez TOUT ce fichier, puis « Run »
+--   3. Lisez le tableau final de la §14 : il dit ce qui existe vraiment
+--
+-- Une exécution prend quelques secondes. Si l'éditeur refuse la taille, coupez
+-- aux barres `====` : chaque section est autonome, dans l'ordre.
+--
+--
+-- CE QU'IL FAUT FAIRE AVANT
+-- -------------------------
+-- Rien dans la base. Mais notez dès maintenant, depuis
+-- Project Settings > API, les trois valeurs à reporter dans `.env` :
+--
+--   NEXT_PUBLIC_SUPABASE_URL        l'URL du projet
+--   NEXT_PUBLIC_SUPABASE_ANON_KEY   la clé « anon / public »
+--   SUPABASE_SERVICE_ROLE_KEY       la clé « service_role » — JAMAIS côté client
+--
+-- La clé `service_role` contourne toute la sécurité au niveau des lignes. Elle
+-- n'a rien à faire dans une variable préfixée `NEXT_PUBLIC_`, ni dans un dépôt.
+--
+--
+-- CE QU'IL FAUT FAIRE APRÈS
+-- -------------------------
+--   1. Reporter les trois valeurs ci-dessus dans `.env`
+--   2. Créer votre compte par la page d'inscription du site
+--      (un déclencheur crée le profil automatiquement)
+--   3. Revenir exécuter la §13 avec votre adresse, pour devenir administrateur
+--   4. Vérifier que les quatre espaces de stockage figurent bien dans
+--      Storage : public-media, resources, payment-proofs, lesson-videos
+--
+-- Les envois d'e-mail (RESEND_API_KEY) et les paiements
+-- (SASPAY_API_KEY, SASPAY_WEBHOOK_SECRET) sont indépendants de ce fichier :
+-- sans eux, le site fonctionne mais ne notifie ni n'encaisse rien.
+--
+--
+-- IDEMPOTENCE
+-- -----------
+-- Les sections §1 à §11 se relancent sans dommage : `create ... if not exists`,
+-- `create or replace`, `drop policy if exists` avant chaque politique. La §12,
+-- elle, INSÈRE du contenu : la relancer créerait des doublons de formations et
+-- d'articles. Ne l'exécutez qu'une fois.
+--
+-- ###########################################################################

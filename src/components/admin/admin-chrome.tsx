@@ -23,8 +23,14 @@ import { CommandPalette } from '@/components/admin/command-palette'
 import { findNavItem } from '@/components/admin/nav-items'
 import { SiteLogo } from '@/components/ui/site-logo'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { ROLE_LABELS } from '@/components/ui/badge'
 import { applySidebar, readStoredSidebar } from '@/lib/sidebar'
 import { cn } from '@/lib/utils'
+
+/** « admin » s'affichait tel quel, en anglais et en minuscules. */
+function roleLabel(role: string) {
+  return ROLE_LABELS[role]?.label ?? role
+}
 
 /**
  * Coquille du back-office.
@@ -265,7 +271,7 @@ function SidebarFooter({
             </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-fg">{userName}</p>
-              <p className="truncate text-xs capitalize text-fg-subtle">{userRole}</p>
+              <p className="truncate text-xs text-fg-subtle">{roleLabel(userRole)}</p>
             </div>
           </div>
         </div>
@@ -326,7 +332,7 @@ function UserMenu({ userName, userRole }: { userName: string; userRole: string }
         >
           <div className="px-2.5 py-2">
             <p className="truncate text-sm font-semibold text-fg">{userName}</p>
-            <p className="text-xs capitalize text-fg-subtle">{userRole}</p>
+            <p className="text-xs text-fg-subtle">{roleLabel(userRole)}</p>
           </div>
 
           <DropdownMenu.Separator className="my-1 h-px bg-line" />

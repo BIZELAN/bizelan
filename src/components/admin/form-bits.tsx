@@ -73,7 +73,17 @@ export function DeleteButton({
 
   return (
     <span className="inline-flex flex-col items-end gap-1">
-      <Button type="button" variant={variant} size={size} onClick={run} disabled={pending}>
+      <Button
+        type="button"
+        variant={variant}
+        size={size}
+        onClick={run}
+        disabled={pending}
+        // Bouton réduit à son icône dans les tableaux : sans libellé
+        // accessible, un lecteur d'écran annonçait « bouton » et rien d'autre.
+        aria-label={label ? undefined : 'Supprimer'}
+        title={label ? undefined : 'Supprimer'}
+      >
         {pending ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
         ) : (
@@ -95,6 +105,7 @@ export function ActionButton({
   variant = 'outline',
   size = 'sm',
   className,
+  label,
 }: {
   action: () => Promise<{ ok: boolean; message?: string }>
   children: React.ReactNode
@@ -102,6 +113,8 @@ export function ActionButton({
   variant?: 'primary' | 'outline' | 'ghost' | 'danger' | 'accent' | 'secondary'
   size?: 'sm' | 'md'
   className?: string
+  /** Libellé accessible, indispensable quand le bouton ne montre qu'une icône. */
+  label?: string
 }) {
   const [pending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
@@ -122,7 +135,15 @@ export function ActionButton({
 
   return (
     <span className={cn('inline-flex flex-col gap-1', className)}>
-      <Button type="button" variant={variant} size={size} onClick={run} disabled={pending}>
+      <Button
+        type="button"
+        variant={variant}
+        size={size}
+        onClick={run}
+        disabled={pending}
+        aria-label={label}
+        title={label}
+      >
         {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
         {children}
       </Button>

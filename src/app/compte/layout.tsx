@@ -45,7 +45,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
       </header>
 
       <div className="container-page flex-1 py-8">
-        <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
           <AccountNav />
           <main className="min-w-0">{children}</main>
         </div>

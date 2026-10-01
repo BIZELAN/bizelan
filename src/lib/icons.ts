@@ -30,6 +30,7 @@ import {
   Flag,
   Gauge,
   Gift,
+  Grid3x3,
   Globe,
   GraduationCap,
   HandCoins,
@@ -343,7 +344,7 @@ export function searchIcons(query: string): IconEntry[] {
 /* ------------------------------------------------------------------ */
 
 /**
- * Repères de l'éditeur, et non du contenu : ils étiquettent les vingt-deux
+ * Repères de l’éditeur, et non du contenu : ils étiquettent les
  * types de blocs dans le sélecteur. Ils vivent à part de `ICON_GROUPS` pour
  * cette raison — on ne les propose jamais à l'administration, qui choisit une
  * icône pour SA page, pas pour l'outil.
@@ -352,6 +353,11 @@ export function searchIcons(query: string): IconEntry[] {
  * est importé par l'éditeur, donc par le navigateur.
  */
 export const BLOCK_TYPE_ICONS: Record<string, LucideIcon> = {
+  // `features`, `about` et `stats` déclaraient ces trois icônes, absentes de
+  // la carte : l'éditeur les montrait sous un carré générique.
+  'bar-chart-3': BarChart3,
+  'building-2': Building2,
+  'grid-3x3': Grid3x3,
   'alert-circle': AlertCircle,
   'arrow-left-right': ArrowLeftRight,
   'badge-dollar-sign': BadgeDollarSign,
@@ -368,6 +374,7 @@ export const BLOCK_TYPE_ICONS: Record<string, LucideIcon> = {
   megaphone: Megaphone,
   'message-square-quote': MessageSquareQuote,
   newspaper: Newspaper,
+  package: Package,
   'panels-top-left': PanelsTopLeft,
   'play-circle': PlayCircle,
   quote: Quote,

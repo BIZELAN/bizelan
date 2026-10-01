@@ -4,20 +4,16 @@ import { Users } from 'lucide-react'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PageHeader, Table, Td, Th } from '@/components/admin/shell'
-import { Badge } from '@/components/ui/badge'
+import { ExportButton } from '@/components/admin/export-button'
+import { Badge, ROLE_LABELS } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/misc'
 import { Input } from '@/components/ui/field'
-import { formatDate } from '@/lib/utils'
+import { formatDate, sanitizeSearch } from '@/lib/utils'
 import type { Profile } from '@/lib/types'
 
 export const metadata: Metadata = { title: 'Clients' }
 export const dynamic = 'force-dynamic'
 
-const ROLE_LABELS: Record<string, { label: string; tone: 'neutral' | 'primary' | 'accent' }> = {
-  client: { label: 'Client', tone: 'neutral' },
-  editor: { label: 'Éditeur', tone: 'primary' },
-  admin: { label: 'Administrateur', tone: 'accent' },
-}
 
 export default async function AdminClientsPage({
   searchParams,
@@ -33,7 +29,16 @@ export default async function AdminClientsPage({
     .order('created_at', { ascending: false })
     .limit(200)
 
-  if (q) query = query.or(`full_name.ilike.%${q}%,email.ilike.%${q}%`)
+  // La saisie est nettoyée avant d'entrer dans le filtre : dans la syntaxe
+  // PostgREST, une virgule sépare deux conditions et une parenthèse en ouvre
+  // un groupe. Insérée telle quelle, elle cassait la requête — ou y ajoutait
+  // une condition choisie par l'utilisateur.
+  const search = sanitizeSearch(q)
+  if (search) {
+    query = query.or(
+      `full_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`,
+    )
+  }
 
   const [{ data }, { data: enrollments }] = await Promise.all([
     query,
@@ -48,10 +53,19 @@ export default async function AdminClientsPage({
 
   return (
     <>
-      <PageHeader title="Clients" description="Tous les comptes créés sur le site." />
+      <PageHeader
+        title="Clients"
+        description="Tous les comptes créés sur le site."
+        actions={<ExportButton type="clients" />}
+      />
 
       <form className="mb-5 max-w-sm">
-        <Input name="q" defaultValue={q ?? ''} placeholder="Rechercher un nom ou un e-mail…" />
+        <Input
+          name="q"
+          defaultValue={q ?? ''}
+          placeholder="Rechercher un nom, un e-mail ou un téléphone…"
+          aria-label="Rechercher un client"
+        />
       </form>
 
       {profiles.length === 0 ? (

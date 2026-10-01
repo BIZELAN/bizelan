@@ -93,10 +93,18 @@ export function VideoFrame({
       lastTime.current = null
     }
 
+    // Fin de la vidéo : les secondes restantes partent tout de suite, et la
+    // barre d'actions est prévenue pour proposer la suite sans chercher.
+    const onEnded = () => {
+      flush()
+      window.dispatchEvent(new CustomEvent('bz:lesson-ended', { detail: { lessonId } }))
+    }
+
     video.addEventListener('timeupdate', onTimeUpdate)
     video.addEventListener('pause', onBreak)
     video.addEventListener('seeking', onBreak)
     video.addEventListener('waiting', onBreak)
+    video.addEventListener('ended', onEnded)
 
     // Quitter la page ne doit pas perdre les secondes non encore envoyées.
     const onLeave = () => flush()
@@ -108,6 +116,7 @@ export function VideoFrame({
       video.removeEventListener('pause', onBreak)
       video.removeEventListener('seeking', onBreak)
       video.removeEventListener('waiting', onBreak)
+      video.removeEventListener('ended', onEnded)
       document.removeEventListener('visibilitychange', onLeave)
     }
   }, [isDirectFile, lessonId, courseId, resumeAt])
@@ -184,7 +193,23 @@ export function LessonActions({
   const [completed, setCompleted] = useState(initialCompleted)
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [videoEnded, setVideoEnded] = useState(false)
   const router = useRouter()
+  const panel = useRef<HTMLDivElement | null>(null)
+
+  // La vidéo vient de se terminer : on met la barre d'actions en évidence et
+  // on la fait venir à l'écran, au lieu de laisser l'apprenant la chercher
+  // sous les notes et les supports.
+  useEffect(() => {
+    const onEnded = (event: Event) => {
+      const detail = (event as CustomEvent<{ lessonId?: string }>).detail
+      if (detail?.lessonId && detail.lessonId !== lessonId) return
+      setVideoEnded(true)
+      panel.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+    window.addEventListener('bz:lesson-ended', onEnded)
+    return () => window.removeEventListener('bz:lesson-ended', onEnded)
+  }, [lessonId])
 
   function toggle(goNext: boolean) {
     const target = goNext ? true : !completed
@@ -202,8 +227,21 @@ export function LessonActions({
   }
 
   return (
-    <div className="rounded-lg border border-line bg-surface p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div
+      ref={panel}
+      className={cn(
+        'rounded-lg border bg-surface p-5 transition-colors duration-slow',
+        videoEnded && !completed ? 'border-primary-text/50 shadow-e2' : 'border-line',
+      )}
+    >
+      {videoEnded && !completed && (
+        <p className="mb-4 text-sm font-medium text-primary-text" role="status">
+          Vidéo terminée. Marquez la leçon comme terminée pour avancer.
+        </p>
+      )}
+      {/* `flex-wrap` : dans la colonne de la leçon, les deux boutons côte à
+          côte débordaient du panneau sur un écran de portable. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <Button
           type="button"
           onClick={() => toggle(false)}
@@ -230,7 +268,7 @@ export function LessonActions({
             variant="accent"
             size="lg"
           >
-            Terminer et continuer
+            {completed ? 'Leçon suivante' : 'Terminer et continuer'}
             <ArrowRight className="h-[1.125rem] w-[1.125rem]" aria-hidden />
           </Button>
         )}

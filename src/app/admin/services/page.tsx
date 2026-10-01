@@ -83,6 +83,7 @@ export default async function AdminServicesPage() {
                         target="_blank"
                         className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                         title="Voir sur le site"
+                        aria-label="Voir sur le site"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />
                       </Link>

@@ -5,7 +5,13 @@ import { saveCoupon, type AdminResult } from '@/app/actions/admin'
 import { ActionFeedback, SaveButton } from '@/components/admin/form-bits'
 import { Checkbox, Field, Input, Select } from '@/components/ui/field'
 
-export function CouponForm({ courses }: { courses: { id: string; title: string }[] }) {
+export function CouponForm({
+  courses,
+  products = [],
+}: {
+  courses: { id: string; title: string }[]
+  products?: { id: string; title: string }[]
+}) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveCoupon, null)
   const [type, setType] = useState<'percent' | 'amount'>('percent')
 
@@ -48,6 +54,7 @@ export function CouponForm({ courses }: { courses: { id: string; title: string }
           required
         >
           <Input
+            key={type}
             name="discount_value"
             type="number"
             min={1}
@@ -57,14 +64,27 @@ export function CouponForm({ courses }: { courses: { id: string; title: string }
           />
         </Field>
 
-        <Field label="Formation concernée" help="Laissez vide pour appliquer à toutes.">
-          <Select name="course_id" defaultValue="">
-            <option value="">Toutes les formations</option>
-            {courses.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
+        <Field label="S’applique à" help="Tout le catalogue, une formation ou un produit précis.">
+          <Select name="target" defaultValue="">
+            <option value="">Tout le catalogue (formations et produits)</option>
+            {courses.length > 0 && (
+              <optgroup label="Formations">
+                {courses.map((c) => (
+                  <option key={c.id} value={`course:${c.id}`}>
+                    {c.title}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {products.length > 0 && (
+              <optgroup label="Produits de la boutique">
+                {products.map((p) => (
+                  <option key={p.id} value={`product:${p.id}`}>
+                    {p.title}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </Select>
         </Field>
 

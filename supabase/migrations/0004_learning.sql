@@ -91,9 +91,10 @@ begin
   -- elle contourne donc RLS et ne peut pas s'appuyer dessus.
   if not exists (
     select 1 from public.enrollments e
-    where e.user_id = v_user and e.course_id = p_course -- 'completed' compte : le trigger de progression y bascule l'inscription
-      -- des que toutes les lecons sont cochees, et c'est precisement l'apprenant
-      -- qu'il faut pouvoir continuer a mesurer.
+    where e.user_id = v_user and e.course_id = p_course
+      -- 'completed' compte : le déclencheur de progression y bascule
+      -- l'inscription dès que toutes les leçons sont cochées, et c'est
+      -- précisément l'apprenant qu'il faut pouvoir continuer à mesurer.
       and e.state in ('active', 'completed')
   ) then
     raise exception 'Aucun accès à cette formation.' using errcode = '42501';
@@ -234,10 +235,10 @@ create policy "quizzes_enrolled_read" on public.quizzes
         join public.enrollments e    on e.course_id = m.course_id
         where l.id = quizzes.lesson_id
           and e.user_id = auth.uid()
-          -- 'completed' compte : le trigger de progression y bascule l'inscription
-      -- des que toutes les lecons sont cochees, et c'est precisement l'apprenant
-      -- qu'il faut pouvoir continuer a mesurer.
-      and e.state in ('active', 'completed')
+          -- 'completed' compte : le déclencheur de progression y bascule
+          -- l'inscription dès que toutes les leçons sont cochées, et c'est
+          -- précisément l'apprenant qu'il faut pouvoir continuer à mesurer.
+          and e.state in ('active', 'completed')
       )
     )
   );
@@ -332,9 +333,10 @@ begin
 
   if not exists (
     select 1 from public.enrollments e
-    where e.user_id = v_user and e.course_id = v_course -- 'completed' compte : le trigger de progression y bascule l'inscription
-      -- des que toutes les lecons sont cochees, et c'est precisement l'apprenant
-      -- qu'il faut pouvoir continuer a mesurer.
+    where e.user_id = v_user and e.course_id = v_course
+      -- 'completed' compte : le déclencheur de progression y bascule
+      -- l'inscription dès que toutes les leçons sont cochées, et c'est
+      -- précisément l'apprenant qu'il faut pouvoir continuer à mesurer.
       and e.state in ('active', 'completed')
   ) then
     raise exception 'Aucun accès à cette formation.' using errcode = '42501';
@@ -522,7 +524,11 @@ $$;
 -- ===========================================================================
 -- D. VUE D'ADMINISTRATION — temps de visionnage par apprenant
 -- ===========================================================================
-create or replace view public.bz_learner_watch_stats as
+-- Supprimée puis recréée, et non remplacée : 0010 lui ajoute une colonne, et
+-- `create or replace view` refuse de retirer une colonne existante. Sans
+-- cela, rejouer ce fichier après 0010 échouait.
+drop view if exists public.bz_learner_watch_stats;
+create view public.bz_learner_watch_stats as
 select
   e.user_id,
   e.course_id,

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inbox, Mail, Phone } from 'lucide-react'
+import { Inbox, Mail, MessageCircle, Phone } from 'lucide-react'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PageHeader } from '@/components/admin/shell'
@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/misc'
 import { QuoteStatusControl } from '@/components/admin/quote-status-control'
 import { ActionButton } from '@/components/admin/form-bits'
 import { markContactHandled } from '@/app/actions/admin'
-import { formatDateTime } from '@/lib/utils'
+import { formatDateTime, whatsappLink } from '@/lib/utils'
 import type { ContactMessage, QuoteRequest, Service } from '@/lib/types'
 
 export const metadata: Metadata = { title: 'Demandes' }
@@ -72,6 +72,26 @@ export default async function AdminRequestsPage() {
                     >
                       <Phone className="h-4 w-4" aria-hidden />
                       {quote.phone}
+                    </a>
+                  )}
+                  {quote.phone && whatsappLink(quote.phone) && (
+                    <a
+                      href={
+                        whatsappLink(
+                          quote.phone,
+                          `Bonjour ${quote.name.split(/\s+/)[0] ?? ''}, merci pour votre demande de devis${
+                            quote.service_id && serviceNames.get(quote.service_id)
+                              ? ` (« ${serviceNames.get(quote.service_id)} »)`
+                              : ''
+                          }. `,
+                        )!
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-success hover:underline"
+                    >
+                      <MessageCircle className="h-4 w-4" aria-hidden />
+                      Répondre sur WhatsApp
                     </a>
                   )}
                 </div>
@@ -140,6 +160,17 @@ export default async function AdminRequestsPage() {
                     {message.email}
                   </a>
                   {message.phone && <span className="text-fg-muted">{message.phone}</span>}
+                  {message.phone && whatsappLink(message.phone) && (
+                    <a
+                      href={whatsappLink(message.phone, `Bonjour ${message.name.split(/\s+/)[0] ?? ''}, `)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-success hover:underline"
+                    >
+                      <MessageCircle className="h-4 w-4" aria-hidden />
+                      WhatsApp
+                    </a>
+                  )}
                 </div>
 
                 <p className="mt-3 whitespace-pre-wrap rounded-md bg-canvas-subtle p-4 text-sm leading-relaxed text-fg-muted">

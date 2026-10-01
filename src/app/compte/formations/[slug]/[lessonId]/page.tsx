@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { ArrowLeft, Check, Download, FileText } from 'lucide-react'
+import { ArrowLeft, Award, Check, Download, FileText, ListOrdered } from 'lucide-react'
 
 import { requireUser, hasCourseAccess } from '@/lib/auth'
 import { getCourseWithCurriculum } from '@/lib/queries'
@@ -11,11 +11,14 @@ import { ProgressBar } from '@/components/ui/misc'
 import { ResourceList } from '@/components/account/resource-list'
 import { LessonActions, VideoFrame } from '@/components/account/lesson-player'
 import { LessonQuiz, type QuizView } from '@/components/account/lesson-quiz'
+import { LessonNotes } from '@/components/account/lesson-notes'
+import { ButtonLink } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
 import { resolveVideoRef } from '@/lib/video'
 import { signVideoTarget } from '@/lib/video-sign'
 import { env } from '@/lib/env'
 import { cn, formatDuration } from '@/lib/utils'
+import type { CourseWithCurriculum } from '@/lib/types'
 
 export const metadata: Metadata = { title: 'Leçon' }
 
@@ -42,12 +45,28 @@ export default async function LessonPage({
   const previous = flat[index - 1] ?? null
   const doneCount = flat.filter((l) => l.progress?.completed).length
   const progressPercent = flat.length ? Math.round((doneCount / flat.length) * 100) : 0
+  const courseDone = flat.length > 0 && doneCount === flat.length
 
   // Le questionnaire est chargé avec la session de l'APPRENANT, pas la clé de
   // service : `is_correct` lui est retiré au niveau des droits, et la requête
   // ne le demande de toute façon pas. Les bonnes réponses ne quittent jamais
   // le serveur — la correction passe par `bz_grade_quiz`.
   const supabase = await createClient()
+
+  // Ouvrir une leçon compte comme une activité : c'est ce qui permet au
+  // tableau de bord de proposer « Reprendre » au bon endroit, même quand la
+  // vidéo n'a pas été lancée. Un échec ne doit jamais bloquer la leçon.
+  const [{ error: touchError }, { data: noteRow }] = await Promise.all([
+    supabase.rpc('bz_touch_lesson', { p_lesson: lesson.id, p_course: course.id }),
+    supabase
+      .from('lesson_notes')
+      .select('body')
+      .eq('user_id', user.id)
+      .eq('lesson_id', lesson.id)
+      .maybeSingle<{ body: string }>(),
+  ])
+  if (touchError) console.error('[leçon] activité non enregistrée :', touchError.message)
+
   const { data: quizRow } = await supabase
     .from('quizzes')
     .select(
@@ -112,7 +131,7 @@ export default async function LessonPage({
   const resources = lesson.resources ?? []
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_18rem]">
       <div className="min-w-0 space-y-6">
         {/* ---------- Situation ------------------------------------------- */}
         <div>
@@ -143,6 +162,22 @@ export default async function LessonPage({
 
           <h1 className="mt-2 text-2xl sm:text-3xl">{lesson.title}</h1>
         </div>
+
+        {/* Sommaire replié, sur mobile seulement : la colonne latérale y
+            tombait tout en bas de la page, sous les notes et le questionnaire,
+            et l'apprenant ne voyait plus où il se trouvait dans le parcours. */}
+        <details className="group rounded-lg border border-line bg-surface xl:hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+            <ListOrdered className="h-[1.125rem] w-[1.125rem] shrink-0 text-primary-text" aria-hidden />
+            <span className="flex-1 text-sm font-medium text-fg">Sommaire de la formation</span>
+            <span className="text-xs tabular-nums text-fg-subtle">
+              {doneCount}/{flat.length}
+            </span>
+          </summary>
+          <div className="border-t border-line p-2">
+            <Outline course={course} slug={slug} lessonId={lessonId} />
+          </div>
+        </details>
 
         <VideoFrame
           title={lesson.title}
@@ -179,6 +214,8 @@ export default async function LessonPage({
           </div>
         )}
 
+        <LessonNotes lessonId={lesson.id} courseId={course.id} initialBody={noteRow?.body ?? ''} />
+
         {/* Le questionnaire se place APRÈS le contenu et AVANT les actions :
             on vérifie ses acquis une fois la leçon lue, pas avant. */}
         {quiz && quiz.questions.length > 0 && (
@@ -195,10 +232,25 @@ export default async function LessonPage({
           nextHref={next ? `/compte/formations/${slug}/${next.id}` : null}
           nextLabel={next?.title ?? null}
         />
+
+        {courseDone && (
+          <div className="flex flex-col gap-4 rounded-lg border border-success/30 bg-success-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex gap-4">
+              <Award className="h-10 w-10 shrink-0 text-success" aria-hidden />
+              <div>
+                <p className="font-semibold text-fg">Bravo, vous avez terminé toutes les leçons !</p>
+                <p className="mt-0.5 text-sm text-fg-muted">
+                  Retrouvez votre certificat et laissez votre avis depuis la page de la formation.
+                </p>
+              </div>
+            </div>
+            <ButtonLink href={`/compte/formations/${slug}`}>Voir la formation</ButtonLink>
+          </div>
+        )}
       </div>
 
       {/* ---------- Sommaire ---------------------------------------------- */}
-      <aside className="lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto">
+      <aside className="hidden xl:sticky xl:top-6 xl:block xl:max-h-[calc(100dvh-3rem)] xl:self-start xl:overflow-y-auto">
         <div className="overflow-hidden rounded-lg border border-line bg-surface">
           <div className="border-b border-line p-4">
             <div className="mb-2 flex items-baseline justify-between gap-2">
@@ -213,67 +265,81 @@ export default async function LessonPage({
           </div>
 
           <div className="p-2">
-            {course.modules.map((courseModule, mi) => {
-              const moduleDone = courseModule.lessons.filter((l) => l.progress?.completed).length
-              return (
-                <div key={courseModule.id} className="mb-3 last:mb-0">
-                  <div className="flex items-baseline justify-between gap-2 px-2 py-1.5">
-                    <p className="min-w-0 truncate text-xs font-semibold uppercase tracking-[0.12em] text-fg-subtle">
-                      {mi + 1}. {courseModule.title}
-                    </p>
-                    <p className="shrink-0 text-xs tabular-nums text-fg-subtle">
-                      {moduleDone}/{courseModule.lessons.length}
-                    </p>
-                  </div>
-
-                  <ul className="space-y-0.5">
-                    {courseModule.lessons.map((l) => {
-                      const current = l.id === lessonId
-                      const done = Boolean(l.progress?.completed)
-                      return (
-                        <li key={l.id}>
-                          <Link
-                            href={`/compte/formations/${slug}/${l.id}`}
-                            aria-current={current ? 'page' : undefined}
-                            className={cn(
-                              'flex items-start gap-2.5 rounded-md px-2 py-2 text-sm',
-                              'transition-colors duration-fast',
-                              current
-                                ? 'bg-primary-subtle font-medium text-primary-text'
-                                : // Le survol pointait sur `bg-surface`, la
-                                  // couleur du panneau lui-même : il ne
-                                  // produisait donc aucun changement.
-                                  'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
-                            )}
-                          >
-                            <span
-                              className={cn(
-                                'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full',
-                                done ? 'bg-primary' : 'border border-line-control bg-surface',
-                              )}
-                            >
-                              {done && <Check className="h-2.5 w-2.5 text-primary-fg" aria-hidden />}
-                            </span>
-
-                            <span className="min-w-0 flex-1 leading-snug">{l.title}</span>
-
-                            {l.duration_seconds > 0 && (
-                              <span className="mt-0.5 shrink-0 text-xs tabular-nums text-fg-subtle">
-                                {formatDuration(l.duration_seconds)}
-                              </span>
-                            )}
-                          </Link>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </div>
-              )
-            })}
+            <Outline course={course} slug={slug} lessonId={lessonId} />
           </div>
         </div>
       </aside>
     </div>
+  )
+}
+
+/** Plan du parcours : partagé par la colonne latérale et le sommaire mobile. */
+function Outline({
+  course,
+  slug,
+  lessonId,
+}: {
+  course: CourseWithCurriculum
+  slug: string
+  lessonId: string
+}) {
+  return (
+    <>
+      {course.modules.map((courseModule, mi) => {
+        const moduleDone = courseModule.lessons.filter((l) => l.progress?.completed).length
+        return (
+          <div key={courseModule.id} className="mb-3 last:mb-0">
+            <div className="flex items-baseline justify-between gap-2 px-2 py-1.5">
+              <p className="min-w-0 truncate text-xs font-semibold uppercase tracking-[0.12em] text-fg-subtle">
+                {mi + 1}. {courseModule.title}
+              </p>
+              <p className="shrink-0 text-xs tabular-nums text-fg-subtle">
+                {moduleDone}/{courseModule.lessons.length}
+              </p>
+            </div>
+
+            <ul className="space-y-0.5">
+              {courseModule.lessons.map((l) => {
+                const current = l.id === lessonId
+                const done = Boolean(l.progress?.completed)
+                return (
+                  <li key={l.id}>
+                    <Link
+                      href={`/compte/formations/${slug}/${l.id}`}
+                      aria-current={current ? 'page' : undefined}
+                      className={cn(
+                        'flex items-start gap-2.5 rounded-md px-2 py-2 text-sm',
+                        'transition-colors duration-fast',
+                        current
+                          ? 'bg-primary-subtle font-medium text-primary-text'
+                          : 'text-fg-muted hover:bg-canvas-subtle hover:text-fg',
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full',
+                          done ? 'bg-primary' : 'border border-line-control bg-surface',
+                        )}
+                      >
+                        {done && <Check className="h-2.5 w-2.5 text-primary-fg" aria-hidden />}
+                      </span>
+
+                      <span className="min-w-0 flex-1 leading-snug">{l.title}</span>
+
+                      {l.duration_seconds > 0 && (
+                        <span className="mt-0.5 shrink-0 text-xs tabular-nums text-fg-subtle">
+                          {formatDuration(l.duration_seconds)}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )
+      })}
+    </>
   )
 }
 

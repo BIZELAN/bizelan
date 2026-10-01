@@ -41,17 +41,24 @@ comment on column public.courses.chariow_product_id is
 -- pas de 2xx. Sans trace des livraisons déjà traitées, un rejeu rouvrirait
 -- l'accès et réécrirait la commande. `x-pulse-delivery-id` est l'identifiant
 -- stable d'une tentative : il sert de clé d'idempotence.
-create table if not exists public.chariow_deliveries (
-  delivery_id  text primary key,
-  event        text not null,
-  sale_id      text,
-  received_at  timestamptz not null default now()
-);
-
-create index if not exists chariow_deliveries_sale_idx
-  on public.chariow_deliveries(sale_id, received_at desc);
-
-alter table public.chariow_deliveries enable row level security;
+-- Créée seulement si 0009 ne l'a pas déjà renommée en `payment_deliveries` :
+-- sans ce garde, rejouer ce fichier recréait une table fantôme, vide, à côté
+-- de la vraie.
+do $$
+begin
+  if to_regclass('public.payment_deliveries') is null then
+    create table if not exists public.chariow_deliveries (
+      delivery_id  text primary key,
+      event        text not null,
+      sale_id      text,
+      received_at  timestamptz not null default now()
+    );
+    create index if not exists chariow_deliveries_sale_idx
+      on public.chariow_deliveries(sale_id, received_at desc);
+    alter table public.chariow_deliveries enable row level security;
+  end if;
+end
+$$;
 
 -- Aucune politique d'ouverture : seule la clé de service écrit et lit cette
 -- table. RLS activé sans politique = rien n'est accessible aux autres rôles,

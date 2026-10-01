@@ -41,11 +41,20 @@ comment on column public.orders.chariow_sale_id is
 -- identique pour tous : une clé de livraison, insérée en clé primaire, dont
 -- l'échec d'insertion signale un rejeu. On la rend donc commune plutôt que
 -- d'en créer une par passerelle.
-alter table public.chariow_deliveries
-  add column if not exists provider text not null default 'chariow';
-
-alter table public.chariow_deliveries
-  rename to payment_deliveries;
+-- Conditionnel pour rester rejouable : une fois renommée, la table n'existe
+-- plus sous son ancien nom, et un `alter table public.chariow_deliveries`
+-- nu faisait échouer toute nouvelle exécution du fichier.
+do $$
+begin
+  if to_regclass('public.payment_deliveries') is null
+     and to_regclass('public.chariow_deliveries') is not null then
+    alter table public.chariow_deliveries
+      add column if not exists provider text not null default 'chariow';
+    alter table public.chariow_deliveries
+      rename to payment_deliveries;
+  end if;
+end
+$$;
 
 comment on table public.payment_deliveries is
   'Clés de livraison des webhooks de paiement, pour rejeter les rejeux. '

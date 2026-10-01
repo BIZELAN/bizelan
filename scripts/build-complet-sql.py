@@ -4,7 +4,7 @@ Assemble et vérifie `supabase/complet.sql`.
 
     python scripts/build-complet-sql.py
 
-Réunit les onze migrations, le contenu de départ et deux sections écrites à la
+Réunit les quatorze migrations, le contenu de départ et deux sections écrites à la
 main (`supabase/_entete_complet.sql`, `supabase/_pied_complet.sql`) en un seul
 fichier destiné à un projet Supabase neuf.
 
@@ -37,6 +37,8 @@ MIGRATIONS = [
     ("0010_watch_guard.sql", "Garde-fou de visionnage pour le certificat"),
     ("0011_column_privileges.sql", "Droits par colonne — la correction qui compte"),
     ("0012_whatsapp_float.sql", "Bouton WhatsApp flottant, réglable"),
+    ("0013_boutique_espace.sql", "Boutique, notes d'apprenant, durcissement"),
+    ("0014_avis_carte.sql", "Lien Google Maps, avis clients sur tous les sujets"),
 ]
 
 # Ces six instructions de 0004 NE FONT RIEN : en PostgreSQL, un privilège
@@ -104,7 +106,7 @@ for numero, (fichier, titre) in enumerate(MIGRATIONS, start=1):
     morceaux.append(banniere(numero, titre, "supabase/migrations/" + fichier))
     morceaux.append(contenu.rstrip(NL) + NL)
 
-morceaux.append(banniere(13, "Contenu de depart (supprimable)", "supabase/seed.sql"))
+morceaux.append(banniere(len(MIGRATIONS) + 1, "Contenu de depart (supprimable)", "supabase/seed.sql"))
 morceaux.append(lire("supabase", "seed.sql").rstrip(NL) + NL)
 morceaux.append(lire("supabase", "_pied_complet.sql"))
 
@@ -146,10 +148,10 @@ controle("aucun UUID code en dur",
          not re.search(r"'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'", complet))
 controle("aucun secret", not re.search(r"sk_live|sk_test|eyJhbGciOi", complet))
 
-# --- Section 13 : promotion de l administrateur ----------------------------
+# --- Section 15 : promotion de l administrateur ----------------------------
 
-print(NL + "  SECTION 14")
-depart = complet.index("SECTION 14")
+print(NL + "  SECTION 16")
+depart = complet.index("SECTION 16 —")
 i = complet.index("do $$", depart)
 bloc = complet[i:complet.index("end $$;", i) + 7]
 controle("bloc do ... end ferme", bloc.endswith("end $$;"))
@@ -160,10 +162,10 @@ controle("leve une erreur si le compte n existe pas", "raise exception" in bloc)
 controle("designe par adresse, pas par UUID",
          "lower(email)" in bloc and "uuid" not in bloc.lower())
 
-# --- Section 14 : verification ---------------------------------------------
+# --- Section 16 : verification ---------------------------------------------
 
-print(NL + "  SECTION 15")
-depart = complet.index("SECTION 15")
+print(NL + "  SECTION 17")
+depart = complet.index("SECTION 17 —")
 i = complet.index("with controles as (", depart)
 requete = complet[i:complet.index("order by ordre;", i)]
 
@@ -177,14 +179,14 @@ controle("ne lit que des vues systeme et trois tables du projet",
          set(re.findall(r"from ([a-z_.]+)", nue)) == {
              "controles",
              "information_schema.tables", "information_schema.column_privileges",
-             "information_schema.columns",
+             "information_schema.columns", "information_schema.table_privileges",
              "storage.buckets", "pg_tables",
              "public.site_settings", "public.bz_profiles", "public.courses",
          },
          sorted(set(re.findall(r"from ([a-z_.]+)", nue))))
 
 branches = re.split(r"\n  union all\n", requete)
-controle("treize branches", len(branches) == 13, len(branches))
+controle("quinze branches", len(branches) == 15, len(branches))
 for n, branche in enumerate(branches, start=1):
     corps = re.sub(r"--[^\n]*", "", branche)
     controle("branche " + str(n) + " numerotee",

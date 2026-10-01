@@ -34,7 +34,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
         <Input id="fullName" name="fullName" defaultValue={profile.full_name ?? ''} autoComplete="name" />
       </Field>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Téléphone" htmlFor="phone">
           <Input id="phone" name="phone" type="tel" defaultValue={profile.phone ?? ''} autoComplete="tel" />
         </Field>

@@ -58,3 +58,61 @@ export function safeMapEmbedSrc(value: unknown): string | null {
 export function isInvalidMapEmbed(value: unknown): boolean {
   return typeof value === 'string' && value.trim() !== '' && safeMapEmbedSrc(value) === null
 }
+
+/* ------------------------------------------------------------------ */
+/* Lien d'ouverture dans Google Maps                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Lien de partage Google Maps, ou `null`.
+ *
+ * C'est le lien que l'on OUVRE (nouvel onglet, application Maps sur
+ * téléphone), à ne pas confondre avec l'URL d'intégration ci-dessus. Google en
+ * produit plusieurs formes : `maps.app.goo.gl/…` (bouton « Partager »),
+ * `goo.gl/maps/…` (ancienne), `www.google.com/maps/place/…`,
+ * `maps.google.com/?q=…`, et les domaines nationaux (`google.bj`, `google.fr`).
+ * Toute autre adresse est refusée : le lien est affiché sur chaque page du
+ * site, il ne doit pas pouvoir mener ailleurs.
+ */
+export function safeMapsLink(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+
+  let url: URL
+  try {
+    url = new URL(trimmed)
+  } catch {
+    return null
+  }
+  if (url.protocol !== 'https:') return null
+
+  const host = url.hostname.toLowerCase()
+  const path = url.pathname
+
+  const ok =
+    host === 'maps.app.goo.gl' ||
+    (host === 'goo.gl' && path.startsWith('/maps')) ||
+    host === 'maps.google.com' ||
+    (/^(www\.)?google\.[a-z]{2,3}(\.[a-z]{2})?$/.test(host) && path.startsWith('/maps'))
+
+  return ok ? url.toString() : null
+}
+
+/**
+ * Lien Google Maps de l'adresse du cabinet.
+ *
+ * Le lien saisi dans les paramètres prime — il pointe la fiche exacte, avec
+ * avis et horaires. À défaut, une recherche de l'adresse : moins précise,
+ * mais toujours utile, et sans rien à configurer.
+ */
+export function mapsLinkFor(settings: {
+  maps_url?: string | null
+  address?: string | null
+}): string | null {
+  const direct = safeMapsLink(settings.maps_url)
+  if (direct) return direct
+  const address = settings.address?.trim()
+  if (!address) return null
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+}

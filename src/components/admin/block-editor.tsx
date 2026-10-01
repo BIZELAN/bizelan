@@ -276,7 +276,7 @@ export function BlockEditor({
           aria-modal="true"
           aria-label="Choisir un bloc"
         >
-          <div className="w-full max-w-3xl rounded-lg bg-surface shadow-xl">
+          <div className="w-full max-w-3xl rounded-lg bg-surface shadow-e3">
             <div className="flex items-center justify-between border-b border-line px-5 py-4">
               <h2 className="text-lg font-semibold">Ajouter un bloc</h2>
               <button

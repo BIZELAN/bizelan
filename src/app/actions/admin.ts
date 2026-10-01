@@ -8,9 +8,11 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { fulfillOrder, revokeOrderAccess } from '@/lib/orders'
 import { parseRichContent, richContentToText } from '@/lib/rich-content'
 import { slugify } from '@/lib/utils'
-import { safeMapEmbedSrc } from '@/lib/map-embed'
+import { safeMapEmbedSrc, safeMapsLink } from '@/lib/map-embed'
 import { getRevision, restorablePayload, snapshot } from '@/lib/revisions'
 import { parseHex } from '@/lib/theme-tokens'
+import { RESERVED_PAGE_SLUGS } from '@/lib/reserved-slugs'
+import { logActivity } from '@/lib/activity'
 
 export interface AdminResult {
   ok: boolean
@@ -67,21 +69,27 @@ function json<T>(formData: FormData, name: string, fallback: T): T {
   }
 }
 
-async function logActivity(
-  actorId: string,
-  action: string,
-  entity: string,
-  entityId: string | null,
-  metadata: Record<string, unknown> = {},
-) {
+/**
+ * Date de publication à enregistrer.
+ *
+ * Elle était remise à « maintenant » à CHAQUE enregistrement d'une page
+ * publiée : corriger une faute de frappe faisait remonter un contenu ancien
+ * en tête des listes triées par date, et la vraie date de mise en ligne était
+ * perdue. On conserve donc la date existante, et on n'en pose une que lors du
+ * premier passage à « publié ».
+ */
+async function publicationDate(
+  table: 'services' | 'pages' | 'courses' | 'bz_posts' | 'products',
+  id: string,
+  status: string,
+  requested: string | null = null,
+): Promise<string | null> {
+  if (status !== 'published') return null
+  if (requested) return requested
+  if (!id) return new Date().toISOString()
   const supabase = createAdminClient()
-  await supabase.from('activity_log').insert({
-    actor_id: actorId,
-    action,
-    entity,
-    entity_id: entityId,
-    metadata,
-  })
+  const { data } = await supabase.from(table).select('published_at').eq('id', id).maybeSingle()
+  return (data?.published_at as string | null) ?? new Date().toISOString()
 }
 
 /* ------------------------------------------------------------------ */
@@ -130,7 +138,7 @@ export async function saveCourse(_prev: AdminResult | null, formData: FormData):
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     og_image_url: nullable(formData, 'og_image_url'),
-    published_at: status === 'published' ? (nullable(formData, 'published_at') ?? new Date().toISOString()) : null,
+    published_at: await publicationDate('courses', id, status, nullable(formData, 'published_at')),
   }
 
   if (id) {
@@ -398,7 +406,7 @@ export async function saveService(_prev: AdminResult | null, formData: FormData)
     position: int(formData, 'position'),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
-    published_at: status === 'published' ? new Date().toISOString() : null,
+    published_at: await publicationDate('services', id, status),
   }
 
   if (id) {
@@ -420,10 +428,11 @@ export async function saveService(_prev: AdminResult | null, formData: FormData)
 }
 
 export async function deleteService(id: string): Promise<AdminResult> {
-  await requireAdmin()
+  const user = await requireAdmin()
   const supabase = createAdminClient()
   const { error } = await supabase.from('services').delete().eq('id', id)
   if (error) return { ok: false, message: mapError(error.message) }
+  await logActivity(user.id, 'service.deleted', 'service', id)
 
   revalidatePath('/admin/services')
   revalidatePath('/services')
@@ -444,13 +453,7 @@ export async function savePage(_prev: AdminResult | null, formData: FormData): P
 
   const slug = slugify(str(formData, 'slug') || title)
 
-  // Slugs réservés par les routes fixes du site public
-  const RESERVED = [
-    'formations', 'services', 'blog', 'contact', 'compte', 'admin', 'commande',
-    'connexion', 'inscription', 'api', 'auth', 'mentions-legales', 'confidentialite',
-    'conditions', 'mot-de-passe-oublie',
-  ]
-  if (RESERVED.includes(slug)) {
+  if (RESERVED_PAGE_SLUGS.includes(slug)) {
     return { ok: false, message: `L'adresse « /${slug} » est réservée par le site. Choisissez-en une autre.` }
   }
 
@@ -471,7 +474,7 @@ export async function savePage(_prev: AdminResult | null, formData: FormData): P
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     og_image_url: nullable(formData, 'og_image_url'),
-    published_at: status === 'published' ? new Date().toISOString() : null,
+    published_at: await publicationDate('pages', id, status),
   }
 
   // Une seule page d'accueil à la fois
@@ -502,12 +505,13 @@ export async function savePage(_prev: AdminResult | null, formData: FormData): P
 }
 
 export async function deletePage(id: string): Promise<AdminResult> {
-  await requireAdmin()
+  const user = await requireAdmin()
   const supabase = createAdminClient()
 
   const { data: page } = await supabase.from('pages').select('slug').eq('id', id).maybeSingle()
   const { error } = await supabase.from('pages').delete().eq('id', id)
   if (error) return { ok: false, message: mapError(error.message) }
+  await logActivity(user.id, 'page.deleted', 'page', id, { slug: page?.slug ?? null })
 
   revalidatePath('/admin/pages')
   if (page?.slug) revalidatePath(`/${page.slug}`)
@@ -575,15 +579,17 @@ export async function savePost(_prev: AdminResult | null, formData: FormData): P
     ),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
-    published_at: status === 'published' ? (nullable(formData, 'published_at') ?? new Date().toISOString()) : null,
+    published_at: await publicationDate('bz_posts', id, status, nullable(formData, 'published_at')),
   }
 
   if (id) {
     const { error } = await supabase.from('bz_posts').update(payload).eq('id', id)
     if (error) return { ok: false, message: mapError(error.message) }
+    await logActivity(user.id, 'post.updated', 'post', id, { title })
   } else {
     const { data, error } = await supabase.from('bz_posts').insert(payload).select('id').single()
     if (error) return { ok: false, message: mapError(error.message) }
+    await logActivity(user.id, 'post.created', 'post', data.id, { title })
     revalidatePath('/admin/blog')
     redirect(`/admin/blog/${data.id}`)
   }
@@ -595,10 +601,11 @@ export async function savePost(_prev: AdminResult | null, formData: FormData): P
 }
 
 export async function deletePost(id: string): Promise<AdminResult> {
-  await requireAdmin()
+  const user = await requireAdmin()
   const supabase = createAdminClient()
   const { error } = await supabase.from('bz_posts').delete().eq('id', id)
   if (error) return { ok: false, message: mapError(error.message) }
+  await logActivity(user.id, 'post.deleted', 'post', id)
 
   revalidatePath('/admin/blog')
   revalidatePath('/blog')
@@ -712,7 +719,7 @@ export async function revokeAccess(enrollmentId: string, userId: string): Promis
 }
 
 export async function restoreAccess(enrollmentId: string, userId: string): Promise<AdminResult> {
-  await requireAdmin()
+  const user = await requireAdmin()
   const supabase = createAdminClient()
 
   const { error } = await supabase
@@ -721,6 +728,8 @@ export async function restoreAccess(enrollmentId: string, userId: string): Promi
     .eq('id', enrollmentId)
 
   if (error) return { ok: false, message: mapError(error.message) }
+
+  await logActivity(user.id, 'access.restored', 'enrollment', enrollmentId)
 
   revalidatePath(`/admin/clients/${userId}`)
   return { ok: true, message: 'Accès rétabli.' }
@@ -746,6 +755,28 @@ export async function changeUserRole(
   revalidatePath('/admin/clients')
   revalidatePath(`/admin/clients/${userId}`)
   return { ok: true, message: 'Rôle mis à jour.' }
+}
+
+/** Note interne sur un client — jamais montrée au client lui-même. */
+export async function saveClientNote(
+  _prev: AdminResult | null,
+  formData: FormData,
+): Promise<AdminResult> {
+  const user = await requireAdmin()
+  const supabase = createAdminClient()
+
+  const userId = str(formData, 'user_id')
+  if (!userId) return { ok: false, message: 'Client inconnu.' }
+
+  const { error } = await supabase
+    .from('bz_profiles')
+    .update({ notes: str(formData, 'notes').slice(0, 5000) || null })
+    .eq('id', userId)
+  if (error) return { ok: false, message: mapError(error.message) }
+
+  await logActivity(user.id, 'client.note_updated', 'profile', userId)
+  revalidatePath(`/admin/clients/${userId}`)
+  return { ok: true, message: 'Note enregistrée.' }
 }
 
 /* ------------------------------------------------------------------ */
@@ -843,22 +874,46 @@ export async function deleteReview(id: string): Promise<AdminResult> {
 /* ------------------------------------------------------------------ */
 
 export async function saveCoupon(_prev: AdminResult | null, formData: FormData): Promise<AdminResult> {
-  await requireAdmin()
+  const user = await requireAdmin()
   const supabase = createAdminClient()
 
   const id = str(formData, 'id')
-  const code = str(formData, 'code').toUpperCase()
-  if (!code) return { ok: false, message: 'Le code est obligatoire.' }
+  const code = str(formData, 'code').toUpperCase().replace(/[^A-Z0-9_-]/g, '')
+  if (!code) return { ok: false, message: 'Le code est obligatoire (lettres, chiffres, - et _).' }
+
+  const discountType = str(formData, 'discount_type') === 'amount' ? 'amount' : 'percent'
+  const discountValue = int(formData, 'discount_value')
+  if (discountValue <= 0) {
+    return { ok: false, message: 'La remise doit être supérieure à zéro.' }
+  }
+  if (discountType === 'percent' && discountValue > 100) {
+    return { ok: false, message: 'Une remise en pourcentage ne peut pas dépasser 100 %.' }
+  }
+
+  // Un code vise une formation OU un produit, pas les deux : `cible` vaut
+  // `course:<id>`, `product:<id>` ou rien (tout le catalogue).
+  const target = str(formData, 'target')
+  const [targetType, targetId] = target.includes(':') ? target.split(':') : ['', '']
+
+  const startsAt = nullable(formData, 'starts_at')
+  const endsAt = nullable(formData, 'ends_at')
+  if (startsAt && endsAt && endsAt < startsAt) {
+    return { ok: false, message: 'La date de fin précède la date de début.' }
+  }
 
   const payload = {
     code,
     description: nullable(formData, 'description'),
-    discount_type: str(formData, 'discount_type') || 'percent',
-    discount_value: int(formData, 'discount_value'),
+    discount_type: discountType,
+    discount_value: discountValue,
     max_redemptions: nullableInt(formData, 'max_redemptions'),
-    course_id: nullable(formData, 'course_id'),
-    starts_at: nullable(formData, 'starts_at'),
-    ends_at: nullable(formData, 'ends_at'),
+    course_id: targetType === 'course' ? targetId || null : nullable(formData, 'course_id'),
+    product_id: targetType === 'product' ? targetId || null : null,
+    // Un champ `date` donne « 2026-10-31 », soit minuit au début du jour.
+    // Le code expirait donc la veille au soir de la date affichée : on borne
+    // au début du premier jour et à la fin du dernier.
+    starts_at: startsAt ? `${startsAt}T00:00:00+00:00` : null,
+    ends_at: endsAt ? `${endsAt}T23:59:59+00:00` : null,
     active: bool(formData, 'active'),
   }
 
@@ -868,8 +923,18 @@ export async function saveCoupon(_prev: AdminResult | null, formData: FormData):
 
   if (error) return { ok: false, message: mapError(error.message) }
 
+  await logActivity(user.id, id ? 'coupon.updated' : 'coupon.created', 'coupon', id || null, { code })
   revalidatePath('/admin/codes-promo')
   return { ok: true, message: 'Code promo enregistré.' }
+}
+
+export async function toggleCoupon(id: string, active: boolean): Promise<AdminResult> {
+  await requireAdmin()
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('coupons').update({ active }).eq('id', id)
+  if (error) return { ok: false, message: mapError(error.message) }
+  revalidatePath('/admin/codes-promo')
+  return { ok: true, message: active ? 'Code réactivé.' : 'Code désactivé.' }
 }
 
 export async function deleteCoupon(id: string): Promise<AdminResult> {
@@ -907,6 +972,19 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
     }
   }
 
+  // Lien d'ouverture : refusé plutôt que stocké s'il ne mène pas à Google
+  // Maps — il est affiché sur toutes les pages du site.
+  const rawMapsUrl = nullable(formData, 'maps_url')
+  const mapsUrl = safeMapsLink(rawMapsUrl)
+  if (rawMapsUrl && !mapsUrl) {
+    return {
+      ok: false,
+      message:
+        'Lien Google Maps non reconnu. Sur Google Maps, ouvrez « Partager » puis ' +
+        '« Copier le lien », et collez l’adresse obtenue (https://maps.app.goo.gl/…).',
+    }
+  }
+
   const payload = {
     site_name: str(formData, 'site_name') || 'BIZELAN',
     tagline: nullable(formData, 'tagline'),
@@ -924,6 +1002,7 @@ export async function saveSettings(_prev: AdminResult | null, formData: FormData
     whatsapp_float_position:
       str(formData, 'whatsapp_float_position') === 'left' ? 'left' : 'right',
     address: nullable(formData, 'address'),
+    maps_url: mapsUrl,
     map_embed_url: mapEmbedUrl,
 
     // Apparence : seules des couleurs sont stockées. Chacune est validée ici —
@@ -1078,4 +1157,50 @@ export async function restoreRevision(revisionId: string): Promise<AdminResult> 
     ok: true,
     message: `Version du ${new Date(revision.created_at).toLocaleString('fr-FR')} restaurée.`,
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Relances                                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Consigne qu'une relance a été faite — commande abandonnée, apprenant
+ * inactif, demande d'avis. Rien n'est envoyé d'ici : l'administrateur écrit
+ * depuis son propre WhatsApp ou sa messagerie. La trace évite de relancer
+ * deux fois la même personne, et de se demander « qui s'en est occupé ? ».
+ */
+export async function markFollowedUp(
+  kind: 'order' | 'learner' | 'review',
+  entityId: string,
+  channel: 'whatsapp' | 'email' | 'other' = 'other',
+): Promise<AdminResult> {
+  const user = await requireAdmin()
+  const entity = kind === 'order' ? 'order' : 'enrollment'
+  await logActivity(user.id, `followup.${kind}`, entity, entityId, { channel })
+  revalidatePath('/admin/relances')
+  return { ok: true, message: 'Relance notée.' }
+}
+
+/* ------------------------------------------------------------------ */
+/* Abonnés à la newsletter                                             */
+/* ------------------------------------------------------------------ */
+
+export async function setSubscriberStatus(id: string, unsubscribed: boolean): Promise<AdminResult> {
+  await requireAdmin()
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('newsletter_subscribers').update({ unsubscribed }).eq('id', id)
+  if (error) return { ok: false, message: mapError(error.message) }
+  revalidatePath('/admin/abonnes')
+  return { ok: true, message: unsubscribed ? 'Abonné désinscrit.' : 'Abonné réinscrit.' }
+}
+
+export async function deleteSubscriber(id: string): Promise<AdminResult> {
+  const user = await requireAdmin()
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('newsletter_subscribers').delete().eq('id', id)
+  if (error) return { ok: false, message: mapError(error.message) }
+  // Suppression à la demande d'une personne : la trace ne garde pas l'adresse.
+  await logActivity(user.id, 'subscriber.deleted', 'newsletter', id)
+  revalidatePath('/admin/abonnes')
+  return { ok: true, message: 'Abonné supprimé.' }
 }

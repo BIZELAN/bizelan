@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { Award } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft, Award } from 'lucide-react'
 
 import { requireUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { PrintButton } from '@/components/account/print-button'
+import { CopyButton } from '@/components/ui/copy-button'
+import { env } from '@/lib/env'
 import { formatDate } from '@/lib/utils'
 import { getSiteSettings } from '@/lib/queries'
 import type { Course, Enrollment } from '@/lib/types'
@@ -33,18 +36,33 @@ export default async function CertificatePage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center justify-between gap-4 print:hidden">
-        <h1 className="text-2xl">Votre certificat</h1>
-        <PrintButton />
+      <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
+        <div>
+          <Link
+            href="/compte/certificats"
+            className="mb-2 inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted hover:text-primary-text"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden />
+            Mes certificats
+          </Link>
+          <h1 className="text-2xl">Votre certificat</h1>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <CopyButton
+            value={`${env.siteUrl.replace(/\/$/, '')}/verifier/${data.certificate_code}`}
+            label="Lien de vérification"
+          />
+          <PrintButton />
+        </div>
       </div>
 
-      {/* Ilot de theme clair : un certificat est un document destine a
-          l'impression. Il reste sur papier blanc meme si la page est en
-          theme sombre, et `data-theme` suffit a le dire — les jetons a
-          l'interieur se redeclarent seuls. */}
+      {/* Îlot de thème clair : un certificat est un document destiné à
+          l'impression. Il reste sur papier blanc même si la page est en
+          thème sombre, et `data-theme` suffit à le dire — les jetons à
+          l'intérieur se redéclarent seuls. */}
       <div
         data-theme="light"
-        className="rounded-2xl border-4 border-primary-text bg-surface p-8 text-center text-fg-muted sm:p-14"
+        className="rounded-lg border-4 border-primary-text bg-surface p-8 text-center text-fg-muted sm:p-14"
       >
         <Award className="mx-auto h-14 w-14 text-primary-text" aria-hidden />
 
@@ -66,11 +84,16 @@ export default async function CertificatePage({
           <p className="text-sm text-fg-muted">Délivré le {formatDate(data.completed_at)}</p>
           <p className="mt-1 text-sm text-fg-muted">par {settings.site_name}</p>
           <p className="mt-4 font-mono text-xs text-fg-subtle">N° {data.certificate_code}</p>
+          <p className="mt-1 text-xs text-fg-subtle">
+            Vérifiable sur {env.siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}/verifier/
+            {data.certificate_code}
+          </p>
         </div>
       </div>
 
       <p className="text-center text-sm text-fg-subtle print:hidden">
-        Utilisez le bouton d’impression pour enregistrer ce certificat en PDF.
+        Utilisez le bouton d’impression et choisissez « Enregistrer au format PDF » pour
+        conserver ce certificat.
       </p>
     </div>
   )

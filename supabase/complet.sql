@@ -13,22 +13,22 @@
 -- genre d'écart qui ne se découvre qu'en production. Le script vérifie au
 -- passage que chaque section est identique à sa migration d'origine.
 --
--- Les sections 14 et 15 sont écrites à la main, dans
+-- Les sections 16 et 17 sont écrites à la main, dans
 -- `supabase/_pied_complet.sql` ; cet en-tête dans `_entete_complet.sql`.
 --
 -- Il réunit, dans l'ordre :
 --
---   §1  à §12  les douze migrations, telles quelles
---   §13        le contenu de départ (formation, services, articles) — SUPPRIMABLE
---   §14        promotion de votre compte en administrateur
---   §15        vérification : ce que l'installation a réellement créé
+--   §1  à §14  les quatorze migrations, telles quelles
+--   §15        le contenu de départ (formation, services, articles) — SUPPRIMABLE
+--   §16        promotion de votre compte en administrateur
+--   §17        vérification : ce que l'installation a réellement créé
 --
 --
 -- COMMENT L'EXÉCUTER
 -- ------------------
 --   1. Projet Supabase > SQL Editor > New query
 --   2. Collez TOUT ce fichier, puis « Run »
---   3. Lisez le tableau final de la §15 : il dit ce qui existe vraiment
+--   3. Lisez le tableau final de la §17 : il dit ce qui existe vraiment
 --
 -- Une exécution prend quelques secondes. Si l'éditeur refuse la taille, coupez
 -- aux barres `====` : chaque section est autonome, dans l'ordre.
@@ -52,9 +52,10 @@
 --   1. Reporter les trois valeurs ci-dessus dans `.env`
 --   2. Créer votre compte par la page d'inscription du site
 --      (un déclencheur crée le profil automatiquement)
---   3. Revenir exécuter la §14 avec votre adresse, pour devenir administrateur
---   4. Vérifier que les quatre espaces de stockage figurent bien dans
---      Storage : public-media, resources, payment-proofs, lesson-videos
+--   3. Revenir exécuter la §16 avec votre adresse, pour devenir administrateur
+--   4. Vérifier que les cinq espaces de stockage figurent bien dans
+--      Storage : public-media, resources, payment-proofs, lesson-videos,
+--      product-files
 --
 -- Les envois d'e-mail (RESEND_API_KEY) et les paiements
 -- (SASPAY_API_KEY, SASPAY_WEBHOOK_SECRET) sont indépendants de ce fichier :
@@ -63,8 +64,8 @@
 --
 -- IDEMPOTENCE
 -- -----------
--- Les sections §1 à §12 se relancent sans dommage : `create ... if not exists`,
--- `create or replace`, `drop policy if exists` avant chaque politique. La §12,
+-- Les sections §1 à §14 se relancent sans dommage : `create ... if not exists`,
+-- `create or replace`, `drop policy if exists` avant chaque politique. La §15,
 -- elle, INSÈRE du contenu : la relancer créerait des doublons de formations et
 -- d'articles. Ne l'exécutez qu'une fois.
 --
@@ -1231,9 +1232,10 @@ begin
   -- elle contourne donc RLS et ne peut pas s'appuyer dessus.
   if not exists (
     select 1 from public.enrollments e
-    where e.user_id = v_user and e.course_id = p_course -- 'completed' compte : le trigger de progression y bascule l'inscription
-      -- des que toutes les lecons sont cochees, et c'est precisement l'apprenant
-      -- qu'il faut pouvoir continuer a mesurer.
+    where e.user_id = v_user and e.course_id = p_course
+      -- 'completed' compte : le déclencheur de progression y bascule
+      -- l'inscription dès que toutes les leçons sont cochées, et c'est
+      -- précisément l'apprenant qu'il faut pouvoir continuer à mesurer.
       and e.state in ('active', 'completed')
   ) then
     raise exception 'Aucun accès à cette formation.' using errcode = '42501';
@@ -1374,10 +1376,10 @@ create policy "quizzes_enrolled_read" on public.quizzes
         join public.enrollments e    on e.course_id = m.course_id
         where l.id = quizzes.lesson_id
           and e.user_id = auth.uid()
-          -- 'completed' compte : le trigger de progression y bascule l'inscription
-      -- des que toutes les lecons sont cochees, et c'est precisement l'apprenant
-      -- qu'il faut pouvoir continuer a mesurer.
-      and e.state in ('active', 'completed')
+          -- 'completed' compte : le déclencheur de progression y bascule
+          -- l'inscription dès que toutes les leçons sont cochées, et c'est
+          -- précisément l'apprenant qu'il faut pouvoir continuer à mesurer.
+          and e.state in ('active', 'completed')
       )
     )
   );
@@ -1472,9 +1474,10 @@ begin
 
   if not exists (
     select 1 from public.enrollments e
-    where e.user_id = v_user and e.course_id = v_course -- 'completed' compte : le trigger de progression y bascule l'inscription
-      -- des que toutes les lecons sont cochees, et c'est precisement l'apprenant
-      -- qu'il faut pouvoir continuer a mesurer.
+    where e.user_id = v_user and e.course_id = v_course
+      -- 'completed' compte : le déclencheur de progression y bascule
+      -- l'inscription dès que toutes les leçons sont cochées, et c'est
+      -- précisément l'apprenant qu'il faut pouvoir continuer à mesurer.
       and e.state in ('active', 'completed')
   ) then
     raise exception 'Aucun accès à cette formation.' using errcode = '42501';
@@ -1662,7 +1665,11 @@ $$;
 -- ===========================================================================
 -- D. VUE D'ADMINISTRATION — temps de visionnage par apprenant
 -- ===========================================================================
-create or replace view public.bz_learner_watch_stats as
+-- Supprimée puis recréée, et non remplacée : 0010 lui ajoute une colonne, et
+-- `create or replace view` refuse de retirer une colonne existante. Sans
+-- cela, rejouer ce fichier après 0010 échouait.
+drop view if exists public.bz_learner_watch_stats;
+create view public.bz_learner_watch_stats as
 select
   e.user_id,
   e.course_id,
@@ -1825,17 +1832,24 @@ comment on column public.courses.chariow_product_id is
 -- pas de 2xx. Sans trace des livraisons déjà traitées, un rejeu rouvrirait
 -- l'accès et réécrirait la commande. `x-pulse-delivery-id` est l'identifiant
 -- stable d'une tentative : il sert de clé d'idempotence.
-create table if not exists public.chariow_deliveries (
-  delivery_id  text primary key,
-  event        text not null,
-  sale_id      text,
-  received_at  timestamptz not null default now()
-);
-
-create index if not exists chariow_deliveries_sale_idx
-  on public.chariow_deliveries(sale_id, received_at desc);
-
-alter table public.chariow_deliveries enable row level security;
+-- Créée seulement si 0009 ne l'a pas déjà renommée en `payment_deliveries` :
+-- sans ce garde, rejouer ce fichier recréait une table fantôme, vide, à côté
+-- de la vraie.
+do $$
+begin
+  if to_regclass('public.payment_deliveries') is null then
+    create table if not exists public.chariow_deliveries (
+      delivery_id  text primary key,
+      event        text not null,
+      sale_id      text,
+      received_at  timestamptz not null default now()
+    );
+    create index if not exists chariow_deliveries_sale_idx
+      on public.chariow_deliveries(sale_id, received_at desc);
+    alter table public.chariow_deliveries enable row level security;
+  end if;
+end
+$$;
 
 -- Aucune politique d'ouverture : seule la clé de service écrit et lit cette
 -- table. RLS activé sans politique = rien n'est accessible aux autres rôles,
@@ -2120,11 +2134,20 @@ comment on column public.orders.chariow_sale_id is
 -- identique pour tous : une clé de livraison, insérée en clé primaire, dont
 -- l'échec d'insertion signale un rejeu. On la rend donc commune plutôt que
 -- d'en créer une par passerelle.
-alter table public.chariow_deliveries
-  add column if not exists provider text not null default 'chariow';
-
-alter table public.chariow_deliveries
-  rename to payment_deliveries;
+-- Conditionnel pour rester rejouable : une fois renommée, la table n'existe
+-- plus sous son ancien nom, et un `alter table public.chariow_deliveries`
+-- nu faisait échouer toute nouvelle exécution du fichier.
+do $$
+begin
+  if to_regclass('public.payment_deliveries') is null
+     and to_regclass('public.chariow_deliveries') is not null then
+    alter table public.chariow_deliveries
+      add column if not exists provider text not null default 'chariow';
+    alter table public.chariow_deliveries
+      rename to payment_deliveries;
+  end if;
+end
+$$;
 
 comment on table public.payment_deliveries is
   'Clés de livraison des webhooks de paiement, pour rejeter les rejeux. '
@@ -2443,7 +2466,511 @@ comment on column public.site_settings.whatsapp_float_position is
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 13 — Contenu de depart (supprimable)
+--   SECTION 13 — Boutique, notes d'apprenant, durcissement
+--
+--   Source : supabase/migrations/0013_boutique_espace.sql
+--
+-- =========================================================================
+-- =========================================================================
+
+
+-- ===========================================================================
+-- BIZELAN — Boutique de produits digitaux, espace apprenant, durcissement
+--
+--   A. Boutique : produits (e-book, pack vidéo, modèle, audio…), fichiers
+--      privés, achats et journal des téléchargements
+--   B. Commandes et codes promo étendus aux produits
+--   C. Espace apprenant : notes personnelles, dernière activité réelle
+--   D. Durcissement : vues de chiffre d'affaires et fonctions internes
+--
+-- Idempotent : peut être rejoué sans effet de bord.
+-- ===========================================================================
+
+
+-- ===========================================================================
+-- A. BOUTIQUE
+-- ===========================================================================
+
+do $$ begin
+  create type bz_product_kind as enum ('ebook', 'video', 'template', 'audio', 'bundle', 'other');
+exception when duplicate_object then null; end $$;
+
+-- `add value` doit être validé avant d'être employé : ce fichier se contente
+-- de l'ajouter, aucune instruction ci-dessous ne s'en sert.
+alter type bz_item_type add value if not exists 'product';
+
+create table if not exists public.products (
+  id                      uuid primary key default gen_random_uuid(),
+  slug                    text not null unique,
+  title                   text not null,
+  subtitle                text,
+  summary                 text,
+  description             text,                              -- contenu riche (JSON d'éditeur)
+  cover_url               text,
+  kind                    bz_product_kind not null default 'ebook',
+  pricing                 bz_pricing_mode not null default 'fixed',
+  price_cents             int  not null default 0,           -- FCFA, unités entières
+  compare_at_price_cents  int,
+  currency                text not null default 'XOF',
+  format_label            text,                              -- « PDF · 84 pages »
+  delivery_label          text,                              -- « Téléchargement immédiat »
+  highlights              jsonb not null default '[]'::jsonb, -- ["12 modèles Excel", …]
+  faq                     jsonb not null default '[]'::jsonb,
+  -- Nombre de téléchargements autorisés par fichier et par acheteur.
+  -- 0 = illimité. Freine le partage d'un compte sans gêner un usage normal.
+  download_limit          int  not null default 0,
+  status                  bz_content_status not null default 'draft',
+  featured                boolean not null default false,
+  position                int not null default 0,
+  seo_title               text,
+  seo_description         text,
+  og_image_url            text,
+  published_at            timestamptz,
+  created_at              timestamptz not null default now(),
+  updated_at              timestamptz not null default now(),
+  constraint products_price_positive check (price_cents >= 0),
+  constraint products_download_limit_positive check (download_limit >= 0)
+);
+
+create index if not exists products_status_idx on public.products(status, position);
+
+drop trigger if exists products_set_updated_at on public.products;
+create trigger products_set_updated_at
+  before update on public.products
+  for each row execute function public.bz_set_updated_at();
+
+create table if not exists public.product_files (
+  id            uuid primary key default gen_random_uuid(),
+  product_id    uuid not null references public.products(id) on delete cascade,
+  title         text not null,
+  description   text,
+  storage_path  text not null,                -- chemin dans le bucket privé « product-files »
+  file_name     text,
+  file_size     bigint,
+  mime_type     text,
+  -- Extrait offert : téléchargeable sans achat depuis la fiche produit.
+  is_preview    boolean not null default false,
+  position      int not null default 0,
+  created_at    timestamptz not null default now()
+);
+
+create index if not exists product_files_product_idx on public.product_files(product_id, position);
+
+create table if not exists public.product_purchases (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references public.bz_profiles(id) on delete cascade,
+  product_id  uuid not null references public.products(id) on delete cascade,
+  order_id    uuid references public.orders(id) on delete set null,
+  state       text not null default 'active',
+  source      text not null default 'purchase',        -- purchase | admin_grant | free
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  unique (user_id, product_id),
+  constraint product_purchases_state_known check (state in ('active', 'revoked'))
+);
+
+create index if not exists product_purchases_user_idx on public.product_purchases(user_id);
+create index if not exists product_purchases_product_idx on public.product_purchases(product_id);
+
+drop trigger if exists product_purchases_set_updated_at on public.product_purchases;
+create trigger product_purchases_set_updated_at
+  before update on public.product_purchases
+  for each row execute function public.bz_set_updated_at();
+
+-- Journal des téléchargements : sert au plafond par acheteur et aux
+-- statistiques de l'administration. Écrit uniquement par le serveur.
+create table if not exists public.product_downloads (
+  id               bigserial primary key,
+  user_id          uuid references public.bz_profiles(id) on delete set null,
+  product_id       uuid references public.products(id) on delete cascade,
+  product_file_id  uuid references public.product_files(id) on delete cascade,
+  created_at       timestamptz not null default now()
+);
+
+create index if not exists product_downloads_file_user_idx
+  on public.product_downloads(product_file_id, user_id);
+create index if not exists product_downloads_product_idx
+  on public.product_downloads(product_id, created_at desc);
+
+
+-- --- Stockage ---------------------------------------------------------------
+-- Privé : un produit digital est du contenu payé. Aucune lecture directe ;
+-- le serveur signe une URL de courte durée après avoir vérifié l'achat.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('product-files', 'product-files', false, 2147483648, null)
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit;
+
+drop policy if exists "bz_product_files_admin_all" on storage.objects;
+create policy "bz_product_files_admin_all" on storage.objects
+  for all using (bucket_id = 'product-files' and public.bz_is_admin())
+  with check (bucket_id = 'product-files' and public.bz_is_admin());
+
+
+-- --- RLS ----------------------------------------------------------------------
+alter table public.products          enable row level security;
+alter table public.product_files     enable row level security;
+alter table public.product_purchases enable row level security;
+alter table public.product_downloads enable row level security;
+
+drop policy if exists "products_public_read" on public.products;
+create policy "products_public_read" on public.products
+  for select using (status = 'published' or public.bz_is_admin());
+drop policy if exists "products_admin_write" on public.products;
+create policy "products_admin_write" on public.products
+  for all using (public.bz_is_admin()) with check (public.bz_is_admin());
+
+-- La liste des fichiers d'un produit acheté est lisible par l'acheteur ; les
+-- extraits offerts le sont par tous. Le chemin de stockage n'ouvre rien à lui
+-- seul : le bucket est privé et n'a aucune politique de lecture publique.
+drop policy if exists "product_files_read" on public.product_files;
+create policy "product_files_read" on public.product_files
+  for select using (
+    public.bz_is_admin()
+    or (
+      is_preview and exists (
+        select 1 from public.products p
+        where p.id = product_files.product_id and p.status = 'published'
+      )
+    )
+    or exists (
+      select 1 from public.product_purchases pp
+      where pp.product_id = product_files.product_id
+        and pp.user_id = auth.uid()
+        and pp.state = 'active'
+    )
+  );
+drop policy if exists "product_files_admin_write" on public.product_files;
+create policy "product_files_admin_write" on public.product_files
+  for all using (public.bz_is_admin()) with check (public.bz_is_admin());
+
+drop policy if exists "product_purchases_select_own" on public.product_purchases;
+create policy "product_purchases_select_own" on public.product_purchases
+  for select using (user_id = auth.uid() or public.bz_is_admin());
+drop policy if exists "product_purchases_admin_write" on public.product_purchases;
+create policy "product_purchases_admin_write" on public.product_purchases
+  for all using (public.bz_is_admin()) with check (public.bz_is_admin());
+
+drop policy if exists "product_downloads_admin_read" on public.product_downloads;
+create policy "product_downloads_admin_read" on public.product_downloads
+  for select using (public.bz_is_admin());
+
+
+-- --- La boutique dans le menu du site ------------------------------------------
+-- Le menu vit en base (0007). Sans cette entrée, la boutique existerait sans
+-- qu'aucun visiteur ne la trouve. Ajoutée juste après « Formations », une
+-- seule fois : si l'administration l'a déjà placée — ou retirée puis
+-- remise ailleurs — on n'y touche pas.
+update public.site_settings s
+   set nav_links = (
+     select coalesce(jsonb_agg(item order by ord), '[]'::jsonb)
+       from (
+         select value as item, (ordinality * 10)::int as ord
+           from jsonb_array_elements(s.nav_links) with ordinality
+         union all
+         select '{"label": "Boutique", "href": "/boutique"}'::jsonb,
+                coalesce((
+                  select (ordinality * 10 + 5)::int
+                    from jsonb_array_elements(s.nav_links) with ordinality
+                   where value->>'href' = '/formations'
+                   limit 1
+                ), 5)
+       ) entries
+   )
+ where s.id = 1
+   and jsonb_typeof(s.nav_links) = 'array'
+   and jsonb_array_length(s.nav_links) > 0
+   and not exists (
+     select 1 from jsonb_array_elements(s.nav_links) e where e->>'href' = '/boutique'
+   );
+
+
+-- ===========================================================================
+-- B. COMMANDES ET CODES PROMO
+-- ===========================================================================
+
+alter table public.order_items
+  add column if not exists product_id uuid references public.products(id) on delete set null;
+
+create index if not exists order_items_product_idx on public.order_items(product_id);
+
+-- Un code peut viser une formation, un produit, ou tout le catalogue.
+alter table public.coupons
+  add column if not exists product_id uuid references public.products(id) on delete cascade;
+
+-- Les valeurs aberrantes étaient acceptées : une remise de 250 % ou négative.
+do $$ begin
+  alter table public.coupons
+    add constraint coupons_discount_value_range
+    check (discount_value > 0 and (discount_type <> 'percent' or discount_value <= 100));
+exception when duplicate_object then null; when check_violation then null; end $$;
+
+-- Incrément ATOMIQUE du compteur. La lecture puis l'écriture faites côté
+-- serveur laissaient deux paiements simultanés compter pour un seul, et un
+-- code « 50 utilisations » pouvait en servir davantage.
+create or replace function public.bz_redeem_coupon(p_coupon uuid)
+returns void
+language sql
+security definer set search_path = public
+as $$
+  update public.coupons set redemptions = redemptions + 1 where id = p_coupon;
+$$;
+
+revoke all on function public.bz_redeem_coupon(uuid) from public;
+revoke all on function public.bz_redeem_coupon(uuid) from anon;
+revoke all on function public.bz_redeem_coupon(uuid) from authenticated;
+grant execute on function public.bz_redeem_coupon(uuid) to service_role;
+
+-- Ventes par produit, pour le tableau de bord.
+create or replace view public.v_product_sales as
+select
+  p.id            as product_id,
+  p.title         as product_title,
+  coalesce(sum(oi.quantity) filter (where o.status = 'paid'), 0)                      as units_sold,
+  coalesce(sum(oi.unit_price_cents * oi.quantity) filter (where o.status = 'paid'), 0) as revenue_cents
+from public.products p
+left join public.order_items oi on oi.product_id = p.id
+left join public.orders o       on o.id = oi.order_id
+group by p.id, p.title;
+
+
+-- ===========================================================================
+-- C. ESPACE APPRENANT
+-- ===========================================================================
+
+-- --- Notes personnelles -------------------------------------------------------
+-- Ce que l'apprenant retient d'une leçon, à côté de la vidéo. Visible de lui
+-- seul : ni l'administration ni les autres apprenants n'en ont l'usage.
+create table if not exists public.lesson_notes (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references public.bz_profiles(id) on delete cascade,
+  lesson_id   uuid not null references public.lessons(id) on delete cascade,
+  course_id   uuid not null references public.courses(id) on delete cascade,
+  body        text not null default '',
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  unique (user_id, lesson_id),
+  constraint lesson_notes_body_length check (char_length(body) <= 20000)
+);
+
+create index if not exists lesson_notes_user_course_idx on public.lesson_notes(user_id, course_id);
+
+drop trigger if exists lesson_notes_set_updated_at on public.lesson_notes;
+create trigger lesson_notes_set_updated_at
+  before update on public.lesson_notes
+  for each row execute function public.bz_set_updated_at();
+
+alter table public.lesson_notes enable row level security;
+
+drop policy if exists "lesson_notes_own" on public.lesson_notes;
+create policy "lesson_notes_own" on public.lesson_notes
+  for all using (user_id = auth.uid())
+  with check (
+    user_id = auth.uid()
+    and exists (
+      select 1 from public.enrollments e
+      where e.user_id = auth.uid()
+        and e.course_id = lesson_notes.course_id
+        and e.state in ('active', 'completed')
+    )
+  );
+
+
+-- --- Dernière activité réelle -------------------------------------------------
+-- `lesson_progress.updated_at` n'avait aucun déclencheur : un `upsert` qui
+-- cochait une leçon laissait la date de première visite. « Reprendre » ne
+-- pouvait donc pas savoir où l'apprenant s'était arrêté.
+drop trigger if exists lesson_progress_set_updated_at on public.lesson_progress;
+create trigger lesson_progress_set_updated_at
+  before update on public.lesson_progress
+  for each row execute function public.bz_set_updated_at();
+
+-- Ouvrir une leçon compte comme une activité, même sans lancer la vidéo : on
+-- lit les notes, on télécharge un support. Security definer parce que la
+-- colonne `updated_at` n'est pas accordée en écriture au client ; l'accès au
+-- cours est donc revérifié ici.
+create or replace function public.bz_touch_lesson(p_lesson uuid, p_course uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_user uuid := auth.uid();
+begin
+  if v_user is null then
+    return;
+  end if;
+
+  if not exists (
+    select 1 from public.enrollments e
+    where e.user_id = v_user and e.course_id = p_course
+      and e.state in ('active', 'completed')
+  ) then
+    return;
+  end if;
+
+  -- La leçon doit appartenir au cours annoncé : sans ce contrôle, on pourrait
+  -- créer une ligne de progression rattachée au mauvais parcours.
+  if not exists (
+    select 1 from public.lessons l
+    join public.course_modules m on m.id = l.module_id
+    where l.id = p_lesson and m.course_id = p_course
+  ) then
+    return;
+  end if;
+
+  insert into public.lesson_progress as lp (user_id, lesson_id, course_id)
+  values (v_user, p_lesson, p_course)
+  on conflict (user_id, lesson_id) do update set updated_at = now();
+end;
+$$;
+
+revoke all on function public.bz_touch_lesson(uuid, uuid) from public;
+revoke all on function public.bz_touch_lesson(uuid, uuid) from anon;
+grant execute on function public.bz_touch_lesson(uuid, uuid) to authenticated;
+
+
+-- ===========================================================================
+-- D. DURCISSEMENT
+-- ===========================================================================
+
+-- Une vue PostgreSQL s'exécute avec les droits de son PROPRIÉTAIRE : elle
+-- contourne donc RLS. Les trois vues ci-dessous étaient lisibles avec la clé
+-- anon, publique par conception — n'importe quel visiteur pouvait obtenir le
+-- chiffre d'affaires jour par jour et les ventes par formation. Seul le code
+-- serveur, muni de la clé de service, les lit.
+revoke all on public.v_revenue_daily from anon;
+revoke all on public.v_revenue_daily from authenticated;
+revoke all on public.v_course_sales from anon;
+revoke all on public.v_course_sales from authenticated;
+revoke all on public.v_product_sales from anon;
+revoke all on public.v_product_sales from authenticated;
+
+-- Fonctions internes `security definer` : PostgreSQL accorde EXECUTE à tout le
+-- monde par défaut. Elles prennent un identifiant d'utilisateur en paramètre
+-- et permettaient donc d'interroger la progression de n'importe qui. Elles ne
+-- servent qu'à d'autres fonctions, qui s'exécutent avec les droits du
+-- propriétaire et ne sont pas concernées par ce retrait.
+revoke all on function public.bz_course_watch_ok(uuid, uuid) from public, anon, authenticated;
+revoke all on function public.bz_course_quizzes_ok(uuid, uuid) from public, anon, authenticated;
+revoke all on function public.bz_enrollment_certificate_ok(uuid, uuid) from public, anon, authenticated;
+revoke all on function public.bz_refresh_enrollment_certificate(uuid, uuid) from public, anon, authenticated;
+
+
+
+-- =========================================================================
+-- =========================================================================
+--
+--   SECTION 14 — Lien Google Maps, avis clients sur tous les sujets
+--
+--   Source : supabase/migrations/0014_avis_carte.sql
+--
+-- =========================================================================
+-- =========================================================================
+
+
+-- ===========================================================================
+-- BIZELAN — Lien Google Maps et avis déposés par les clients
+--
+--   A. Lien Google Maps de l'adresse (pied de page, page Contact)
+--   B. Avis : sur une formation, un produit ou le cabinet ; réponse publique
+--
+-- Idempotent : peut être rejoué sans effet de bord.
+-- ===========================================================================
+
+
+-- ===========================================================================
+-- A. LIEN GOOGLE MAPS
+-- ===========================================================================
+
+-- Lien de partage de la fiche Google Maps (« Partager » → « Copier le lien »,
+-- souvent `https://maps.app.goo.gl/…`). Distinct de `map_embed_url`, qui sert
+-- la carte intégrée de la page Contact et n'est pas fait pour être ouvert.
+-- Vide : le site construit une recherche Google Maps à partir de l'adresse.
+alter table public.site_settings
+  add column if not exists maps_url text;
+
+comment on column public.site_settings.maps_url is
+  'Lien Google Maps ouvert au clic sur l''adresse. Vide = recherche de l''adresse.';
+
+
+-- ===========================================================================
+-- B. AVIS
+-- ===========================================================================
+
+-- Un avis peut désormais porter sur un PRODUIT de la boutique. Sans formation
+-- ni produit, il porte sur le cabinet lui-même.
+alter table public.reviews
+  add column if not exists product_id uuid references public.products(id) on delete cascade;
+
+-- Réponse de l'équipe, affichée sous l'avis publié. Répondre aux avis, y
+-- compris aux plus mitigés, inspire davantage confiance que leur absence.
+alter table public.reviews
+  add column if not exists admin_reply text;
+
+alter table public.reviews
+  add column if not exists updated_at timestamptz not null default now();
+
+drop trigger if exists reviews_set_updated_at on public.reviews;
+create trigger reviews_set_updated_at
+  before update on public.reviews
+  for each row execute function public.bz_set_updated_at();
+
+create index if not exists reviews_product_status_idx on public.reviews(product_id, status);
+create index if not exists reviews_status_created_idx on public.reviews(status, created_at desc);
+
+-- Un avis par client et par sujet. Les avis saisis par l'administration
+-- (`user_id` nul) ne sont pas concernés. L'index est créé seulement s'il
+-- n'existe pas de doublon : une base où un client aurait déjà déposé deux
+-- avis ne doit pas bloquer la migration — le code applicatif empêche de toute
+-- façon d'en créer un second.
+do $$
+begin
+  if not exists (
+    select 1 from public.reviews
+     where user_id is not null and course_id is not null
+     group by user_id, course_id having count(*) > 1
+  ) then
+    create unique index if not exists reviews_one_per_course
+      on public.reviews(user_id, course_id)
+      where user_id is not null and course_id is not null;
+  end if;
+
+  if not exists (
+    select 1 from public.reviews
+     where user_id is not null and product_id is not null
+     group by user_id, product_id having count(*) > 1
+  ) then
+    create unique index if not exists reviews_one_per_product
+      on public.reviews(user_id, product_id)
+      where user_id is not null and product_id is not null;
+  end if;
+
+  if not exists (
+    select 1 from public.reviews
+     where user_id is not null and course_id is null and product_id is null
+     group by user_id having count(*) > 1
+  ) then
+    create unique index if not exists reviews_one_general
+      on public.reviews(user_id)
+      where user_id is not null and course_id is null and product_id is null;
+  end if;
+end
+$$;
+
+-- Le dépôt passe par le serveur, après vérification de l'achat : la politique
+-- d'insertion directe de 0002 ne couvrait que les formations, et laissait un
+-- inscrit choisir lui-même son statut ou se mettre « en avant ». Elle est
+-- retirée ; la lecture des siens reste ouverte (statut de l'avis en attente).
+drop policy if exists "reviews_insert_enrolled" on public.reviews;
+
+
+
+-- =========================================================================
+-- =========================================================================
+--
+--   SECTION 15 — Contenu de depart (supprimable)
 --
 --   Source : supabase/seed.sql
 --
@@ -2907,7 +3434,7 @@ on conflict (code) do nothing;
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 14 — Devenir administrateur
+--   SECTION 16 — Devenir administrateur
 --
 -- =========================================================================
 -- =========================================================================
@@ -2929,7 +3456,7 @@ declare
   touches int;
 begin
   if cible = 'remplacez-moi@exemple.com' then
-    raise notice '§14 ignoree : remplacez d abord l adresse dans le bloc.';
+    raise notice '§16 ignoree : remplacez d abord l adresse dans le bloc.';
     return;
   end if;
 
@@ -2951,7 +3478,7 @@ end $$;
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 15 — Vérification
+--   SECTION 17 — Vérification
 --
 -- =========================================================================
 -- =========================================================================
@@ -3002,6 +3529,10 @@ with controles as (
      and table_name   = 'quiz_choices'
      and column_name  = 'is_correct'
      and grantee in ('anon', 'authenticated')
+     -- La LECTURE seulement. Supabase accorde aussi INSERT, UPDATE et
+     -- REFERENCES sur toute table ; les compter faisait échouer ce contrôle
+     -- sur toute installation saine, alors que RLS bloque déjà l'écriture.
+     and privilege_type = 'SELECT'
 
   union all
   -- LA protection n°2 : le temps de visionnage ne doit pas etre auto-declare.
@@ -3066,7 +3597,7 @@ with controles as (
   union all
   select 11,
          'Administrateur designe',
-         coalesce(string_agg(email, ', '), 'AUCUN — executez la §14'),
+         coalesce(string_agg(email, ', '), 'AUCUN — executez la §16'),
          count(*) >= 1
     from public.bz_profiles
    where role = 'admin'
@@ -3092,6 +3623,35 @@ with controles as (
     from public.courses
    where status = 'published'
 
+  union all
+  -- Boutique (0013) : les quatre tables, et un espace de fichiers PRIVE — un
+  -- produit digital est du contenu payé.
+  select 14,
+         'Boutique et notes : tables et espace prive',
+         (select count(*) from information_schema.tables
+           where table_schema = 'public'
+             and table_name in ('products', 'product_files', 'product_purchases', 'lesson_notes'))::text
+           || ' / 4 tables, espace ' ||
+         coalesce((select case when public then 'PUBLIC' else 'prive' end
+                     from storage.buckets where id = 'product-files'), 'absent'),
+         (select count(*) from information_schema.tables
+           where table_schema = 'public'
+             and table_name in ('products', 'product_files', 'product_purchases', 'lesson_notes')) = 4
+           and coalesce((select not public from storage.buckets where id = 'product-files'), false)
+
+  union all
+  -- Une vue s'exécute avec les droits de son propriétaire : lisible par anon,
+  -- elle publiait le chiffre d'affaires jour par jour.
+  select 15,
+         'Chiffre d affaires non lisible par le public',
+         coalesce(string_agg(distinct grantee || ':' || table_name, ', '), 'aucun droit accorde'),
+         count(*) = 0
+    from information_schema.table_privileges
+   where table_schema = 'public'
+     and table_name in ('v_revenue_daily', 'v_course_sales', 'v_product_sales')
+     and grantee in ('anon', 'authenticated')
+     and privilege_type = 'SELECT'
+
 )
 select case when ok then 'OK' else '!!  A REGARDER' end as verdict,
        controle,
@@ -3103,10 +3663,10 @@ select case when ok then 'OK' else '!!  A REGARDER' end as verdict,
 -- ###########################################################################
 --
 --   Toutes les lignes doivent porter « OK », sauf la 11 si vous n'avez pas
---   encore exécuté la §14 — ce qui est normal à ce stade, puisque votre compte
+--   encore exécuté la §16 — ce qui est normal à ce stade, puisque votre compte
 --   n'existe pas avant votre première inscription sur le site.
 --
---   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §12 a
+--   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §15 a
 --   déposé, pour que vous sachiez si le site démarre avec du contenu ou vide.
 --
 -- ###########################################################################

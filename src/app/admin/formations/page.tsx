@@ -82,10 +82,10 @@ export default async function AdminCoursesPage() {
                       <img
                         src={course.cover_url}
                         alt=""
-                        className="h-11 w-16 shrink-0 rounded object-cover"
+                        className="h-11 w-16 shrink-0 rounded-sm object-cover"
                       />
                     ) : (
-                      <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded bg-surface">
+                      <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded-sm bg-canvas-subtle">
                         <GraduationCap className="h-4 w-4 text-fg-subtle" aria-hidden />
                       </span>
                     )}
@@ -113,6 +113,7 @@ export default async function AdminCoursesPage() {
                       href={`/admin/formations/${course.id}/programme`}
                       className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                       title="Gérer le programme"
+                      aria-label="Gérer le programme"
                     >
                       <Settings2 className="h-4 w-4" aria-hidden />
                     </Link>
@@ -122,11 +123,16 @@ export default async function AdminCoursesPage() {
                         target="_blank"
                         className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                         title="Voir sur le site"
+                        aria-label="Voir sur le site"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />
                       </Link>
                     )}
-                    <ActionButton action={duplicateCourse.bind(null, course.id)} variant="ghost">
+                    <ActionButton
+                      action={duplicateCourse.bind(null, course.id)}
+                      variant="ghost"
+                      label="Dupliquer la formation"
+                    >
                       <Copy className="h-4 w-4" aria-hidden />
                     </ActionButton>
                     <DeleteButton

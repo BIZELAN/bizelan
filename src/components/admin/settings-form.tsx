@@ -140,9 +140,23 @@ export function SettingsForm({
         </Field>
 
         <Field
-          label="Carte Google Maps"
+          label="Lien Google Maps de l’adresse"
+          htmlFor="maps_url"
+          help="Ouvert au clic sur l’adresse, dans le pied de page et sur la page Contact. Sur Google Maps : « Partager » puis « Copier le lien » (https://maps.app.goo.gl/…). Laissé vide, le site recherche simplement l’adresse sur Google Maps."
+        >
+          <Input
+            id="maps_url"
+            name="maps_url"
+            type="url"
+            defaultValue={settings.maps_url ?? ''}
+            placeholder="https://maps.app.goo.gl/…"
+          />
+        </Field>
+
+        <Field
+          label="Carte Google Maps intégrée"
           htmlFor="map_embed_url"
-          help="Sur Google Maps : « Partager » puis l’onglet « Intégrer une carte ». Collez ici ce qui est proposé — le code &lt;iframe&gt; entier convient, l’URL seule aussi."
+          help="Carte affichée sur la page Contact. Sur Google Maps : « Partager » puis l’onglet « Intégrer une carte ». Collez ici ce qui est proposé — le code <iframe> entier convient, l’URL seule aussi."
         >
           <Input id="map_embed_url" name="map_embed_url" defaultValue={settings.map_embed_url ?? ''} />
         </Field>
@@ -199,7 +213,7 @@ export function SettingsForm({
         <Checkbox
           name="payments_online_enabled"
           defaultChecked={settings.payments_online_enabled}
-          label="Proposer le paiement Mobile Money (KkiaPay)"
+          label="Proposer le paiement Mobile Money (SasPay : MTN, Moov, Celtiis)"
         />
         <Checkbox
           name="payments_transfer_enabled"
@@ -221,9 +235,9 @@ export function SettingsForm({
         </Field>
 
         <Alert tone="info">
-          Les clés KkiaPay se configurent dans les variables d’environnement du projet
-          (CHARIOW_API_KEY, CHARIOW_PULSE_SECRET), pas ici — elles ne
-          doivent jamais être stockées en base.
+          Les clés SasPay se configurent dans les variables d’environnement de l’hébergement
+          (SASPAY_API_KEY et SASPAY_WEBHOOK_SECRET), jamais ici : elles donnent accès à vos
+          encaissements et ne doivent pas être stockées dans la base.
         </Alert>
       </FormSection>
 

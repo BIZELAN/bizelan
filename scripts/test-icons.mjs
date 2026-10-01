@@ -84,7 +84,12 @@ check('une recherche absurde rend rien', searchIcons('zzzzqqq').length === 0)
 
 /* --- Icônes de types de blocs ------------------------------------------- */
 console.log('\n  TYPES DE BLOCS')
-check('22 types couverts', Object.keys(BLOCK_TYPE_ICONS).length === 22, `${Object.keys(BLOCK_TYPE_ICONS).length}`)
+// Chaque type de bloc déclaré doit avoir son icône. Le compte figé à 22
+// cassait à chaque nouveau bloc sans rien dire de ce qui manquait : on
+// vérifie désormais la correspondance réelle avec `BLOCK_DEFS`.
+const { BLOCK_DEFS } = await import('../src/lib/blocks.ts')
+const missing = BLOCK_DEFS.filter((def) => !BLOCK_TYPE_ICONS[def.icon]).map((def) => def.type)
+check('chaque type de bloc a son icône', missing.length === 0, missing.join(', ') || `${BLOCK_DEFS.length} types`)
 check('un type inconnu a un repli', blockTypeIcon('nimporte') !== null && blockTypeIcon(undefined) !== null)
 
 console.log(fails ? `\n${fails} CAS EN ECHEC` : '\nTous les cas passent.')

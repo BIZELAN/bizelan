@@ -360,7 +360,7 @@ function LessonForm({
           <FileUploader
             target="video"
             label="Fichier vidéo"
-            help="MP4, WebM ou MOV. Le fichier part directement vers l’espace privé, sans transiter par le site : la taille n’est donc plus limitée par l’hébergement."
+            help="MP4 ou WebM de préférence (jusqu’à 2 Go). La vidéo reste privée : seuls les inscrits peuvent la lire."
             onUploaded={(file) => setVideoPath(file.path)}
           />
 

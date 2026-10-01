@@ -20,14 +20,22 @@ import { ButtonLink } from '@/components/ui/button'
 import { RichContentView } from '@/components/ui/rich-content'
 import { parseRichContent } from '@/lib/rich-content'
 import { SectionHeading, Stars } from '@/components/ui/misc'
-import { getApprovedReviews, getCourseStats, getCourseWithCurriculum } from '@/lib/queries'
+import { getApprovedReviews, getCourseStats, getCourseWithCurriculum, getSiteSettings } from '@/lib/queries'
 import { getCurrentUser, hasCourseAccess } from '@/lib/auth'
-import { LessonRow } from '@/components/public/lesson-row'
+import { CurriculumAccordion } from '@/components/public/curriculum-accordion'
 import { VideoSurface } from '@/components/ui/video-player'
 import { env } from '@/lib/env'
 import { resolveVideoRef, resolveVideoUrl } from '@/lib/video'
 import { signVideoTarget } from '@/lib/video-sign'
-import { asArray, discountPercent, formatDuration, formatPrice, truncate } from '@/lib/utils'
+import {
+  asArray,
+  discountPercent,
+  formatDuration,
+  formatPrice,
+  isFreeOffer,
+  payablePrice,
+  truncate,
+} from '@/lib/utils'
 import type { FaqItem } from '@/lib/types'
 
 export const revalidate = 60
@@ -59,13 +67,15 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
   if (!course || course.status !== 'published') notFound()
 
-  const [stats, reviews] = await Promise.all([
+  const [stats, reviews, settings] = await Promise.all([
     getCourseStats(course.id),
     getApprovedReviews(course.id, 3),
+    getSiteSettings(),
   ])
 
   const enrolled = user ? await hasCourseAccess(user.id, course.id) : false
-  const discount = discountPercent(course.price_cents, course.compare_at_price_cents)
+  const isFree = isFreeOffer(course)
+  const discount = isFree ? null : discountPercent(course.price_cents, course.compare_at_price_cents)
   const faq = asArray<FaqItem>(course.faq)
   const whatYouGet = asArray<string>(course.what_you_get)
   const outcomes = asArray<string>(course.outcomes)
@@ -155,7 +165,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           </div>
 
           {/* Encart d'achat */}
-          <aside className="overflow-hidden rounded-2xl bg-surface text-fg shadow-xl lg:sticky lg:top-24">
+          <aside className="overflow-hidden rounded-lg bg-surface text-fg shadow-e3 ring-1 ring-line lg:sticky lg:top-24">
             {/* La vidéo passe DEVANT l'image : quand les deux existent,
                 l'image sert d'affiche au lecteur, et rien n'est téléchargé
                 avant que le visiteur ne clique. */}
@@ -173,15 +183,16 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
             )}
             <div className="p-6">
               {discount && (
-                <span className="mb-3 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-fg">
+                <span className="mb-3 inline-block rounded-pill bg-secondary px-3 py-1 text-xs font-bold text-secondary-fg">
                   -{discount} % pendant le lancement
                 </span>
               )}
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-primary-text">
-                  {formatPrice(course.price_cents, course.currency)}
+                  {formatPrice(payablePrice(course), course.currency)}
                 </span>
-                {course.compare_at_price_cents &&
+                {!isFree &&
+                  course.compare_at_price_cents &&
                   course.compare_at_price_cents > course.price_cents && (
                     <span className="text-lg text-fg-subtle line-through">
                       {formatPrice(course.compare_at_price_cents, course.currency)}
@@ -194,22 +205,26 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
               <div className="mt-6">
                 {enrolled ? (
-                  <ButtonLink href={`/compte/${course.slug}`} size="lg" fullWidth>
+                  <ButtonLink href={`/compte/formations/${course.slug}`} size="lg" fullWidth>
                     Continuer la formation
                     <ArrowRight className="h-5 w-5" aria-hidden />
                   </ButtonLink>
                 ) : (
                   <ButtonLink href={`/commande/${course.slug}`} size="lg" variant="accent" fullWidth>
-                    Rejoindre la formation
+                    {isFree ? 'Accéder gratuitement' : 'Rejoindre la formation'}
                     <ArrowRight className="h-5 w-5" aria-hidden />
                   </ButtonLink>
                 )}
               </div>
 
-              <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-fg-subtle">
-                <ShieldCheck className="h-4 w-4 text-primary-text" aria-hidden />
-                Paiement sécurisé Mobile Money (MTN, Moov, Celtiis)
-              </p>
+              {!enrolled && !isFree && (
+                <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-fg-subtle">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-primary-text" aria-hidden />
+                  {settings.payments_online_enabled
+                    ? 'Paiement sécurisé Mobile Money (MTN, Moov, Celtiis)'
+                    : 'Paiement par dépôt ou virement, accès ouvert après vérification'}
+                </p>
+              )}
 
               {whatYouGet.length > 0 && (
                 <ul className="mt-6 space-y-2.5 border-t border-line pt-5">
@@ -255,41 +270,24 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           {/* Programme */}
           <section>
             <h2 className="mb-5 text-2xl">Le programme</h2>
-            <div className="space-y-4">
-              {course.modules.map((courseModule, mi) => (
-                <div key={courseModule.id} className="overflow-hidden rounded-lg border border-line">
-                  <div className="border-b border-line bg-canvas-subtle px-5 py-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary-text">
-                      Module {mi + 1}
-                    </p>
-                    <h3 className="mt-1 text-lg font-semibold text-fg">{courseModule.title}</h3>
-                    {courseModule.description && (
-                      <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">
-                        {courseModule.description}
-                      </p>
-                    )}
-                  </div>
-                  <ul className="divide-y divide-line">
-                    {courseModule.lessons.map((lesson) => (
-                      <LessonRow
-                        key={lesson.id}
-                        title={lesson.title}
-                        durationSeconds={lesson.duration_seconds}
-                        isPreview={lesson.is_preview}
-                        enrolled={enrolled}
-                        href={`/compte/formations/${course.slug}/${lesson.id}`}
-                        playable={previews.get(lesson.id) ?? null}
-                      />
-                    ))}
-                    {courseModule.lessons.length === 0 && (
-                      <li className="px-5 py-4 text-sm text-fg-subtle">
-                        Contenu de ce module en préparation.
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            <CurriculumAccordion
+              modules={course.modules.map((m) => ({
+                id: m.id,
+                title: m.title,
+                subtitle: m.subtitle,
+                description: m.description,
+                lessons: m.lessons.map((l) => ({
+                  id: l.id,
+                  title: l.title,
+                  description: l.description,
+                  duration_seconds: l.duration_seconds,
+                  is_preview: l.is_preview,
+                })),
+              }))}
+              enrolled={enrolled}
+              courseSlug={course.slug}
+              previews={Object.fromEntries(previews)}
+            />
           </section>
 
           {reviews.length > 0 && (
@@ -386,7 +384,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
               className="[&_h2]:text-primary-fg [&_p]:text-primary-fg/80"
             />
             <ButtonLink href={`/commande/${course.slug}`} size="lg" variant="accent">
-              Rejoindre pour {formatPrice(course.price_cents, course.currency)}
+              {isFree ? 'Accéder gratuitement' : `Rejoindre pour ${formatPrice(course.price_cents, course.currency)}`}
               <ArrowRight className="h-5 w-5" aria-hidden />
             </ButtonLink>
             <p className="mt-6 text-sm text-primary-fg/80">

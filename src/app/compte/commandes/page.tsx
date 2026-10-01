@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/components/ui/misc'
 import { ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS, StatusBadge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
-import { formatDateTime, formatPrice } from '@/lib/utils'
+import { formatDateTime, formatPrice, orderLinePrice } from '@/lib/utils'
 import type { OrderWithItems } from '@/lib/types'
 
 export const metadata: Metadata = { title: 'Mes commandes' }
@@ -61,10 +61,21 @@ export default async function OrdersPage() {
                   <li key={item.id} className="flex justify-between gap-3 text-sm text-fg-muted">
                     <span>{item.title_snapshot}</span>
                     <span className="shrink-0 tabular-nums">
-                      {formatPrice(item.unit_price_cents, order.currency)}
+                      {formatPrice(
+                        orderLinePrice(item.unit_price_cents, order.items.length, order.discount_cents),
+                        order.currency,
+                      )}
                     </span>
                   </li>
                 ))}
+                {order.discount_cents > 0 && (
+                  <li className="flex justify-between gap-3 text-sm text-success">
+                    <span>Remise{order.coupon_code ? ` (${order.coupon_code})` : ''}</span>
+                    <span className="shrink-0 tabular-nums">
+                      −{formatPrice(order.discount_cents, order.currency)}
+                    </span>
+                  </li>
+                )}
               </ul>
 
               {order.status === 'awaiting_payment' && (
@@ -72,6 +83,21 @@ export default async function OrdersPage() {
                   Nous attendons la confirmation de votre paiement. Votre accès s’ouvre dès
                   validation — généralement sous quelques heures ouvrées.
                 </p>
+              )}
+
+              {order.status === 'paid' && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {order.items?.some((i) => i.item_type === 'product') && (
+                    <ButtonLink href="/compte/produits" variant="outline" size="sm">
+                      Mes produits
+                    </ButtonLink>
+                  )}
+                  {order.items?.some((i) => i.item_type === 'course') && (
+                    <ButtonLink href="/compte" variant="outline" size="sm">
+                      Mes formations
+                    </ButtonLink>
+                  )}
+                </div>
               )}
             </div>
           ))}

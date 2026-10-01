@@ -279,7 +279,7 @@ export function CourseForm({
 
       <FormSection
         title="Certificat"
-        description="Jusqu’ici le certificat était délivré dès que toutes les leçons étaient cochées — or c’est l’apprenant qui les coche. Ces règles ajoutent une condition mesurée."
+        description="Le certificat est délivré quand toutes les leçons sont terminées. Vous pouvez exiger en plus un temps de visionnage réel et la réussite des questionnaires."
       >
         {/* Le réglage ne s'applique qu'aux leçons dont la lecture est
             observable. Une vidéo YouTube, Vimeo ou Bunny vit dans une iframe
@@ -288,11 +288,10 @@ export function CourseForm({
             ici évite d'avoir à le découvrir sur une réclamation. */}
         {coverage && coverage.lessons_total > 0 && coverage.lessons_measurable === 0 && (
           <Alert tone="warning">
-            Aucune leçon de cette formation n’est mesurable : les vidéos sont
-            hébergées chez YouTube, Vimeo ou Bunny, et leur lecture se déroule dans
-            un cadre dont rien ne remonte. Une exigence de visionnage n’aurait donc
-            aucun effet. Pour l’activer, servez les vidéos en fichier direct
-            (MP4&nbsp;: « Hébergeur vidéo » → « Lien direct »).
+            Aucune leçon de cette formation n’est mesurable : les vidéos YouTube, Vimeo
+            ou Bunny ne transmettent pas le temps réellement regardé. Une exigence de
+            visionnage n’aurait donc aucun effet. Pour l’activer, téléversez les vidéos
+            (« Hébergeur vidéo » → « Téléverser la vidéo ») ou utilisez un lien MP4 direct.
           </Alert>
         )}
 
@@ -304,8 +303,8 @@ export function CourseForm({
               {coverage.lessons_measurable > 1 ? 's' : ''} sur {coverage.lessons_total} peu
               {coverage.lessons_measurable > 1 ? 'vent' : 't'} être mesurée
               {coverage.lessons_measurable > 1 ? 's' : ''}. L’exigence ne portera que sur
-              celles-là — les vidéos lues dans un cadre externe en sont exclues plutôt
-              que comptées comme non visionnées.
+              celles-là : les vidéos YouTube, Vimeo ou Bunny sont exclues du calcul
+              plutôt que comptées comme non visionnées.
             </Alert>
           )}
 
@@ -321,7 +320,7 @@ export function CourseForm({
         <Field
           label="Visionnage minimum par leçon"
           htmlFor="min_watch_ratio"
-          help="Part de chaque vidéo à avoir réellement visionnée. « Aucune exigence » reproduit le comportement actuel. Les leçons sans durée renseignée ne sont pas concernées."
+          help="Part de chaque vidéo à avoir réellement regardée. Ne s’applique qu’aux vidéos téléversées ou en lien direct, dont la durée est renseignée."
         >
           <Select
             id="min_watch_ratio"

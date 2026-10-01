@@ -52,9 +52,9 @@
   --primary-hover: 154 230 38;
   --primary-fg: 13 20 17;
   --primary-subtle: 238 248 217;
-  /* GreenYellow a une luminance de 0,806 : en TEXTE sur fond clair il tombe a
-     1,15 de contraste. Ce jeton porte donc le role texte/lien/icone, assombri
-     en theme clair et identique au primaire en sombre. */
+  /* GreenYellow a une luminance de 0,806 : en TEXTE sur fond clair il tombe à
+     1,15 de contraste. Ce jeton porte donc le rôle texte/lien/icône, assombri
+     en thème clair et identique au primaire en sombre. */
   --primary-text: 81 120 0;
   --ring: 81 120 0;
 
@@ -99,10 +99,10 @@
   --sidebar-w: 16rem;
 
   /* --- Rayons ------------------------------------------------------------
-     Pilotes par variables, et non figes dans la config Tailwind : la console
-     d'administration les redefinit pour sa propre portee (voir plus bas).
+     Pilotés par variables, et non figés dans la config Tailwind : la console
+     d'administration les redéfinit pour sa propre portée (voir plus bas).
      `rounded-lg` vaut donc 14 px sur le site public et 24 px dans la console,
-     sans qu'aucun composant n'ait a le savoir. */
+     sans qu'aucun composant n'ait à le savoir. */
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-lg: 0.875rem;

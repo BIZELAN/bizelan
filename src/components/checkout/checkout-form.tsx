@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Banknote, Loader2, Smartphone, Tag } from 'lucide-react'
+import { Banknote, Gift, Loader2, Smartphone, Tag } from 'lucide-react'
 
 import { checkCoupon, confirmSaspayPayment, createOrder } from '@/app/actions/checkout'
 import { Button } from '@/components/ui/button'
@@ -16,9 +16,11 @@ import { cn, formatPrice } from '@/lib/utils'
 type Method = 'saspay' | 'bank_transfer'
 
 export interface CheckoutProps {
-  courseSlug: string
-  courseTitle: string
-  courseId: string
+  /** Formation ou produit de la boutique. */
+  itemType: 'course' | 'product'
+  slug: string
+  title: string
+  /** Montant dû avant remise ; 0 pour une offre gratuite. */
   priceCents: number
   currency: string
   customerName: string
@@ -66,6 +68,8 @@ export function CheckoutForm(props: CheckoutProps) {
 
   const discount = couponState?.valid ? couponState.discountCents : 0
   const total = Math.max(0, props.priceCents - discount)
+  const isFree = total === 0
+  const noMethod = !isFree && !props.onlineEnabled && !props.transferEnabled
 
   /**
    * Relit l'état du paiement auprès du serveur.
@@ -130,8 +134,8 @@ export function CheckoutForm(props: CheckoutProps) {
   function applyCoupon() {
     const formData = new FormData()
     formData.set('code', coupon)
-    formData.set('courseId', props.courseId)
-    formData.set('subtotal', String(props.priceCents))
+    formData.set('itemType', props.itemType)
+    formData.set('slug', props.slug)
 
     startCouponCheck(async () => {
       const result = await checkCoupon(null, formData)
@@ -145,7 +149,8 @@ export function CheckoutForm(props: CheckoutProps) {
     setSubmitting(true)
 
     const formData = new FormData()
-    formData.set('courseSlug', props.courseSlug)
+    formData.set('itemType', props.itemType)
+    formData.set('slug', props.slug)
     formData.set('method', method)
     formData.set('name', name)
     formData.set('phone', phone)
@@ -155,7 +160,8 @@ export function CheckoutForm(props: CheckoutProps) {
     const result = await createOrder(null, formData)
     setSubmitting(false)
 
-    // Le dépôt manuel redirige côté serveur : on n'arrive ici que pour SasPay.
+    // Le dépôt manuel et le gratuit redirigent côté serveur : on n'arrive ici
+    // que pour SasPay, ou sur une erreur.
     if (!result.ok || !result.order) {
       setError(result.message ?? 'La commande n’a pas pu être créée.')
       return
@@ -219,8 +225,12 @@ export function CheckoutForm(props: CheckoutProps) {
             <Field
               label="Téléphone"
               htmlFor="co-phone"
-              required
-              help="Nécessaire au paiement en ligne. Format local, ex. 01 97 00 00 00."
+              required={!isFree && method === 'saspay'}
+              help={
+                isFree
+                  ? 'Facultatif. Utile pour vous joindre en cas de besoin.'
+                  : 'Numéro Mobile Money à 10 chiffres, ex. 01 97 00 00 00.'
+              }
             >
               <Input
                 id="co-phone"
@@ -237,7 +247,15 @@ export function CheckoutForm(props: CheckoutProps) {
           </p>
         </div>
 
-        {/* Moyen de paiement */}
+        {noMethod && (
+          <Alert tone="warning" title="Paiement momentanément indisponible">
+            Aucun moyen de paiement n’est ouvert pour le moment. Contactez-nous pour finaliser
+            votre commande.
+          </Alert>
+        )}
+
+        {/* Moyen de paiement — sans objet pour une offre gratuite */}
+        {!isFree && !noMethod && (
         <div className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-5 text-lg font-semibold">Moyen de paiement</h2>
           <div className="space-y-3">
@@ -292,13 +310,15 @@ export function CheckoutForm(props: CheckoutProps) {
           )}
 
           {method === 'bank_transfer' && props.transferInstructions && (
-            <div className="mt-5 rounded-md bg-primary-subtle px-4 py-3.5 text-sm leading-relaxed text-primary-text">
+            <div className="mt-5 whitespace-pre-line rounded-md bg-primary-subtle px-4 py-3.5 text-sm leading-relaxed text-primary-text">
               {props.transferInstructions}
             </div>
           )}
         </div>
+        )}
 
-        {/* Code promo */}
+        {/* Code promo — inutile quand l'offre est gratuite d'emblée */}
+        {props.priceCents > 0 && (
         <div className="rounded-lg border border-line bg-surface p-6">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
             <Tag className="h-5 w-5 text-primary-text" aria-hidden />
@@ -331,13 +351,14 @@ export function CheckoutForm(props: CheckoutProps) {
             </p>
           )}
         </div>
+        )}
 
         {/* Récapitulatif */}
         <div className="rounded-lg border-2 border-primary-text/40 bg-primary-subtle p-6">
           <h2 className="mb-4 text-lg font-semibold text-primary-text">Récapitulatif</h2>
           <dl className="space-y-2.5 text-[0.9375rem]">
             <div className="flex justify-between gap-4">
-              <dt className="text-fg-muted">{props.courseTitle}</dt>
+              <dt className="text-fg-muted">{props.title}</dt>
               <dd className="shrink-0 tabular-nums text-fg">
                 {formatPrice(props.priceCents, props.currency)}
               </dd>
@@ -359,19 +380,36 @@ export function CheckoutForm(props: CheckoutProps) {
           </dl>
 
           <div className="mt-6">
-            <Button type="submit" size="lg" variant="accent" fullWidth disabled={submitting}>
-              {submitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+            <Button
+              type="submit"
+              size="lg"
+              variant="accent"
+              fullWidth
+              disabled={submitting || Boolean(pushed) || noMethod}
+            >
+              {submitting ? (
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              ) : (
+                isFree && <Gift className="h-5 w-5" aria-hidden />
+              )}
               {submitting
                 ? 'Traitement…'
-                : method === 'saspay'
-                  ? `Payer ${formatPrice(total, props.currency)}`
-                  : 'Enregistrer ma commande'}
+                : isFree
+                  ? props.itemType === 'product'
+                    ? 'Obtenir gratuitement'
+                    : 'Accéder gratuitement'
+                  : method === 'saspay'
+                    ? `Payer ${formatPrice(total, props.currency)}`
+                    : 'Enregistrer ma commande'}
             </Button>
           </div>
 
           <p className="mt-4 text-center text-xs leading-relaxed text-primary-text">
-            En validant, vous acceptez nos conditions générales de vente. Vérifiez toujours le
-            montant avant de confirmer sur votre téléphone.
+            En validant, vous acceptez nos{' '}
+            <a href="/conditions" target="_blank" className="underline underline-offset-2">
+              conditions générales de vente
+            </a>
+            .{!isFree && method === 'saspay' && ' Vérifiez toujours le montant avant de confirmer sur votre téléphone.'}
           </p>
         </div>
       </form>

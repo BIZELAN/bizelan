@@ -2,8 +2,17 @@ import Link from 'next/link'
 import { ArrowRight, Clock, PlayCircle } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
-import type { Course, Post, Service } from '@/lib/types'
-import { cn, discountPercent, formatDate, formatPrice, truncate } from '@/lib/utils'
+import { PRODUCT_KINDS } from '@/lib/products'
+import type { Course, Post, Product, Service } from '@/lib/types'
+import {
+  cn,
+  discountPercent,
+  formatDate,
+  formatPrice,
+  isFreeOffer,
+  payablePrice,
+  truncate,
+} from '@/lib/utils'
 
 /**
  * Cartes du catalogue.
@@ -121,14 +130,14 @@ function CompareAt({ course, className }: { course: Course; className?: string }
   )
 }
 
-function priceLabel(course: Course) {
-  return course.pricing === 'free'
-    ? 'Gratuit'
-    : formatPrice(course.price_cents, course.currency)
+function priceLabel(item: Pick<Course, 'pricing' | 'price_cents' | 'currency'>) {
+  return formatPrice(payablePrice(item), item.currency)
 }
 
 export function CourseCard({ course }: { course: Course }) {
-  const discount = discountPercent(course.price_cents, course.compare_at_price_cents)
+  const discount = isFreeOffer(course)
+    ? null
+    : discountPercent(course.price_cents, course.compare_at_price_cents)
   const hasOverlay = Boolean(discount || course.level)
 
   return (
@@ -285,5 +294,74 @@ export function FeaturedCourseCard({
         </div>
       </Link>
     </div>
+  )
+}
+
+/**
+ * Carte d'un produit de la boutique.
+ *
+ * Même grammaire que la carte de formation — couverture, corps, pied aligné —
+ * pour que formations et produits puissent se côtoyer dans une même grille.
+ * Sans couverture, l'icône du type de produit occupe la place.
+ */
+export function ProductCard({ product }: { product: Product }) {
+  const kind = PRODUCT_KINDS[product.kind] ?? PRODUCT_KINDS.other
+  const free = isFreeOffer(product)
+  const discount = free ? null : discountPercent(product.price_cents, product.compare_at_price_cents)
+
+  return (
+    <Link href={`/boutique/${product.slug}`} className={SHELL}>
+      <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-canvas-subtle">
+        {product.cover_url ? (
+          <img
+            src={product.cover_url}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/30 to-canvas">
+            <kind.icon className="h-10 w-10 text-primary-text/70" aria-hidden />
+          </div>
+        )}
+        <OverlayBadge className="bottom-4 left-4">{kind.label}</OverlayBadge>
+        {discount && (
+          <Badge tone="accent" size="sm" className="absolute left-4 top-4 font-bold">
+            −{discount} %
+          </Badge>
+        )}
+        {free && (
+          <Badge tone="success" size="sm" className="absolute left-4 top-4 font-bold">
+            Gratuit
+          </Badge>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="text-lg leading-snug text-fg transition-colors group-hover:text-primary-text">
+          {product.title}
+        </h3>
+        {product.summary && (
+          <p className="mt-2.5 text-base leading-relaxed text-fg-muted">
+            {truncate(product.summary, 130)}
+          </p>
+        )}
+        {product.format_label && (
+          <p className="mt-4 text-xs text-fg-subtle">{product.format_label}</p>
+        )}
+
+        <div className={cn(FOOT, 'mt-5')}>
+          <div className="min-w-0">
+            {!free && product.compare_at_price_cents && product.compare_at_price_cents > product.price_cents && (
+              <span className="block text-xs text-fg-subtle line-through">
+                {formatPrice(product.compare_at_price_cents, product.currency)}
+              </span>
+            )}
+            <p className="text-xl font-bold text-secondary-text">{priceLabel(product)}</p>
+          </div>
+          <Arrow label={free ? 'Obtenir' : 'Découvrir'} />
+        </div>
+      </div>
+    </Link>
   )
 }

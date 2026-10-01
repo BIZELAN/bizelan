@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyWebhookSignature } from '@/lib/saspay'
-import { fulfillOrder } from '@/lib/orders'
+import { amountCovers, fulfillOrder } from '@/lib/orders'
 import type { Order } from '@/lib/types'
 
 /**
@@ -118,15 +118,33 @@ export async function POST(request: Request) {
   /* ---------- Traitement ------------------------------------------------- */
 
   if (event === 'transaction.failed' || event === 'transaction.cancelled') {
-    if (order.status !== 'paid') {
-      await supabase.from('orders').update({ status: 'failed' }).eq('id', order.id)
-    }
+    // Filtre en base et non en mémoire : un succès traité entre-temps par la
+    // vérification du tunnel ne doit pas être écrasé par un échec tardif.
+    await supabase.from('orders').update({ status: 'failed' }).eq('id', order.id).neq('status', 'paid')
     return NextResponse.json({ received: true }, { status: 200 })
   }
 
   if (event !== 'transaction.success') {
     // `transaction.created` et le reste : la commande reste en attente.
     return NextResponse.json({ received: true, ignored: event }, { status: 200 })
+  }
+
+  // Le montant encaissé doit couvrir le montant dû. Un écart ne se rejoue
+  // pas en 503 : il ne se résoudrait pas tout seul. L'accès reste fermé, la
+  // commande est annotée et l'administration tranche.
+  if (!amountCovers(payload.data?.amount, order.total_cents)) {
+    const note =
+      `Montant reçu (${payload.data?.amount ?? '?'}) inférieur au montant dû ` +
+      `(${order.total_cents}). Accès non ouvert : à vérifier.`
+    console.error('[saspay] écart de montant :', order.reference, note)
+    await supabase.from('orders').update({ admin_note: note }).eq('id', order.id)
+    await supabase.from('activity_log').insert({
+      action: 'order.amount_mismatch',
+      entity: 'order',
+      entity_id: order.id,
+      metadata: { received: payload.data?.amount ?? null, due: order.total_cents },
+    })
+    return NextResponse.json({ received: true, flagged: true }, { status: 200 })
   }
 
   const result = await fulfillOrder(order.id, { transactionId: paymentId, method: 'saspay' })

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {
   ArrowRight,
   Check,
+  ChevronDown,
   CheckCircle2,
   CircleAlert,
   Quote as QuoteIcon,
@@ -13,7 +14,7 @@ import {
 
 import { resolveIcon } from '@/lib/icons'
 import type { Block } from '@/lib/blocks'
-import type { Course, FaqItem, Post, Review, Service } from '@/lib/types'
+import type { Course, FaqItem, Post, Product, Review, Service } from '@/lib/types'
 import { Accordion } from '@/components/ui/accordion'
 import { ButtonLink } from '@/components/ui/button'
 import { Markdown } from '@/components/ui/markdown'
@@ -25,7 +26,13 @@ import { Badge } from '@/components/ui/badge'
 import { Scroller } from '@/components/ui/scroller'
 import { VideoPlayer } from '@/components/ui/video-player'
 import { resolveVideoUrl, VIDEO_IFRAME_ALLOW } from '@/lib/video'
-import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
+import {
+  CourseCard,
+  FeaturedCourseCard,
+  PostCard,
+  ProductCard,
+  ServiceCard,
+} from '@/components/public/cards'
 import { ContactForm } from '@/components/public/contact-form'
 import { QuoteForm } from '@/components/public/quote-form'
 import { asArray, cn, discountPercent, formatPrice } from '@/lib/utils'
@@ -105,6 +112,8 @@ export interface BlockData {
   services: Service[]
   posts: Post[]
   reviews: Review[]
+  /** Facultatif : les aperçus construits avant la boutique ne le portent pas. */
+  products?: Product[]
 }
 
 const EMPTY_DATA: BlockData = { courses: [], services: [], posts: [], reviews: [] }
@@ -170,6 +179,8 @@ function BlockSwitch({ block, context }: { block: Block; context?: BlockContext 
       return <ImageBlock data={data} />
     case 'courseGrid':
       return <CourseGridBlock data={data} pool={context?.data ?? EMPTY_DATA} />
+    case 'productGrid':
+      return <ProductGridBlock data={data} pool={context?.data ?? EMPTY_DATA} />
     case 'serviceGrid':
       return <ServiceGridBlock data={data} pool={context?.data ?? EMPTY_DATA} />
     case 'postGrid':
@@ -382,7 +393,7 @@ function PainPointsBlock({ data }: { data: Record<string, unknown> }) {
             ))}
           </ul>
           {imageUrl && (
-            <img src={imageUrl} alt="" className="w-full rounded-2xl object-cover shadow-e1" />
+            <img src={imageUrl} alt="" className="w-full rounded-lg object-cover shadow-e1" />
           )}
         </div>
       </div>
@@ -400,7 +411,7 @@ function BeforeAfterBlock({ data }: { data: Record<string, unknown> }) {
       <div className="container-page">
         <SectionHeading title={f.str('title')} />
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-line bg-surface p-7">
+          <div className="rounded-lg border border-line bg-surface p-7">
             <h3 className="mb-5 text-lg font-semibold text-fg-subtle">
               {f.str('beforeTitle', 'Avant')}
             </h3>
@@ -413,7 +424,7 @@ function BeforeAfterBlock({ data }: { data: Record<string, unknown> }) {
               ))}
             </ul>
           </div>
-          <div className="rounded-2xl border-2 border-primary-text/40 bg-primary-subtle p-7">
+          <div className="rounded-lg border-2 border-primary-text/40 bg-primary-subtle p-7">
             <h3 className="mb-5 text-lg font-semibold text-primary-text">
               {f.str('afterTitle', 'Après')}
             </h3>
@@ -455,7 +466,7 @@ function ChecklistBlock({ data }: { data: Record<string, unknown> }) {
             </ul>
           </div>
           {imageUrl && (
-            <img src={imageUrl} alt="" className="w-full rounded-2xl object-cover shadow-e1" />
+            <img src={imageUrl} alt="" className="w-full rounded-lg object-cover shadow-e1" />
           )}
         </div>
       </div>
@@ -468,6 +479,9 @@ function PhasesBlock({ data }: { data: Record<string, unknown> }) {
   const items = f.list<{ label?: string; title?: string; description?: string; bullets?: string[] }>(
     'items',
   )
+  // Dépliable par défaut : chaque phase montre son titre, et son détail à la
+  // demande. « Tout afficher » garde l'ancienne présentation, entièrement ouverte.
+  const collapsible = f.str('display', 'accordion') !== 'open'
 
   return (
     <section className="section bg-canvas text-fg">
@@ -475,37 +489,87 @@ function PhasesBlock({ data }: { data: Record<string, unknown> }) {
         {f.str('title') && (
           <h2 className="mb-12 text-center text-3xl text-fg sm:text-4xl">{f.str('title')}</h2>
         )}
-        <div className="space-y-6">
-          {items.map((phase, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-line bg-canvas-subtle/60 p-7 sm:p-9"
-            >
-              <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-                <div className="lg:w-1/3">
-                  {phase.label && (
-                    <span className="mb-3 inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-fg">
-                      {phase.label}
-                    </span>
-                  )}
-                  <h3 className="text-2xl font-semibold text-fg">{phase.title}</h3>
-                </div>
-                <div className="lg:w-2/3">
-                  {phase.description && (
-                    <p className="mb-5 leading-relaxed text-fg-subtle">{phase.description}</p>
-                  )}
+        <div className={cn(collapsible ? 'mx-auto max-w-4xl space-y-3' : 'space-y-6')}>
+          {items.map((phase, i) => {
+            const bullets = asArray<string>(phase.bullets)
+            const details = (
+              <>
+                {phase.description && (
+                  <p className="mb-5 leading-relaxed text-fg-subtle">{phase.description}</p>
+                )}
+                {bullets.length > 0 && (
                   <ul className="space-y-3">
-                    {asArray<string>(phase.bullets).map((b, j) => (
+                    {bullets.map((b, j) => (
                       <li key={j} className="flex gap-3 text-fg-subtle">
                         <Check className="mt-1 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
                         <span className="leading-relaxed">{b}</span>
                       </li>
                     ))}
                   </ul>
+                )}
+              </>
+            )
+
+            if (collapsible) {
+              const hasDetails = Boolean(phase.description) || bullets.length > 0
+              return (
+                // `<details>` natif : dépliable sans JavaScript, accessible au
+                // clavier, et utilisable aussi dans l'aperçu de l'éditeur.
+                <details
+                  key={i}
+                  open={i === 0}
+                  className="group overflow-hidden rounded-lg border border-line bg-canvas-subtle/60 open:border-primary-text/30 open:bg-surface open:shadow-e1"
+                >
+                  <summary className="flex cursor-pointer list-none items-center gap-4 px-6 py-5 transition-colors hover:bg-canvas-subtle sm:px-7 [&::-webkit-details-marker]:hidden">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-fg">
+                      {i + 1}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      {phase.label && (
+                        <span className="block text-xs font-bold uppercase tracking-wider text-primary-text">
+                          {phase.label}
+                        </span>
+                      )}
+                      <span className="mt-0.5 block text-xl font-semibold leading-snug text-fg">
+                        {phase.title}
+                      </span>
+                      {bullets.length > 0 && (
+                        <span className="mt-1 block text-xs text-fg-subtle group-open:hidden">
+                          {bullets.length} point{bullets.length > 1 ? 's' : ''} clé
+                          {bullets.length > 1 ? 's' : ''} · cliquez pour le détail
+                        </span>
+                      )}
+                    </span>
+                    {hasDetails && (
+                      <ChevronDown
+                        className="h-5 w-5 shrink-0 text-fg-subtle transition-transform duration-base group-open:rotate-180"
+                        aria-hidden
+                      />
+                    )}
+                  </summary>
+                  {hasDetails && (
+                    <div className="border-t border-line px-6 py-6 sm:px-7 sm:pl-[5.25rem]">{details}</div>
+                  )}
+                </details>
+              )
+            }
+
+            return (
+              <div key={i} className="rounded-lg border border-line bg-canvas-subtle/60 p-7 sm:p-9">
+                <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
+                  <div className="lg:w-1/3">
+                    {phase.label && (
+                      <span className="mb-3 inline-block rounded-pill bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-fg">
+                        {phase.label}
+                      </span>
+                    )}
+                    <h3 className="text-2xl font-semibold text-fg">{phase.title}</h3>
+                  </div>
+                  <div className="lg:w-2/3">{details}</div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
@@ -554,7 +618,7 @@ function PricingBlock({ data, course }: { data: Record<string, unknown>; course:
   return (
     <section id={anchor} className="section scroll-mt-20 bg-canvas-subtle">
       <div className="container-page">
-        <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border-2 border-primary-text/40 bg-surface shadow-e3">
+        <div className="mx-auto max-w-3xl overflow-hidden rounded-lg border-2 border-primary-text/40 bg-surface shadow-e3">
           <div className="bg-primary px-7 py-8 text-center text-primary-fg sm:px-10">
             {(f.str('badge') || discount) && (
               <span className="mb-4 inline-block rounded-full bg-secondary px-4 py-1.5 text-sm font-bold text-secondary-fg">
@@ -637,7 +701,7 @@ function QuoteBlock({ data }: { data: Record<string, unknown> }) {
             <img
               src={imageUrl}
               alt=""
-              className="h-40 w-40 shrink-0 rounded-2xl object-cover lg:h-52 lg:w-52"
+              className="h-40 w-40 shrink-0 rounded-lg object-cover lg:h-52 lg:w-52"
             />
           )}
           <div>
@@ -684,7 +748,7 @@ function AboutBlock({ data }: { data: Record<string, unknown> }) {
               </ul>
             )}
           </div>
-          {imageUrl && <img src={imageUrl} alt="" className="w-full rounded-2xl object-cover" />}
+          {imageUrl && <img src={imageUrl} alt="" className="w-full rounded-lg object-cover" />}
         </div>
       </div>
     </section>
@@ -874,7 +938,7 @@ function ImageBlock({ data }: { data: Record<string, unknown> }) {
           <img
             src={f.str('imageUrl')}
             alt={f.str('alt')}
-            className="w-full rounded-2xl object-cover"
+            className="w-full rounded-lg object-cover"
           />
           {f.str('caption') && (
             <figcaption className="mt-3 text-center text-sm text-fg-subtle">
@@ -910,6 +974,33 @@ function CourseGridBlock({ data, pool }: { data: Record<string, unknown>; pool: 
         <div className="mt-10 text-center">
           <ButtonLink href="/formations" variant="outline">
             Toutes les formations
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </ButtonLink>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ProductGridBlock({ data, pool }: { data: Record<string, unknown>; pool: BlockData }) {
+  const f = d(data)
+  const products = (pool.products ?? [])
+    .filter((p) => (f.bool('featuredOnly') ? p.featured : true))
+    .slice(0, f.num('limit', 3) || 3)
+  if (!products.length) return null
+
+  return (
+    <section className="section bg-canvas">
+      <div className="container-page">
+        <SectionHeading title={f.str('title', 'La boutique')} subtitle={f.str('subtitle')} />
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+        <div className="mt-10 text-center">
+          <ButtonLink href="/boutique" variant="outline">
+            Toute la boutique
             <ArrowRight className="h-4 w-4" aria-hidden />
           </ButtonLink>
         </div>

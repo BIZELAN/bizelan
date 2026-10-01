@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Mail, MapPin, Phone } from 'lucide-react'
+import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdmin } from '@/lib/auth'
@@ -9,8 +9,10 @@ import { PageHeader, Table, Td, Th } from '@/components/admin/shell'
 import { Badge, ORDER_STATUS_LABELS, StatusBadge } from '@/components/ui/badge'
 import { EmptyState, ProgressBar } from '@/components/ui/misc'
 import { ClientAccessPanel } from '@/components/admin/client-access-panel'
-import { formatDate, formatDateTime, formatPrice } from '@/lib/utils'
-import type { Course, Enrollment, Order, Profile } from '@/lib/types'
+import { ClientProductsPanel } from '@/components/admin/client-products-panel'
+import { ClientNote, RoleControl } from '@/components/admin/client-profile-tools'
+import { formatDate, formatDateTime, formatPrice, whatsappLink } from '@/lib/utils'
+import type { Course, Enrollment, Order, Product, ProductPurchase, Profile } from '@/lib/types'
 
 export const metadata: Metadata = { title: 'Fiche client' }
 export const dynamic = 'force-dynamic'
@@ -28,7 +30,13 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
   if (!profile) notFound()
 
-  const [{ data: enrollments }, { data: orders }, { data: courses }] = await Promise.all([
+  const [
+    { data: enrollments },
+    { data: orders },
+    { data: courses },
+    { data: purchases },
+    { data: products },
+  ] = await Promise.all([
     supabase
       .from('enrollments')
       .select('*, course:courses(id, title, slug)')
@@ -36,7 +44,15 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       .order('created_at', { ascending: false }),
     supabase.from('orders').select('*').eq('user_id', id).order('created_at', { ascending: false }),
     supabase.from('courses').select('id, title').order('title'),
+    supabase
+      .from('product_purchases')
+      .select('*, product:products(id, title)')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false }),
+    supabase.from('products').select('id, title').neq('status', 'archived').order('title'),
   ])
+
+  const purchaseList = ((purchases ?? []) as (ProductPurchase & { product: Pick<Product, 'id' | 'title'> | null })[])
 
   const enrollmentList = (enrollments as (Enrollment & { course: Course })[]) ?? []
   const orderList = (orders as Order[]) ?? []
@@ -59,12 +75,25 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             userId={profile.id}
             enrollments={enrollmentList.map((e) => ({
               id: e.id,
+              courseId: e.course_id,
               courseTitle: e.course?.title ?? 'Formation supprimée',
               state: e.state,
               progress: e.progress_percent,
               source: e.source,
             }))}
             courses={courses ?? []}
+          />
+
+          <ClientProductsPanel
+            userId={profile.id}
+            purchases={purchaseList.map((p) => ({
+              id: p.id,
+              productId: p.product_id,
+              productTitle: p.product?.title ?? 'Produit supprimé',
+              state: p.state,
+              source: p.source,
+            }))}
+            products={(products as { id: string; title: string }[]) ?? []}
           />
 
           <section>
@@ -161,6 +190,21 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               )}
             </ul>
 
+            {profile.phone && whatsappLink(profile.phone) && (
+              <a
+                href={whatsappLink(
+                  profile.phone,
+                  `Bonjour ${profile.full_name?.split(/\s+/)[0] ?? ''}, `,
+                )!}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md border border-line-control px-4 py-2.5 text-sm font-medium text-fg transition-colors duration-fast hover:bg-canvas-subtle"
+              >
+                <MessageCircle className="h-4 w-4 text-success" aria-hidden />
+                Écrire sur WhatsApp
+              </a>
+            )}
+
             {profile.activity && (
               <p className="mt-4 border-t border-line pt-4 text-sm">
                 <span className="block text-xs font-medium text-fg-subtle">Activité</span>
@@ -179,17 +223,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             </p>
           </section>
 
+          <ClientNote userId={profile.id} notes={profile.notes} />
+
           {admin.profile.role === 'admin' && (
-            <section className="rounded-lg border border-line bg-surface p-6">
-              <h2 className="mb-3 text-lg font-semibold">Rôle</h2>
-              <p className="mb-3 text-sm text-fg-muted">
-                Rôle actuel : <strong className="capitalize">{profile.role}</strong>
-              </p>
-              <p className="text-xs leading-relaxed text-fg-subtle">
-                Un éditeur peut gérer le contenu. Un administrateur peut en plus gérer les rôles et
-                les paramètres. Modifiez le rôle depuis la liste des clients.
-              </p>
-            </section>
+            <RoleControl userId={profile.id} role={profile.role} isSelf={admin.id === profile.id} />
           )}
         </aside>
       </div>

@@ -97,11 +97,16 @@ export default async function AdminPagesPage() {
                         target="_blank"
                         className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                         title="Voir la page"
+                        aria-label="Voir la page"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />
                       </Link>
                     )}
-                    <ActionButton action={duplicatePage.bind(null, page.id)} variant="ghost">
+                    <ActionButton
+                      action={duplicatePage.bind(null, page.id)}
+                      variant="ghost"
+                      label="Dupliquer la page"
+                    >
                       <Copy className="h-4 w-4" aria-hidden />
                     </ActionButton>
                     <DeleteButton

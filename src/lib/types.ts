@@ -15,7 +15,7 @@ export type OrderStatus =
   | 'refunded'
 /** `kkiapay` et `chariow` subsistent pour l'historique : on encaisse via SasPay. */
 export type PaymentMethod = 'saspay' | 'chariow' | 'kkiapay' | 'bank_transfer' | 'manual' | 'free'
-export type ItemType = 'course' | 'service'
+export type ItemType = 'course' | 'service' | 'product'
 export type EnrollmentState = 'active' | 'revoked' | 'completed'
 export type QuoteStatus = 'new' | 'in_progress' | 'won' | 'lost'
 export type ReviewStatus = 'pending' | 'approved' | 'rejected'
@@ -232,6 +232,8 @@ export interface Coupon {
   max_redemptions: number | null
   redemptions: number
   course_id: string | null
+  /** Produit visé ; `null` avec `course_id` nul = tout le catalogue. */
+  product_id: string | null
   starts_at: string | null
   ends_at: string | null
   active: boolean
@@ -276,6 +278,7 @@ export interface OrderItem {
   item_type: ItemType
   course_id: string | null
   service_id: string | null
+  product_id: string | null
   title_snapshot: string
   unit_price_cents: number
   quantity: number
@@ -317,7 +320,10 @@ export interface LessonProgress {
 
 export interface Review {
   id: string
+  /** Formation visée. Avec `product_id` nul aussi : avis sur le cabinet. */
   course_id: string | null
+  /** Produit de la boutique visé (0014). */
+  product_id?: string | null
   user_id: string | null
   author_name: string
   author_role: string | null
@@ -325,8 +331,14 @@ export interface Review {
   comment: string | null
   status: ReviewStatus
   featured: boolean
+  /** Réponse publique de l'équipe, affichée sous l'avis (0014). */
+  admin_reply?: string | null
   created_at: string
+  updated_at?: string
 }
+
+/** Sujet d'un avis : une formation, un produit, ou le cabinet. */
+export type ReviewTargetType = 'course' | 'product' | 'site'
 
 export interface QuoteRequest {
   id: string
@@ -399,6 +411,8 @@ export interface SiteSettings {
   /** `left` ou `right` — contraint en base. */
   whatsapp_float_position: string | null
   address: string | null
+  /** Lien Google Maps ouvert au clic sur l'adresse (0014). */
+  maps_url?: string | null
   map_embed_url: string | null
   opening_hours: OpeningHour[]
   social_links: Record<string, string>
@@ -557,4 +571,84 @@ export interface CourseWatchCoverage {
   lessons_total: number
   lessons_measurable: number
   lessons_without_duration: number
+}
+
+/* ------------------------------------------------------------------ */
+/* Boutique de produits digitaux                                       */
+/* ------------------------------------------------------------------ */
+
+export type ProductKind = 'ebook' | 'video' | 'template' | 'audio' | 'bundle' | 'other'
+
+export interface Product {
+  id: string
+  slug: string
+  title: string
+  subtitle: string | null
+  summary: string | null
+  description: string | null
+  cover_url: string | null
+  kind: ProductKind
+  pricing: PricingMode
+  price_cents: number
+  compare_at_price_cents: number | null
+  currency: string
+  format_label: string | null
+  delivery_label: string | null
+  highlights: string[]
+  faq: FaqItem[]
+  /** Téléchargements autorisés par fichier et par acheteur. 0 = illimité. */
+  download_limit: number
+  status: ContentStatus
+  featured: boolean
+  position: number
+  seo_title: string | null
+  seo_description: string | null
+  og_image_url: string | null
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ProductFile {
+  id: string
+  product_id: string
+  title: string
+  description: string | null
+  storage_path: string
+  file_name: string | null
+  file_size: number | null
+  mime_type: string | null
+  /** Extrait offert, téléchargeable sans achat. */
+  is_preview: boolean
+  position: number
+  created_at: string
+}
+
+export interface ProductPurchase {
+  id: string
+  user_id: string
+  product_id: string
+  order_id: string | null
+  state: 'active' | 'revoked'
+  source: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ProductWithFiles extends Product {
+  files: ProductFile[]
+}
+
+/* ------------------------------------------------------------------ */
+/* Notes personnelles de l'apprenant                                   */
+/* ------------------------------------------------------------------ */
+
+export interface LessonNote {
+  id: string
+  user_id: string
+  lesson_id: string
+  course_id: string
+  body: string
+  created_at: string
+  updated_at: string
 }

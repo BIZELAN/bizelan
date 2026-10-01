@@ -13,22 +13,22 @@
 -- genre d'écart qui ne se découvre qu'en production. Le script vérifie au
 -- passage que chaque section est identique à sa migration d'origine.
 --
--- Les sections 14 et 15 sont écrites à la main, dans
+-- Les sections 16 et 17 sont écrites à la main, dans
 -- `supabase/_pied_complet.sql` ; cet en-tête dans `_entete_complet.sql`.
 --
 -- Il réunit, dans l'ordre :
 --
---   §1  à §12  les douze migrations, telles quelles
---   §13        le contenu de départ (formation, services, articles) — SUPPRIMABLE
---   §14        promotion de votre compte en administrateur
---   §15        vérification : ce que l'installation a réellement créé
+--   §1  à §14  les quatorze migrations, telles quelles
+--   §15        le contenu de départ (formation, services, articles) — SUPPRIMABLE
+--   §16        promotion de votre compte en administrateur
+--   §17        vérification : ce que l'installation a réellement créé
 --
 --
 -- COMMENT L'EXÉCUTER
 -- ------------------
 --   1. Projet Supabase > SQL Editor > New query
 --   2. Collez TOUT ce fichier, puis « Run »
---   3. Lisez le tableau final de la §15 : il dit ce qui existe vraiment
+--   3. Lisez le tableau final de la §17 : il dit ce qui existe vraiment
 --
 -- Une exécution prend quelques secondes. Si l'éditeur refuse la taille, coupez
 -- aux barres `====` : chaque section est autonome, dans l'ordre.
@@ -52,9 +52,10 @@
 --   1. Reporter les trois valeurs ci-dessus dans `.env`
 --   2. Créer votre compte par la page d'inscription du site
 --      (un déclencheur crée le profil automatiquement)
---   3. Revenir exécuter la §14 avec votre adresse, pour devenir administrateur
---   4. Vérifier que les quatre espaces de stockage figurent bien dans
---      Storage : public-media, resources, payment-proofs, lesson-videos
+--   3. Revenir exécuter la §16 avec votre adresse, pour devenir administrateur
+--   4. Vérifier que les cinq espaces de stockage figurent bien dans
+--      Storage : public-media, resources, payment-proofs, lesson-videos,
+--      product-files
 --
 -- Les envois d'e-mail (RESEND_API_KEY) et les paiements
 -- (SASPAY_API_KEY, SASPAY_WEBHOOK_SECRET) sont indépendants de ce fichier :
@@ -63,8 +64,8 @@
 --
 -- IDEMPOTENCE
 -- -----------
--- Les sections §1 à §12 se relancent sans dommage : `create ... if not exists`,
--- `create or replace`, `drop policy if exists` avant chaque politique. La §12,
+-- Les sections §1 à §14 se relancent sans dommage : `create ... if not exists`,
+-- `create or replace`, `drop policy if exists` avant chaque politique. La §15,
 -- elle, INSÈRE du contenu : la relancer créerait des doublons de formations et
 -- d'articles. Ne l'exécutez qu'une fois.
 --

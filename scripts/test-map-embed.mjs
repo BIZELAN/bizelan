@@ -4,7 +4,7 @@
 // pas une copie compilée ni une réécriture approximative de la source.
 //
 //     node scripts/test-map-embed.mjs
-import { safeMapEmbedSrc } from '../src/lib/map-embed.ts'
+import { mapsLinkFor, safeMapEmbedSrc, safeMapsLink } from '../src/lib/map-embed.ts'
 
 const PB = '!1m18!1m12!1m3!1d3963.5!2d2.42!3d6.36!2m3!1f0!2f0!3f0'
 
@@ -53,6 +53,40 @@ for (const [label, input, shouldPass] of CASES) {
   const verdict = ok ? 'OK   ' : 'ECHEC'
   const shown = out === null ? 'refusé' : out.slice(0, 52) + (out.length > 52 ? '…' : '')
   console.log(`  ${verdict} ${label.padEnd(44)} ${shown}`)
+}
+
+// --- Lien d'ouverture (pied de page, page Contact) --------------------------
+console.log('\n  LIEN GOOGLE MAPS')
+const LINKS = [
+  ['lien de partage maps.app.goo.gl', 'https://maps.app.goo.gl/AbCd1234', true],
+  ['ancienne forme goo.gl/maps', 'https://goo.gl/maps/xyz', true],
+  ['fiche www.google.com/maps/place', 'https://www.google.com/maps/place/Cotonou', true],
+  ['domaine national google.bj', 'https://www.google.bj/maps/place/Cotonou', true],
+  ['maps.google.com', 'https://maps.google.com/?q=Cotonou', true],
+  ['http non chiffré refusé', 'http://maps.app.goo.gl/AbCd', false],
+  ['autre domaine refusé', 'https://evil.example/maps', false],
+  ['google.com hors /maps refusé', 'https://www.google.com/search?q=x', false],
+  ['faux sous-domaine refusé', 'https://google.com.evil.example/maps', false],
+  ['javascript: refusé', 'javascript:alert(1)', false],
+]
+for (const [label, input, shouldPass] of LINKS) {
+  const out = safeMapsLink(input)
+  const ok = shouldPass ? out !== null : out === null
+  if (!ok) fails++
+  console.log(`  ${ok ? 'OK   ' : 'ECHEC'} ${label.padEnd(44)} ${out ?? 'refusé'}`)
+}
+{
+  const out = mapsLinkFor({ maps_url: null, address: 'Haie Vive, Cotonou' })
+  const ok = out === 'https://www.google.com/maps/search/?api=1&query=Haie%20Vive%2C%20Cotonou'
+  if (!ok) fails++
+  console.log(`  ${ok ? 'OK   ' : 'ECHEC'} ${'repli : recherche de l’adresse'.padEnd(44)} ${out}`)
+  const bad = mapsLinkFor({ maps_url: 'https://evil.example', address: 'Cotonou' })
+  const ok2 = Boolean(bad?.startsWith('https://www.google.com/maps/search/'))
+  if (!ok2) fails++
+  console.log(`  ${ok2 ? 'OK   ' : 'ECHEC'} ${'lien invalide : repli sur l’adresse'.padEnd(44)} ${bad}`)
+  const none = mapsLinkFor({ maps_url: null, address: '  ' })
+  if (none !== null) fails++
+  console.log(`  ${none === null ? 'OK   ' : 'ECHEC'} ${'ni lien ni adresse : rien'.padEnd(44)}`)
 }
 
 console.log(fails ? `\n${fails} CAS EN ECHEC` : '\nTous les cas passent.')

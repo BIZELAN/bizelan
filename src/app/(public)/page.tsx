@@ -9,6 +9,7 @@ import {
   getHomePage,
   getPublishedCourses,
   getPublishedPosts,
+  getPublishedProducts,
   getPublishedServices,
   getSiteSettings,
 } from '@/lib/queries'
@@ -34,12 +35,13 @@ export default async function HomePage() {
   }
 
   // Repli : accueil généré automatiquement tant qu'aucune page n'est composée.
-  const [courses, services, posts, reviews, settings] = await Promise.all([
+  const [courses, services, posts, reviews, settings, products] = await Promise.all([
     getPublishedCourses({ limit: 6 }),
     getPublishedServices(3),
     getPublishedPosts({ limit: 3 }),
     getApprovedReviews(undefined, 6),
     getSiteSettings(),
+    getPublishedProducts({ limit: 3 }),
   ])
 
   return (
@@ -49,6 +51,7 @@ export default async function HomePage() {
       services={services}
       posts={posts}
       reviews={reviews}
+      products={products}
     />
   )
 }

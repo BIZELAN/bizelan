@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import {
+  ExternalLink,
   Facebook,
   Instagram,
   Linkedin,
@@ -15,6 +16,7 @@ import { NewsletterForm } from '@/components/public/newsletter-form'
 import { Panel } from '@/components/ui/surface'
 import type { NavLink, OpeningHour, SiteSettings } from '@/lib/types'
 import { asArray, whatsappLink } from '@/lib/utils'
+import { mapsLinkFor } from '@/lib/map-embed'
 
 /** Réseaux reconnus. Une clé inconnue en base est simplement ignorée. */
 const SOCIALS: Record<string, { icon: LucideIcon; label: string }> = {
@@ -53,6 +55,8 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
   const legalLinks = asArray<NavLink>(settings.legal_links)
   const legal = legalLinks.length > 0 ? legalLinks : FALLBACK_LEGAL
   const whatsapp = whatsappLink(settings.whatsapp, 'Bonjour, je vous écris depuis votre site.')
+  // Ouvre la fiche Google Maps — l'application Maps sur téléphone.
+  const mapsHref = mapsLinkFor(settings)
   const year = new Date().getFullYear()
 
   const socials = Object.entries(settings.social_links ?? {})
@@ -153,7 +157,23 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
             {settings.address && (
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
-                <span>{settings.address}</span>
+                {mapsHref ? (
+                  <a
+                    href={mapsHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group hover:text-fg"
+                    title="Ouvrir dans Google Maps"
+                  >
+                    {settings.address}
+                    <span className="mt-0.5 flex items-center gap-1 text-xs text-primary-text group-hover:underline">
+                      Voir sur Google Maps
+                      <ExternalLink className="h-3 w-3" aria-hidden />
+                    </span>
+                  </a>
+                ) : (
+                  <span>{settings.address}</span>
+                )}
               </li>
             )}
             {whatsapp && (

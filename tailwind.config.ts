@@ -158,9 +158,9 @@ const config: Config = {
         '2xl': ['1.875rem', { lineHeight: '2.25rem', letterSpacing: '-0.016em' }],
 
         /* --- Lecture longue ---------------------------------------------
-           Hors de l'echelle d'interface : un corps d'article se lit plus
-           grand et plus aere qu'un libelle de formulaire. C'est la seule
-           taille destinee a etre lue par paragraphes. */
+           Hors de l'échelle d'interface : un corps d'article se lit plus
+           grand et plus aéré qu'un libellé de formulaire. C'est la seule
+           taille destinée à être lue par paragraphes. */
         reading: ['1.0625rem', { lineHeight: '1.7' }],
 
         /* --- Display : site public uniquement ---------------------------- */

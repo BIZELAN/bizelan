@@ -78,6 +78,33 @@ export const UPLOAD_TARGETS: Record<string, UploadTarget> = {
     public: false,
     label: 'Vidéo de leçon',
   },
+  /**
+   * Fichiers vendus dans la boutique : e-books, vidéos, modèles, audio,
+   * archives. Même principe que les supports de cours — bucket privé, lecture
+   * par URL signée après vérification de l'achat.
+   */
+  product: {
+    bucket: 'product-files',
+    maxBytes: 2048 * MB,
+    mimeTypes: [
+      ...DOCUMENT_MIME_TYPES,
+      ...VIDEO_MIME_TYPES,
+      ...IMAGE_MIME_TYPES,
+      'application/epub+zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed',
+      'application/vnd.rar',
+      'application/x-7z-compressed',
+      'audio/mpeg',
+      'audio/mp4',
+      'audio/x-m4a',
+      'audio/wav',
+      'audio/ogg',
+      'text/plain',
+    ],
+    public: false,
+    label: 'Fichier de produit',
+  },
 }
 
 export type UploadTargetName = keyof typeof UPLOAD_TARGETS
@@ -133,7 +160,17 @@ function normaliseForPath(value: string): string {
 /* Lecture des documents                                               */
 /* ------------------------------------------------------------------ */
 
-export type DocumentKind = 'pdf' | 'word' | 'excel' | 'slides' | 'archive' | 'other'
+export type DocumentKind =
+  | 'pdf'
+  | 'word'
+  | 'excel'
+  | 'slides'
+  | 'archive'
+  | 'ebook'
+  | 'video'
+  | 'audio'
+  | 'image'
+  | 'other'
 
 /**
  * Nature d'un document, d'après son type MIME puis son extension.
@@ -149,15 +186,47 @@ export function documentKind(mimeType: string | null, fileName: string | null): 
     return 'excel'
   }
   if (mime.includes('presentation') || mime === 'application/vnd.ms-powerpoint') return 'slides'
-  if (mime === 'application/zip') return 'archive'
+  if (mime === 'application/epub+zip') return 'ebook'
+  if (mime === 'application/zip' || mime.includes('compressed') || mime.includes('rar')) {
+    return 'archive'
+  }
+  if (mime.startsWith('video/')) return 'video'
+  if (mime.startsWith('audio/')) return 'audio'
+  if (mime.startsWith('image/')) return 'image'
 
   const ext = (fileName ?? '').toLowerCase().split('.').pop() ?? ''
   if (ext === 'pdf') return 'pdf'
   if (['doc', 'docx', 'odt', 'rtf'].includes(ext)) return 'word'
   if (['xls', 'xlsx', 'ods', 'csv'].includes(ext)) return 'excel'
   if (['ppt', 'pptx', 'odp'].includes(ext)) return 'slides'
+  if (['epub', 'mobi'].includes(ext)) return 'ebook'
   if (['zip', 'rar', '7z'].includes(ext)) return 'archive'
+  if (['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext)) return 'video'
+  if (['mp3', 'm4a', 'wav', 'ogg', 'aac'].includes(ext)) return 'audio'
+  if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(ext)) return 'image'
   return 'other'
+}
+
+/** Libellé lisible d'une nature de document. */
+export const DOCUMENT_KIND_LABELS: Record<DocumentKind, string> = {
+  pdf: 'PDF',
+  word: 'Document Word',
+  excel: 'Tableur',
+  slides: 'Présentation',
+  archive: 'Archive',
+  ebook: 'Livre numérique',
+  video: 'Vidéo',
+  audio: 'Audio',
+  image: 'Image',
+  other: 'Fichier',
+}
+
+/**
+ * Lecture dans la page d'un média par un lecteur natif (`<video>`, `<audio>`).
+ * Le navigateur sait lire MP4, WebM, MP3, M4A : pas besoin de télécharger.
+ */
+export function isPlayableInline(kind: DocumentKind): boolean {
+  return kind === 'video' || kind === 'audio'
 }
 
 /**

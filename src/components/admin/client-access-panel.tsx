@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 
 export interface AccessRow {
   id: string
+  courseId: string
   courseTitle: string
   state: string
   progress: number
@@ -27,8 +28,10 @@ export function ClientAccessPanel({
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(grantAccess, null)
 
-  const alreadyGranted = new Set(enrollments.map((e) => e.courseTitle))
-  const available = courses.filter((c) => !alreadyGranted.has(c.title))
+  // Comparaison par identifiant : deux formations homonymes (une copie, par
+  // exemple) se masquaient l'une l'autre dans la liste des accès à offrir.
+  const alreadyGranted = new Set(enrollments.map((e) => e.courseId))
+  const available = courses.filter((c) => !alreadyGranted.has(c.id))
 
   return (
     <section className="rounded-lg border border-line bg-surface p-6">
@@ -46,7 +49,12 @@ export function ClientAccessPanel({
               <span className="min-w-0 flex-1">
                 <span className="block font-medium text-fg">{enrollment.courseTitle}</span>
                 <span className="block text-xs text-fg-subtle">
-                  {enrollment.source === 'admin_grant' ? 'Accès offert' : 'Achat'} ·{' '}
+                  {enrollment.source === 'admin_grant'
+                    ? 'Accès offert'
+                    : enrollment.source === 'free'
+                      ? 'Gratuit'
+                      : 'Achat'}{' '}
+                  ·{' '}
                   {enrollment.progress}% terminé
                 </span>
               </span>

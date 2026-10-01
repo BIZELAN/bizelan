@@ -81,6 +81,7 @@ export default async function AdminBlogPage() {
                         target="_blank"
                         className="rounded-md p-2 text-fg-subtle transition-colors hover:bg-canvas-subtle hover:text-primary-text"
                         title="Voir l’article"
+                        aria-label="Voir l’article"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden />
                       </Link>

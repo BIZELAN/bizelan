@@ -5,7 +5,7 @@
  * exports dans un fichier `layout`, alors que la barre latérale, le fil
  * d'Ariane et le tiroir mobile ont tous besoin de cette même liste.
  *
- * Les treize entrées étaient auparavant présentées à plat : au-delà de sept
+ * Les entrées étaient auparavant présentées à plat : au-delà de sept
  * ou huit items, une liste sans regroupement se parcourt en lisant chaque
  * ligne. Les sections ci-dessous répondent à « qu'est-ce que je viens faire »
  * plutôt qu'à l'ordre d'implémentation.
@@ -40,6 +40,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     title: 'Contenu',
     items: [
       { href: '/admin/formations', label: 'Formations', icon: 'GraduationCap', description: 'Catalogue, chapitres et leçons' },
+      { href: '/admin/produits', label: 'Boutique', icon: 'Package', description: 'E-books, vidéos et modèles à vendre' },
       { href: '/admin/services', label: 'Services', icon: 'Briefcase', description: 'Prestations et demandes de devis' },
       { href: '/admin/pages', label: 'Pages de vente', icon: 'FileText', description: 'Pages composées par blocs' },
       { href: '/admin/blog', label: 'Blog', icon: 'Newspaper', description: 'Articles et référencement' },
@@ -54,12 +55,15 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { href: '/admin/demandes', label: 'Demandes', icon: 'Inbox', description: 'Messages de contact et devis' },
       { href: '/admin/avis', label: 'Avis', icon: 'Star', description: 'Témoignages à modérer' },
       { href: '/admin/codes-promo', label: 'Codes promo', icon: 'Tag', description: 'Remises et campagnes' },
+      { href: '/admin/relances', label: 'Relances', icon: 'Repeat', description: 'Paiements abandonnés, apprenants inactifs' },
+      { href: '/admin/abonnes', label: 'Abonnés', icon: 'Mail', description: 'Newsletter et exports' },
     ],
   },
   {
     title: 'Pilotage',
     items: [
       { href: '/admin/statistiques', label: 'Statistiques', icon: 'BarChart3', description: 'Audience, conversion et revenus' },
+      { href: '/admin/journal', label: 'Journal', icon: 'ClipboardList', description: 'Qui a fait quoi, et quand' },
       { href: '/admin/parametres', label: 'Paramètres', icon: 'Settings', description: 'Identité, contact et paiements' },
     ],
   },

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 /** Repli, employé tant que l'administration n'a rien saisi. */
 const FALLBACK_NAV = [
   { href: '/formations', label: 'Formations' },
+  { href: '/boutique', label: 'Boutique' },
   { href: '/services', label: 'Services' },
   { href: '/blog', label: 'Blog' },
   { href: '/contact', label: 'Contact' },
@@ -98,7 +99,10 @@ export function SiteHeader({
             </Link>
 
             <nav
-              className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex"
+              // Dans le flux et non plus centré en absolu : centré ainsi, le menu
+              // passait sous le sélecteur de thème et les boutons de droite
+              // entre 1024 et 1400 px de large (« Contact » recouvert).
+              className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex"
               aria-label="Navigation principale"
             >
               {NAV.map((item) => (
@@ -107,7 +111,7 @@ export function SiteHeader({
                   href={item.href}
                   aria-current={isActive(item.href) ? 'page' : undefined}
                   className={cn(
-                    'rounded-pill px-4 py-2 text-base font-medium transition-colors',
+                    'whitespace-nowrap rounded-pill px-3 py-2 text-base font-medium transition-colors lg:px-4',
                     isActive(item.href)
                       ? 'bg-canvas-subtle text-fg'
                       : 'text-fg-muted hover:bg-surface hover:text-fg',
@@ -119,7 +123,7 @@ export function SiteHeader({
             </nav>
 
             <div className="hidden items-center gap-2 md:flex">
-              <ThemeToggle className="hidden lg:inline-flex" />
+              <ThemeToggle className="hidden xl:inline-flex" />
               {isLoggedIn ? (
                 <ButtonLink href="/compte" variant="outline" size="sm">
                   <User className="h-4 w-4" aria-hidden />
@@ -131,7 +135,7 @@ export function SiteHeader({
                     <LogIn className="h-4 w-4" aria-hidden />
                     Connexion
                   </ButtonLink>
-                  <ButtonLink href="/formations" variant="accent" size="sm">
+                  <ButtonLink href="/formations" variant="accent" size="sm" className="hidden lg:inline-flex">
                     Voir les formations
                   </ButtonLink>
                 </>

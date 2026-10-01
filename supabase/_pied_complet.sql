@@ -3,7 +3,7 @@
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 14 — Devenir administrateur
+--   SECTION 16 — Devenir administrateur
 --
 -- =========================================================================
 -- =========================================================================
@@ -25,7 +25,7 @@ declare
   touches int;
 begin
   if cible = 'remplacez-moi@exemple.com' then
-    raise notice '§14 ignoree : remplacez d abord l adresse dans le bloc.';
+    raise notice '§16 ignoree : remplacez d abord l adresse dans le bloc.';
     return;
   end if;
 
@@ -47,7 +47,7 @@ end $$;
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 15 — Vérification
+--   SECTION 17 — Vérification
 --
 -- =========================================================================
 -- =========================================================================
@@ -98,6 +98,10 @@ with controles as (
      and table_name   = 'quiz_choices'
      and column_name  = 'is_correct'
      and grantee in ('anon', 'authenticated')
+     -- La LECTURE seulement. Supabase accorde aussi INSERT, UPDATE et
+     -- REFERENCES sur toute table ; les compter faisait échouer ce contrôle
+     -- sur toute installation saine, alors que RLS bloque déjà l'écriture.
+     and privilege_type = 'SELECT'
 
   union all
   -- LA protection n°2 : le temps de visionnage ne doit pas etre auto-declare.
@@ -162,7 +166,7 @@ with controles as (
   union all
   select 11,
          'Administrateur designe',
-         coalesce(string_agg(email, ', '), 'AUCUN — executez la §14'),
+         coalesce(string_agg(email, ', '), 'AUCUN — executez la §16'),
          count(*) >= 1
     from public.bz_profiles
    where role = 'admin'
@@ -188,6 +192,35 @@ with controles as (
     from public.courses
    where status = 'published'
 
+  union all
+  -- Boutique (0013) : les quatre tables, et un espace de fichiers PRIVE — un
+  -- produit digital est du contenu payé.
+  select 14,
+         'Boutique et notes : tables et espace prive',
+         (select count(*) from information_schema.tables
+           where table_schema = 'public'
+             and table_name in ('products', 'product_files', 'product_purchases', 'lesson_notes'))::text
+           || ' / 4 tables, espace ' ||
+         coalesce((select case when public then 'PUBLIC' else 'prive' end
+                     from storage.buckets where id = 'product-files'), 'absent'),
+         (select count(*) from information_schema.tables
+           where table_schema = 'public'
+             and table_name in ('products', 'product_files', 'product_purchases', 'lesson_notes')) = 4
+           and coalesce((select not public from storage.buckets where id = 'product-files'), false)
+
+  union all
+  -- Une vue s'exécute avec les droits de son propriétaire : lisible par anon,
+  -- elle publiait le chiffre d'affaires jour par jour.
+  select 15,
+         'Chiffre d affaires non lisible par le public',
+         coalesce(string_agg(distinct grantee || ':' || table_name, ', '), 'aucun droit accorde'),
+         count(*) = 0
+    from information_schema.table_privileges
+   where table_schema = 'public'
+     and table_name in ('v_revenue_daily', 'v_course_sales', 'v_product_sales')
+     and grantee in ('anon', 'authenticated')
+     and privilege_type = 'SELECT'
+
 )
 select case when ok then 'OK' else '!!  A REGARDER' end as verdict,
        controle,
@@ -199,10 +232,10 @@ select case when ok then 'OK' else '!!  A REGARDER' end as verdict,
 -- ###########################################################################
 --
 --   Toutes les lignes doivent porter « OK », sauf la 11 si vous n'avez pas
---   encore exécuté la §14 — ce qui est normal à ce stade, puisque votre compte
+--   encore exécuté la §16 — ce qui est normal à ce stade, puisque votre compte
 --   n'existe pas avant votre première inscription sur le site.
 --
---   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §12 a
+--   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §15 a
 --   déposé, pour que vous sachiez si le site démarre avec du contenu ou vide.
 --
 -- ###########################################################################

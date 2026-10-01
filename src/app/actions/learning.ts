@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentUser, hasCourseAccess } from '@/lib/auth'
 
 export interface LearningResult {
@@ -98,15 +99,29 @@ export async function submitReview(
   const allowed = await hasCourseAccess(user.id, courseId)
   if (!allowed) return { ok: false, message: 'Vous n’avez pas accès à cette formation.' }
 
-  const supabase = await createClient()
+  // Écriture par la clé de service APRÈS le contrôle d'accès ci-dessus : la
+  // politique d'insertion directe est retirée par 0014. Le statut est imposé
+  // ici, jamais choisi par le client.
+  const supabase = createAdminClient()
+  const { data: existing } = await supabase
+    .from('reviews')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('course_id', courseId)
+    .maybeSingle()
+  if (existing) {
+    return { ok: false, message: 'Vous avez déjà donné votre avis sur cette formation. Merci !' }
+  }
+
   const { error } = await supabase.from('reviews').insert({
     course_id: courseId,
     user_id: user.id,
     author_name: user.profile.full_name ?? 'Participant',
     author_role: user.profile.activity ?? null,
-    rating,
-    comment: comment || null,
+    rating: Math.round(rating),
+    comment: comment.slice(0, 2000) || null,
     status: 'pending',
+    featured: false,
   })
 
   if (error) {
@@ -115,4 +130,37 @@ export async function submitReview(
   }
 
   return { ok: true, message: 'Merci ! Votre avis sera publié après relecture.' }
+}
+
+/**
+ * Enregistre la note personnelle d'un apprenant sur une leçon.
+ *
+ * Écrite avec la session de l'apprenant : la politique RLS `lesson_notes_own`
+ * vérifie qu'il est bien inscrit au parcours. Une note vide est supprimée
+ * plutôt que conservée, pour que l'icône « notes » du programme ne signale
+ * que ce qui existe vraiment.
+ */
+export async function saveLessonNote(
+  lessonId: string,
+  courseId: string,
+  body: string,
+): Promise<LearningResult> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, message: 'Vous devez être connecté.' }
+
+  const text = body.slice(0, 20000)
+  const supabase = await createClient()
+
+  const { error } = text.trim()
+    ? await supabase.from('lesson_notes').upsert(
+        { user_id: user.id, lesson_id: lessonId, course_id: courseId, body: text },
+        { onConflict: 'user_id,lesson_id' },
+      )
+    : await supabase.from('lesson_notes').delete().eq('user_id', user.id).eq('lesson_id', lessonId)
+
+  if (error) {
+    console.error('[notes] échec :', error.message)
+    return { ok: false, message: 'Votre note n’a pas pu être enregistrée.' }
+  }
+  return { ok: true }
 }

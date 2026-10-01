@@ -24,6 +24,7 @@ import { cn, formatDuration } from '@/lib/utils'
  */
 export function LessonRow({
   title,
+  description,
   durationSeconds,
   isPreview,
   enrolled,
@@ -31,6 +32,8 @@ export function LessonRow({
   playable,
 }: {
   title: string
+  /** Résumé court de la leçon, affiché sous son titre. */
+  description?: string | null
   durationSeconds: number
   isPreview: boolean
   enrolled: boolean
@@ -67,6 +70,9 @@ export function LessonRow({
             {previewable ? 'Aperçu gratuit' : 'Aperçu bientôt'}
           </Badge>
         )}
+        {description && (
+          <span className="mt-0.5 block text-sm leading-relaxed text-fg-subtle">{description}</span>
+        )}
       </span>
 
       {duration && (
@@ -75,7 +81,10 @@ export function LessonRow({
     </>
   )
 
-  const row = 'flex w-full items-center gap-3 px-5 py-3.5 text-left'
+  const row = cn(
+    'flex w-full gap-3 px-5 py-3.5 text-left',
+    description ? 'items-start [&>svg]:mt-0.5' : 'items-center',
+  )
   const interactive = 'transition-colors duration-fast hover:bg-canvas-subtle'
 
   if (enrolled) {

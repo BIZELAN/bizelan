@@ -82,6 +82,68 @@ export function discountPercent(price: number, compareAt: number | null | undefi
   return Math.round(((compareAt - price) / compareAt) * 100)
 }
 
+/**
+ * Une offre est gratuite quand elle est déclarée comme telle OU que son prix
+ * est nul. Les deux arrivent : l'administration choisit parfois « gratuit »
+ * sans remettre le prix à zéro, et l'inverse. Tout ce qui affiche un prix ou
+ * encaisse un montant passe par ici, pour que la page de vente, le tunnel et
+ * le serveur racontent la même chose.
+ */
+export function isFreeOffer(item: { pricing?: string | null; price_cents: number | null }): boolean {
+  return item.pricing === 'free' || !item.price_cents || item.price_cents <= 0
+}
+
+/** Montant dû, avant remise. */
+export function payablePrice(item: { pricing?: string | null; price_cents: number | null }): number {
+  return isFreeOffer(item) ? 0 : Math.max(0, Math.round(item.price_cents ?? 0))
+}
+
+/**
+ * Prix de catalogue d'une ligne de commande.
+ *
+ * La ligne porte le montant NET encaissé — c'est sur lui que reposent les
+ * statistiques de ventes. Pour une commande d'un seul article, le prix
+ * affiché au client se retrouve en y ajoutant la remise de la commande ;
+ * sans cela le détail montrait « prix 6 000, remise −2 000, total 6 000 ».
+ */
+export function orderLinePrice(unitCents: number, itemsCount: number, discountCents: number) {
+  return itemsCount === 1 ? unitCents + Math.max(0, discountCents) : unitCents
+}
+
+/**
+ * Échappe une saisie libre avant de l'insérer dans un filtre PostgREST
+ * (`.or('name.ilike.%…%')`). Virgules, parenthèses et points y ont un sens :
+ * les laisser passer permettait à une simple virgule de casser la requête,
+ * voire d'ajouter une condition. On ne garde que ce qui sert à chercher.
+ */
+export function sanitizeSearch(input: string | null | undefined, max = 80): string {
+  return (input ?? '')
+    .replace(/[^\p{L}\p{N}@+\-_' ]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max)
+}
+
+/** Ligne CSV : chaque cellule est citée, les guillemets doublés. */
+export function toCsv(rows: (string | number | null | undefined)[][]): string {
+  // Le BOM fait ouvrir le fichier en UTF-8 par Excel : sans lui, les accents
+  // arrivent en « Ã© » chez la plupart des utilisateurs Windows.
+  const body = rows
+    .map((row) =>
+      row
+        .map((cell) => {
+          const text = cell === null || cell === undefined ? '' : String(cell)
+          // Une cellule commençant par = + - @ serait interprétée comme une
+          // formule par le tableur : on la neutralise.
+          const safe = /^[=+\-@]/.test(text) ? `'${text}` : text
+          return `"${safe.replace(/"/g, '""')}"`
+        })
+        .join(';'),
+    )
+    .join('\r\n')
+  return `﻿${body}`
+}
+
 /** Tronque proprement un texte pour les aperçus et métadonnées SEO. */
 export function truncate(text: string | null | undefined, max = 160): string {
   if (!text) return ''

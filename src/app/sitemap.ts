@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${base}/`, changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/formations`, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${base}/boutique`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${base}/services`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/blog`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${base}/contact`, changeFrequency: 'yearly', priority: 0.5 },
@@ -22,12 +23,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const supabase = await createClient()
 
-    const [{ data: courses }, { data: services }, { data: posts }, { data: pages }] =
+    const [{ data: courses }, { data: services }, { data: posts }, { data: pages }, { data: products }] =
       await Promise.all([
         supabase.from('courses').select('slug, updated_at').eq('status', 'published'),
         supabase.from('services').select('slug, updated_at').eq('status', 'published'),
         supabase.from('bz_posts').select('slug, updated_at').eq('status', 'published'),
         supabase.from('pages').select('slug, updated_at, is_home').eq('status', 'published'),
+        // Absente tant que la migration 0013 n'est pas appliquée : l'erreur
+        // est absorbée, la liste reste vide.
+        supabase.from('products').select('slug, updated_at').eq('status', 'published'),
       ])
 
     return [
@@ -37,6 +41,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(c.updated_at),
         changeFrequency: 'weekly' as const,
         priority: 0.9,
+      })),
+      ...(products ?? []).map((p) => ({
+        url: `${base}/boutique/${p.slug}`,
+        lastModified: new Date(p.updated_at),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
       })),
       ...(services ?? []).map((s) => ({
         url: `${base}/services/${s.slug}`,

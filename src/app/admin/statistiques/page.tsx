@@ -3,6 +3,7 @@ import { Eye, GraduationCap, TrendingUp, Users } from 'lucide-react'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { PageHeader, StatCard, Table, Td, Th } from '@/components/admin/shell'
+import { ExportButton } from '@/components/admin/export-button'
 import { RevenueChart } from '@/components/admin/revenue-chart'
 import { EmptyState, ProgressBar } from '@/components/ui/misc'
 import { formatPrice } from '@/lib/utils'
@@ -22,6 +23,7 @@ export default async function AdminStatsPage() {
     { count: viewCount },
     { data: topPages },
     { data: allOrders },
+    { data: productSales },
   ] = await Promise.all([
     supabase.from('orders').select('total_cents, paid_at').eq('status', 'paid').gte('paid_at', ninetyDaysAgo),
     supabase.from('v_course_sales').select('*'),
@@ -29,6 +31,7 @@ export default async function AdminStatsPage() {
     supabase.from('page_views').select('id', { count: 'exact', head: true }).gte('created_at', ninetyDaysAgo),
     supabase.from('page_views').select('path').gte('created_at', ninetyDaysAgo).limit(2000),
     supabase.from('orders').select('status'),
+    supabase.from('v_product_sales').select('*'),
   ])
 
   const revenue90 = (paidOrders ?? []).reduce((sum, o) => sum + (o.total_cents ?? 0), 0)
@@ -75,6 +78,7 @@ export default async function AdminStatsPage() {
       <PageHeader
         title="Statistiques"
         description="Vos indicateurs sur les 90 derniers jours."
+        actions={<ExportButton type="ventes" label="Exporter les ventes" />}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,7 +95,7 @@ export default async function AdminStatsPage() {
           icon={GraduationCap}
         />
         <StatCard
-          label="Taux de conversion"
+          label="Paiements aboutis"
           value={`${conversion} %`}
           hint="commandes payées / commandes créées"
           icon={Users}
@@ -149,6 +153,42 @@ export default async function AdminStatsPage() {
           </Table>
         )}
       </section>
+
+      {(productSales ?? []).length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-4 text-lg font-semibold">Ventes par produit</h2>
+          <Table>
+            <thead>
+              <tr>
+                <Th>Produit</Th>
+                <Th>Ventes</Th>
+                <Th>Revenus</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {(
+                (productSales ?? []) as {
+                  product_id: string
+                  product_title: string
+                  units_sold: number
+                  revenue_cents: number
+                }[]
+              )
+                .slice()
+                .sort((a, b) => Number(b.revenue_cents) - Number(a.revenue_cents))
+                .map((row) => (
+                  <tr key={row.product_id}>
+                    <Td className="font-medium text-fg">{row.product_title}</Td>
+                    <Td className="tabular-nums text-fg-muted">{Number(row.units_sold)}</Td>
+                    <Td className="font-semibold tabular-nums">
+                      {formatPrice(Number(row.revenue_cents) || null)}
+                    </Td>
+                  </tr>
+                ))}
+            </tbody>
+          </Table>
+        </section>
+      )}
 
       <section className="mt-6">
         <h2 className="mb-4 text-lg font-semibold">Pages les plus consultées</h2>

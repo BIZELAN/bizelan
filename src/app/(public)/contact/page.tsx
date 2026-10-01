@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import { Clock, Mail, MapPin, Phone } from 'lucide-react'
+import { Clock, ExternalLink, Mail, MapPin, Phone } from 'lucide-react'
 import { ContactForm } from '@/components/public/contact-form'
 import { getSiteSettings } from '@/lib/queries'
-import { safeMapEmbedSrc } from '@/lib/map-embed'
+import { mapsLinkFor, safeMapEmbedSrc } from '@/lib/map-embed'
 import { asArray, whatsappLink } from '@/lib/utils'
 import type { OpeningHour } from '@/lib/types'
 import { WhatsAppIcon } from '@/components/ui/brand-icons'
@@ -19,6 +19,7 @@ export default async function ContactPage() {
   const hours = asArray<OpeningHour>(settings.opening_hours)
   const whatsapp = whatsappLink(settings.whatsapp, 'Bonjour, je vous écris depuis votre site.')
   const mapSrc = safeMapEmbedSrc(settings.map_embed_url)
+  const mapsHref = mapsLinkFor(settings)
 
   return (
     <>
@@ -79,6 +80,17 @@ export default async function ContactPage() {
                   <div>
                     <p className="text-sm font-medium text-fg-subtle">Adresse</p>
                     <p className="text-[0.9375rem] text-fg">{settings.address}</p>
+                    {mapsHref && (
+                      <a
+                        href={mapsHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-primary-text hover:underline"
+                      >
+                        Itinéraire sur Google Maps
+                        <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                      </a>
+                    )}
                   </div>
                 </div>
               )}

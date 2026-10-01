@@ -6,6 +6,9 @@ import type {
   ModuleWithLessons,
   Page,
   Post,
+  Product,
+  ProductFile,
+  ProductWithFiles,
   Review,
   Service,
   SiteSettings,
@@ -28,6 +31,7 @@ const FALLBACK_SETTINGS: SiteSettings = {
   whatsapp_float_message: null,
   whatsapp_float_position: 'right',
   address: null,
+  maps_url: null,
   map_embed_url: null,
   opening_hours: [],
   social_links: {},
@@ -199,6 +203,70 @@ export async function getServiceBySlug(slug: string): Promise<Service | null> {
 }
 
 /* ------------------------------------------------------------------ */
+/* Boutique                                                            */
+/* ------------------------------------------------------------------ */
+
+export async function getPublishedProducts(options?: {
+  limit?: number
+  kind?: string
+  featuredOnly?: boolean
+}): Promise<Product[]> {
+  try {
+    const supabase = await createClient()
+    let query = supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'published')
+      .order('position', { ascending: true })
+      .order('created_at', { ascending: false })
+
+    if (options?.kind) query = query.eq('kind', options.kind)
+    if (options?.featuredOnly) query = query.eq('featured', true)
+    if (options?.limit) query = query.limit(options.limit)
+
+    const { data } = await query
+    return (data as Product[]) ?? []
+  } catch {
+    // Migration 0013 pas encore appliquée : la boutique reste vide plutôt
+    // que de faire tomber la page d'accueil ou le sitemap.
+    return []
+  }
+}
+
+/** Produit publié et ses fichiers visibles pour l'utilisateur courant. */
+export async function getProductBySlug(slug: string): Promise<ProductWithFiles | null> {
+  const supabase = await createClient()
+  const { data: product } = await supabase
+    .from('products')
+    .select('*')
+    .eq('slug', slug)
+    .maybeSingle<Product>()
+  if (!product) return null
+
+  // RLS : l'acheteur voit tous les fichiers, le visiteur les seuls extraits.
+  const { data: files } = await supabase
+    .from('product_files')
+    .select('*')
+    .eq('product_id', product.id)
+    .order('position')
+
+  return { ...product, files: (files as ProductFile[]) ?? [] }
+}
+
+/** L'utilisateur possède-t-il ce produit (achat actif) ? */
+export async function hasProductAccess(userId: string, productId: string): Promise<boolean> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('product_purchases')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('product_id', productId)
+    .eq('state', 'active')
+    .maybeSingle()
+  return Boolean(data)
+}
+
+/* ------------------------------------------------------------------ */
 /* Pages                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -262,7 +330,11 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 /* Avis                                                                */
 /* ------------------------------------------------------------------ */
 
-export async function getApprovedReviews(courseId?: string, limit = 6): Promise<Review[]> {
+export async function getApprovedReviews(
+  courseId?: string,
+  limit = 6,
+  options?: { productId?: string; siteOnly?: boolean },
+): Promise<Review[]> {
   const supabase = await createClient()
   let query = supabase
     .from('reviews')
@@ -273,6 +345,8 @@ export async function getApprovedReviews(courseId?: string, limit = 6): Promise<
     .limit(limit)
 
   if (courseId) query = query.eq('course_id', courseId)
+  if (options?.productId) query = query.eq('product_id', options.productId)
+  if (options?.siteOnly) query = query.is('course_id', null).is('product_id', null)
 
   const { data } = await query
   return (data as Review[]) ?? []
@@ -317,12 +391,14 @@ export async function getBlockData(): Promise<{
   services: Service[]
   posts: Post[]
   reviews: Review[]
+  products: Product[]
 }> {
-  const [courses, services, posts, reviews] = await Promise.all([
+  const [courses, services, posts, reviews, products] = await Promise.all([
     getPublishedCourses({ limit: 24 }),
     getPublishedServices(24),
     getPublishedPosts({ limit: 24 }),
     getApprovedReviews(undefined, 24),
+    getPublishedProducts({ limit: 24 }),
   ])
-  return { courses, services, posts, reviews }
+  return { courses, services, posts, reviews, products }
 }

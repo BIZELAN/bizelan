@@ -23,6 +23,7 @@ export type BlockType =
   | 'cta'
   | 'richText'
   | 'courseGrid'
+  | 'productGrid'
   | 'serviceGrid'
   | 'postGrid'
   | 'testimonials'
@@ -230,11 +231,20 @@ export const BLOCK_DEFS: BlockDef[] = [
   {
     type: 'phases',
     label: 'Phases du parcours',
-    description: 'Étapes numérotées avec leurs points clés.',
+    description: 'Étapes numérotées avec leurs points clés, dépliables.',
     icon: 'list-ordered',
     group: 'Vente',
     fields: [
       { key: 'title', label: 'Titre', type: 'text' },
+      {
+        key: 'display',
+        label: 'Affichage',
+        type: 'select',
+        options: [
+          { value: 'accordion', label: 'Dépliable — le visiteur ouvre chaque phase' },
+          { value: 'open', label: 'Tout afficher' },
+        ],
+      },
       {
         key: 'items',
         label: 'Phases',
@@ -250,6 +260,7 @@ export const BLOCK_DEFS: BlockDef[] = [
     ],
     defaults: {
       title: 'Le déroulé du parcours',
+      display: 'accordion',
       items: [
         { label: 'Phase 1', title: 'Première étape', description: '', bullets: [] },
       ],
@@ -413,6 +424,20 @@ export const BLOCK_DEFS: BlockDef[] = [
       { key: 'featuredOnly', label: 'Uniquement les formations mises en avant', type: 'boolean' },
     ],
     defaults: { title: 'Nos formations', limit: 3, featuredOnly: false },
+  },
+  {
+    type: 'productGrid',
+    label: 'Grille de produits',
+    description: 'Affiche automatiquement les produits de la boutique.',
+    icon: 'package',
+    group: 'Listes',
+    fields: [
+      { key: 'title', label: 'Titre', type: 'text' },
+      { key: 'subtitle', label: 'Sous-titre', type: 'textarea' },
+      { key: 'limit', label: 'Nombre maximum', type: 'number' },
+      { key: 'featuredOnly', label: 'Uniquement les produits mis en avant', type: 'boolean' },
+    ],
+    defaults: { title: 'La boutique', limit: 3, featuredOnly: false },
   },
   {
     type: 'serviceGrid',

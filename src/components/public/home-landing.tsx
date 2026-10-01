@@ -12,7 +12,13 @@ import {
   Users,
 } from 'lucide-react'
 
-import { CourseCard, FeaturedCourseCard, PostCard, ServiceCard } from '@/components/public/cards'
+import {
+  CourseCard,
+  FeaturedCourseCard,
+  PostCard,
+  ProductCard,
+  ServiceCard,
+} from '@/components/public/cards'
 import { ButtonLink } from '@/components/ui/button'
 import { Card, Glow, Panel } from '@/components/ui/surface'
 import { Badge } from '@/components/ui/badge'
@@ -20,7 +26,7 @@ import { Reveal } from '@/components/ui/reveal'
 import { Scroller } from '@/components/ui/scroller'
 import { Section, SectionHeader } from '@/components/ui/section'
 import { Stars } from '@/components/ui/misc'
-import type { Course, Post, Review, Service, SiteSettings } from '@/lib/types'
+import type { Course, Post, Product, Review, Service, SiteSettings } from '@/lib/types'
 
 /**
  * Page d'accueil par défaut.
@@ -36,12 +42,14 @@ export function HomeLanding({
   services,
   posts,
   reviews,
+  products = [],
 }: {
   settings: SiteSettings
   courses: Course[]
   services: Service[]
   posts: Post[]
   reviews: Review[]
+  products?: Product[]
 }) {
   const featured = courses.find((c) => c.featured) ?? courses[0] ?? null
   const averageRating =
@@ -55,6 +63,7 @@ export function HomeLanding({
       <ProofBand courses={courses} services={services} reviews={reviews} rating={averageRating} />
       <Approach />
       <Courses courses={courses} />
+      <Shop products={products} />
       <Method />
       <Services services={services} />
       <Testimonials reviews={reviews} />
@@ -248,6 +257,43 @@ function Courses({ courses }: { courses: Course[] }) {
           {courses.slice(0, 6).map((course, index) => (
             <Reveal key={course.id} delay={index * 70} className="h-full">
               <CourseCard course={course} />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Boutique                                                            */
+/* ------------------------------------------------------------------ */
+
+function Shop({ products }: { products: Product[] }) {
+  if (products.length === 0) return null
+
+  return (
+    <Section tone="base" size="lg">
+      <div className="container-page">
+        <SectionHeader
+          eyebrow="La boutique"
+          title="Des ressources prêtes à l’emploi"
+          subtitle="Guides, modèles et vidéos, disponibles immédiatement après achat."
+          action={
+            <Link
+              href="/boutique"
+              className="inline-flex items-center gap-1.5 text-base font-semibold text-primary-text hover:text-primary-hover"
+            >
+              Toute la boutique
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          }
+        />
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {products.slice(0, 3).map((product, index) => (
+            <Reveal key={product.id} delay={index * 70} className="h-full">
+              <ProductCard product={product} />
             </Reveal>
           ))}
         </div>

@@ -71,13 +71,19 @@ export const QUOTE_STATUS_LABELS: Record<string, { label: string; tone: Tone }> 
 
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   saspay: 'Mobile Money',
-  // Conservés : les commandes déjà encaissées les portent.
-  chariow: 'Paiement en ligne (Chariow)',
-  // Conservé : les commandes encaissées avant le passage à Chariow le portent.
-  kkiapay: 'Mobile Money (KkiaPay)',
+  // Anciens prestataires, conservés : les commandes déjà encaissées les portent.
+  chariow: 'Paiement en ligne (ancien prestataire)',
+  kkiapay: 'Mobile Money (ancien prestataire)',
   bank_transfer: 'Dépôt / virement',
   manual: 'Ajout manuel',
   free: 'Gratuit',
+}
+
+/** Rôles des comptes, en français — `admin` ou `editor` n'ont rien à faire à l'écran. */
+export const ROLE_LABELS: Record<string, { label: string; tone: Tone }> = {
+  client: { label: 'Client', tone: 'neutral' },
+  editor: { label: 'Éditeur', tone: 'primary' },
+  admin: { label: 'Administrateur', tone: 'accent' },
 }
 
 export function StatusBadge({

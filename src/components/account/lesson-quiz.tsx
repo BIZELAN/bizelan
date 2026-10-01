@@ -52,8 +52,13 @@ export function LessonQuiz({
   const [result, setResult] = useState<QuizResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  // Compteur tenu ici : la valeur reçue du serveur ne bouge pas tant que la
+  // page n'est pas rechargée, et après deux essais le composant annonçait
+  // encore « tentative 2 sur 3 ».
+  const [attemptsUsed, setAttemptsUsed] = useState(quiz.attemptsUsed)
+  const [passedOnce, setPassedOnce] = useState(quiz.alreadyPassed)
 
-  const exhausted = quiz.maxAttempts > 0 && quiz.attemptsUsed >= quiz.maxAttempts
+  const exhausted = quiz.maxAttempts > 0 && attemptsUsed >= quiz.maxAttempts
   const unanswered = quiz.questions.filter((q) => !(answers[q.id]?.length > 0)).length
 
   const toggle = (questionId: string, choiceId: string) =>
@@ -76,6 +81,8 @@ export function LessonQuiz({
         return
       }
       setResult(response.result)
+      setAttemptsUsed((n) => n + 1)
+      if (response.result.passed) setPassedOnce(true)
     })
   }
 
@@ -183,7 +190,7 @@ export function LessonQuiz({
 
         {!result.passed && (
           <footer className="border-t border-line p-6">
-            {quiz.maxAttempts > 0 && quiz.attemptsUsed + 1 >= quiz.maxAttempts ? (
+            {exhausted ? (
               <Alert tone="warning">
                 Vous avez utilisé toutes vos tentatives. Contactez-nous si vous pensez qu’il s’agit
                 d’une erreur.
@@ -213,11 +220,12 @@ export function LessonQuiz({
           {quiz.questions.length} question{quiz.questions.length > 1 ? 's' : ''} ·{' '}
           {quiz.passPercent} % de bonnes réponses attendues
           {quiz.maxAttempts > 0 &&
-            ` · tentative ${quiz.attemptsUsed + 1} sur ${quiz.maxAttempts}`}
+            !exhausted &&
+            ` · tentative ${attemptsUsed + 1} sur ${quiz.maxAttempts}`}
         </p>
       </header>
 
-      {quiz.alreadyPassed && (
+      {passedOnce && !exhausted && (
         <div className="border-b border-line px-6 py-4">
           <Alert tone="success">
             Vous avez déjà réussi ce questionnaire. Vous pouvez le refaire pour vous entraîner.
@@ -225,12 +233,20 @@ export function LessonQuiz({
         </div>
       )}
 
-      {exhausted && !quiz.alreadyPassed ? (
+      {exhausted ? (
         <div className="p-6">
-          <Alert tone="warning">
-            Vous avez utilisé vos {quiz.maxAttempts} tentatives. Contactez-nous si vous pensez
-            qu’il s’agit d’une erreur.
-          </Alert>
+          {/* Le serveur refuse toute tentative au-delà du plafond : proposer
+              les questions après coup ne menait qu'à un message d'erreur. */}
+          {passedOnce ? (
+            <Alert tone="success">
+              Questionnaire réussi. Vous avez utilisé toutes vos tentatives.
+            </Alert>
+          ) : (
+            <Alert tone="warning">
+              Vous avez utilisé vos {quiz.maxAttempts} tentatives. Contactez-nous si vous pensez
+              qu’il s’agit d’une erreur.
+            </Alert>
+          )}
         </div>
       ) : (
         <>

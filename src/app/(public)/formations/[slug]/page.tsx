@@ -37,6 +37,8 @@ import {
   truncate,
 } from '@/lib/utils'
 import type { FaqItem } from '@/lib/types'
+import { MediaView } from '@/components/ui/media-view'
+import { isVideoUrl } from '@/lib/media'
 
 export const revalidate = 60
 
@@ -55,7 +57,11 @@ export async function generateMetadata({
     openGraph: {
       title: course.seo_title ?? course.title,
       description: course.seo_description ?? truncate(course.summary, 160),
-      images: course.og_image_url ?? course.cover_url ? [course.og_image_url ?? course.cover_url!] : [],
+      images: course.og_image_url
+        ? [course.og_image_url]
+        : course.cover_url && !isVideoUrl(course.cover_url)
+          ? [course.cover_url]
+          : [],
     },
   }
 }
@@ -178,7 +184,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
               />
             ) : (
               course.cover_url && (
-                <img src={course.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
+                <MediaView src={course.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
               )
             )}
             <div className="p-6">

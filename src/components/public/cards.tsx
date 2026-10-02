@@ -4,7 +4,6 @@ import { ArrowRight, Clock, PlayCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { PRODUCT_KINDS } from '@/lib/products'
 import { resolveIcon } from '@/lib/icons'
-import { resolveIcon } from '@/lib/icons'
 import type { Course, Post, Product, Service } from '@/lib/types'
 import {
   cn,
@@ -15,6 +14,7 @@ import {
   payablePrice,
   truncate,
 } from '@/lib/utils'
+import { MediaView } from '@/components/ui/media-view'
 
 /**
  * Cartes du catalogue.
@@ -81,7 +81,7 @@ function Cover({
   return (
     <div className={cn('relative shrink-0 overflow-hidden bg-canvas-subtle', ratio)}>
       {src ? (
-        <img
+        <MediaView
           src={src}
           alt=""
           loading="lazy"
@@ -323,7 +323,7 @@ export function ProductCard({ product }: { product: Product }) {
     <Link href={`/boutique/${product.slug}`} className={SHELL}>
       <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-canvas-subtle">
         {product.cover_url ? (
-          <img
+          <MediaView
             src={product.cover_url}
             alt=""
             loading="lazy"

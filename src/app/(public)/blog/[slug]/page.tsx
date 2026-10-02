@@ -10,6 +10,8 @@ import { Glow } from '@/components/ui/surface'
 import { Section, SectionHeader } from '@/components/ui/section'
 import { getPostBySlug, getPublishedPosts } from '@/lib/queries'
 import { formatDate, truncate } from '@/lib/utils'
+import { MediaView } from '@/components/ui/media-view'
+import { isVideoUrl } from '@/lib/media'
 
 export const revalidate = 60
 
@@ -30,7 +32,8 @@ export async function generateMetadata({
       title: post.seo_title ?? post.title,
       description: post.seo_description ?? truncate(post.excerpt, 160),
       publishedTime: post.published_at ?? undefined,
-      images: post.cover_url ? [post.cover_url] : [],
+      // Une couverture vidéo ne sert pas d'aperçu de lien : les réseaux attendent une image.
+      images: post.cover_url && !isVideoUrl(post.cover_url) ? [post.cover_url] : [],
     },
   }
 }
@@ -85,7 +88,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <div className="absolute inset-x-0 bottom-0 top-1/2 bg-canvas-subtle" aria-hidden />
           {post.cover_url && (
             <div className="container-page relative">
-              <img
+              <MediaView
                 src={post.cover_url}
                 alt=""
                 className="mx-auto max-w-4xl rounded-lg object-cover shadow-e3 ring-1 ring-line"

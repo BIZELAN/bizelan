@@ -21,6 +21,7 @@ import { AlertCircle } from 'lucide-react'
 import { RichEditorToolbar } from '@/components/admin/rich-editor-toolbar'
 import { Callout, CtaButton, SizedImage } from '@/components/admin/rich-editor-nodes'
 import { renderMarkdown } from '@/lib/markdown'
+import { describeUploadError, uploadToLibrary } from '@/lib/media-upload'
 import { emptyRichDoc, parseRichContent, type RichContent, type RichDoc } from '@/lib/rich-content'
 import { cn } from '@/lib/utils'
 
@@ -127,19 +128,11 @@ export function RichEditor({
       setUploading(true)
       setError(null)
       try {
-        const body = new FormData()
-        body.set('file', file)
-        body.set('bucket', 'public-media')
-
-        const response = await fetch('/api/admin/upload', { method: 'POST', body })
-        const payload: { url?: string; error?: string } = await response.json()
-
-        if (!response.ok || !payload.url) {
-          throw new Error(payload.error ?? 'Le téléversement a échoué.')
-        }
-        editor?.chain().focus().setImage({ src: payload.url, alt: '' }).run()
+        // Dépôt direct dans la médiathèque : plus de plafond à 4,5 Mo.
+        const { url } = await uploadToLibrary(file)
+        editor?.chain().focus().setImage({ src: url, alt: '' }).run()
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : 'Le téléversement a échoué.')
+        setError(describeUploadError(cause))
       } finally {
         setUploading(false)
       }

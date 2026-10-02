@@ -65,6 +65,11 @@ export interface FieldDef {
   options?: { value: string; label: string }[]
   /** Pour `objectList` : description des champs de chaque élément. */
   fields?: FieldDef[]
+  /**
+   * Pour `image` : `media` (défaut) accepte une image ou une vidéo, affichée
+   * en boucle et sans son ; `image` se limite aux images (logos, portraits).
+   */
+  accept?: 'image' | 'media'
   itemLabel?: string
 }
 
@@ -511,7 +516,7 @@ export const BLOCK_DEFS: BlockDef[] = [
         fields: [
           { key: 'name', label: 'Nom', type: 'text' },
           { key: 'role', label: 'Spécialité', type: 'text' },
-          { key: 'photoUrl', label: 'Photo', type: 'image' },
+          { key: 'photoUrl', label: 'Photo', type: 'image', accept: 'image' },
           { key: 'bio', label: 'En une phrase', type: 'textarea' },
         ],
       },
@@ -587,7 +592,7 @@ export const BLOCK_DEFS: BlockDef[] = [
         type: 'objectList',
         itemLabel: 'Logo',
         fields: [
-          { key: 'imageUrl', label: 'Image', type: 'image' },
+          { key: 'imageUrl', label: 'Image', type: 'image', accept: 'image' },
           { key: 'alt', label: 'Texte alternatif', type: 'text' },
         ],
       },
@@ -605,8 +610,9 @@ export const BLOCK_DEFS: BlockDef[] = [
       { key: 'url', label: 'URL de la vidéo', type: 'text', placeholder: 'https://www.youtube.com/watch?v=…' },
       {
         key: 'poster',
-        label: 'Image d’affiche',
+        label: 'Miniature (image d’affiche)',
         type: 'image',
+        accept: 'image',
         help: 'Affichée avant la lecture. Pour un lien direct (.mp4), la vidéo n’est téléchargée qu’au clic — une affiche évite un grand rectangle vide.',
       },
       { key: 'caption', label: 'Légende', type: 'text' },

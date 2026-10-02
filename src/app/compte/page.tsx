@@ -20,6 +20,7 @@ import { ButtonLink } from '@/components/ui/button'
 import { Alert, EmptyState, ProgressBar } from '@/components/ui/misc'
 import { EnrollmentCard } from '@/components/account/enrollment-card'
 import { formatDuration, formatPrice, payablePrice } from '@/lib/utils'
+import { MediaView } from '@/components/ui/media-view'
 
 export const metadata: Metadata = { title: 'Mon espace' }
 
@@ -101,7 +102,7 @@ export default async function AccountPage({
           <div className="grid sm:grid-cols-[14rem_1fr]">
             <div className="relative hidden bg-canvas-subtle sm:block">
               {dashboard.resume.summary.course.cover_url ? (
-                <img
+                <MediaView
                   src={dashboard.resume.summary.course.cover_url}
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover"
@@ -220,7 +221,7 @@ export default async function AccountPage({
                   >
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary-subtle text-primary-text">
                       {product.cover_url ? (
-                        <img src={product.cover_url} alt="" className="h-full w-full object-cover" />
+                        <MediaView src={product.cover_url} alt="" className="h-full w-full object-cover" />
                       ) : (
                         <Kind className="h-5 w-5" aria-hidden />
                       )}
@@ -273,7 +274,7 @@ export default async function AccountPage({
                 >
                   <div className="aspect-[16/9] overflow-hidden bg-canvas-subtle">
                     {item.cover ? (
-                      <img src={item.cover} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      <MediaView src={item.cover} alt="" loading="lazy" className="h-full w-full object-cover" />
                     ) : (
                       <div className="h-full w-full bg-gradient-to-br from-primary/25 to-canvas" />
                     )}

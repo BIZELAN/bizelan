@@ -252,7 +252,7 @@ export function CourseForm({
           />
         </Field>
         <Field label="Image de partage">
-          <ImageInput name="og_image_url" defaultValue={course?.og_image_url} />
+          <ImageInput name="og_image_url" defaultValue={course?.og_image_url} accept="image" />
         </Field>
       </FormSection>
 

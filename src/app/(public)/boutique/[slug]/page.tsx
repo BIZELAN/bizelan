@@ -25,6 +25,7 @@ import {
   truncate,
 } from '@/lib/utils'
 import type { FaqItem } from '@/lib/types'
+import { MediaView } from '@/components/ui/media-view'
 
 export const revalidate = 60
 
@@ -110,7 +111,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
               <div className="mt-8 overflow-hidden rounded-lg bg-canvas-subtle ring-1 ring-line">
                 {product.cover_url ? (
-                  <img src={product.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
+                  <MediaView src={product.cover_url} alt="" className="aspect-[16/9] w-full object-cover" />
                 ) : (
                   <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-primary/30 to-canvas">
                     <kind.icon className="h-16 w-16 text-primary-text/60" aria-hidden />

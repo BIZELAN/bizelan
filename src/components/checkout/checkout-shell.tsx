@@ -3,6 +3,7 @@ import { ArrowLeft, Check, ShieldCheck } from 'lucide-react'
 
 import { CheckoutForm, type CheckoutProps } from '@/components/checkout/checkout-form'
 import { formatPrice } from '@/lib/utils'
+import { MediaView } from '@/components/ui/media-view'
 
 /**
  * Gabarit commun du tunnel d'achat : formulaire à gauche, rappel de l'offre à
@@ -58,7 +59,7 @@ export function CheckoutShell({
           <aside className="lg:sticky lg:top-24">
             <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-e1">
               {coverUrl && (
-                <img src={coverUrl} alt="" className="aspect-[16/9] w-full object-cover" />
+                <MediaView src={coverUrl} alt="" className="aspect-[16/9] w-full object-cover" />
               )}
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-fg">{form.title}</h2>

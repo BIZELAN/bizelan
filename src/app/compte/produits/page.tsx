@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/misc'
 import { SecureFileList } from '@/components/account/secure-file-list'
 import { formatDate } from '@/lib/utils'
 import type { Product, ProductFile, ProductPurchase } from '@/lib/types'
+import { MediaView } from '@/components/ui/media-view'
 
 export const metadata: Metadata = { title: 'Mes produits' }
 
@@ -71,7 +72,7 @@ export default async function MyProductsPage() {
                 <header className="flex flex-col gap-4 border-b border-line p-5 sm:flex-row sm:items-center">
                   <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary-subtle text-primary-text">
                     {product.cover_url ? (
-                      <img src={product.cover_url} alt="" className="h-full w-full object-cover" />
+                      <MediaView src={product.cover_url} alt="" className="h-full w-full object-cover" />
                     ) : (
                       <kind.icon className="h-7 w-7" aria-hidden />
                     )}

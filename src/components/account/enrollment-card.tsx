@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { ProgressBar } from '@/components/ui/misc'
 import type { EnrollmentSummary } from '@/lib/learner'
 import { cn, formatDate, formatDuration } from '@/lib/utils'
+import { MediaView } from '@/components/ui/media-view'
 
 /**
  * Carte d'une formation suivie.
@@ -26,7 +27,7 @@ export function EnrollmentCard({ summary }: { summary: EnrollmentSummary }) {
       <Link href={`/compte/formations/${course.slug}`} className="relative block" tabIndex={-1}>
         <div className="aspect-[16/9] overflow-hidden bg-canvas-subtle">
           {course.cover_url ? (
-            <img
+            <MediaView
               src={course.cover_url}
               alt=""
               loading="lazy"

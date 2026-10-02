@@ -123,7 +123,7 @@ export function PageForm({
           />
         </Field>
         <Field label="Image de partage">
-          <ImageInput name="og_image_url" defaultValue={page?.og_image_url} />
+          <ImageInput name="og_image_url" defaultValue={page?.og_image_url} accept="image" />
         </Field>
       </FormSection>
 

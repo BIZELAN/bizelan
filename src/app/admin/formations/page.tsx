@@ -11,6 +11,7 @@ import { ActionButton, DeleteButton } from '@/components/admin/form-bits'
 import { deleteCourse, duplicateCourse } from '@/app/actions/admin'
 import { formatPrice } from '@/lib/utils'
 import type { Course } from '@/lib/types'
+import { MediaView } from '@/components/ui/media-view'
 
 export const metadata: Metadata = { title: 'Formations' }
 export const dynamic = 'force-dynamic'
@@ -79,7 +80,7 @@ export default async function AdminCoursesPage() {
                 <Td>
                   <div className="flex items-center gap-3">
                     {course.cover_url ? (
-                      <img
+                      <MediaView
                         src={course.cover_url}
                         alt=""
                         className="h-11 w-16 shrink-0 rounded-sm object-cover"

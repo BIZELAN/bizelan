@@ -191,6 +191,9 @@ export function ColorPicker({
         }}
         role="slider"
         aria-label="Saturation et luminosité"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(hsv[1] * 100)}
         aria-valuetext={current}
       >
         <span

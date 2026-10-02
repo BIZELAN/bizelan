@@ -70,11 +70,11 @@ export function SettingsForm({
         </Field>
 
         <Field label="Logo" help="Format PNG ou SVG, fond transparent de préférence.">
-          <ImageInput name="logo_url" defaultValue={settings.logo_url} label="Logo" />
+          <ImageInput name="logo_url" defaultValue={settings.logo_url} label="Logo" accept="image" />
         </Field>
 
         <Field label="Favicon" help="Petite icône affichée dans l’onglet du navigateur.">
-          <ImageInput name="favicon_url" defaultValue={settings.favicon_url} label="Favicon" />
+          <ImageInput name="favicon_url" defaultValue={settings.favicon_url} label="Favicon" accept="image" />
         </Field>
       </FormSection>
 

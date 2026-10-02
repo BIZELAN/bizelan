@@ -23,6 +23,7 @@ import { ResourceList } from '@/components/account/resource-list'
 import { ReviewForm } from '@/components/account/review-form'
 import { cn, formatDuration } from '@/lib/utils'
 import type { Enrollment } from '@/lib/types'
+import { MediaView } from '@/components/ui/media-view'
 
 export const metadata: Metadata = { title: 'Ma formation' }
 
@@ -161,7 +162,7 @@ export default async function CourseOverviewPage({
           </div>
           {course.cover_url && (
             <div className="relative hidden bg-canvas-subtle md:block">
-              <img src={course.cover_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <MediaView src={course.cover_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
             </div>
           )}
         </div>

@@ -25,6 +25,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Scroller } from '@/components/ui/scroller'
 import { VideoPlayer } from '@/components/ui/video-player'
+import { MediaView } from '@/components/ui/media-view'
 import { resolveVideoUrl, VIDEO_IFRAME_ALLOW } from '@/lib/video'
 import {
   CourseCard,
@@ -307,7 +308,7 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
     <section className={cn('relative overflow-hidden', THEMES[theme])}>
       {imageUrl && (
         <>
-          <img src={imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <MediaView src={imageUrl} className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-canvas/75" />
         </>
       )}
@@ -393,7 +394,7 @@ function PainPointsBlock({ data }: { data: Record<string, unknown> }) {
             ))}
           </ul>
           {imageUrl && (
-            <img src={imageUrl} alt="" className="w-full rounded-lg object-cover shadow-e1" />
+            <MediaView src={imageUrl} className="w-full rounded-lg object-cover shadow-e1" />
           )}
         </div>
       </div>
@@ -466,7 +467,7 @@ function ChecklistBlock({ data }: { data: Record<string, unknown> }) {
             </ul>
           </div>
           {imageUrl && (
-            <img src={imageUrl} alt="" className="w-full rounded-lg object-cover shadow-e1" />
+            <MediaView src={imageUrl} className="w-full rounded-lg object-cover shadow-e1" />
           )}
         </div>
       </div>
@@ -698,11 +699,7 @@ function QuoteBlock({ data }: { data: Record<string, unknown> }) {
       <div className="container-page">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 text-center lg:flex-row lg:text-left">
           {imageUrl && (
-            <img
-              src={imageUrl}
-              alt=""
-              className="h-40 w-40 shrink-0 rounded-lg object-cover lg:h-52 lg:w-52"
-            />
+            <MediaView src={imageUrl} className="h-40 w-40 shrink-0 rounded-lg object-cover lg:h-52 lg:w-52" />
           )}
           <div>
             <QuoteIcon className="mx-auto mb-4 h-8 w-8 text-primary-text lg:mx-0" aria-hidden />
@@ -748,7 +745,7 @@ function AboutBlock({ data }: { data: Record<string, unknown> }) {
               </ul>
             )}
           </div>
-          {imageUrl && <img src={imageUrl} alt="" className="w-full rounded-lg object-cover" />}
+          {imageUrl && <MediaView src={imageUrl} className="w-full rounded-lg object-cover" />}
         </div>
       </div>
     </section>
@@ -935,11 +932,8 @@ function ImageBlock({ data }: { data: Record<string, unknown> }) {
     <section className="section bg-canvas">
       <div className="container-page">
         <figure className="mx-auto max-w-4xl">
-          <img
-            src={f.str('imageUrl')}
-            alt={f.str('alt')}
-            className="w-full rounded-lg object-cover"
-          />
+          <MediaView src={f.str('imageUrl')} alt={f.str('alt')} className="w-full rounded-lg object-cover" />
+
           {f.str('caption') && (
             <figcaption className="mt-3 text-center text-sm text-fg-subtle">
               {f.str('caption')}
@@ -1193,12 +1187,8 @@ function FreeContentBlock({ data }: { data: Record<string, unknown> }) {
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-canvas-subtle">
                   {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    <MediaView src={item.imageUrl} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+
                   ) : (
                     <div className="h-full w-full bg-gradient-to-br from-primary/30 to-canvas" />
                   )}

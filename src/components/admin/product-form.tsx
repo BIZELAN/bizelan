@@ -256,7 +256,7 @@ export function ProductForm({ product }: { product: Product | null }) {
           />
         </Field>
         <Field label="Image de partage">
-          <ImageInput name="og_image_url" defaultValue={product?.og_image_url} />
+          <ImageInput name="og_image_url" defaultValue={product?.og_image_url} accept="image" />
         </Field>
       </FormSection>
 

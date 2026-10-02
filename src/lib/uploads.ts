@@ -56,6 +56,18 @@ export const VIDEO_MIME_TYPES = [
 ]
 
 export const UPLOAD_TARGETS: Record<string, UploadTarget> = {
+  /**
+   * Médiathèque : tout fichier, public. Images, vidéos de fond, PDF offerts,
+   * audio… Le dépôt est direct (URL signée) : la limite de corps de requête de
+   * l'hébergeur — 4,5 Mo sur Vercel — ne s'applique pas.
+   */
+  media: {
+    bucket: 'public-media',
+    maxBytes: 2048 * MB,
+    mimeTypes: null,
+    public: true,
+    label: 'Fichier de la médiathèque',
+  },
   image: {
     bucket: 'public-media',
     maxBytes: 10 * MB,

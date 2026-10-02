@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   ChevronDown,
   ChevronUp,
@@ -8,9 +8,7 @@ import {
   Eye,
   EyeOff,
   GripVertical,
-  ImagePlus,
   LayoutTemplate,
-  Loader2,
   Plus,
   Trash2,
   X,
@@ -31,6 +29,7 @@ import { Button } from '@/components/ui/button'
 import { blockTypeIcon } from '@/lib/icons'
 import { BlockPreview } from '@/components/admin/block-preview'
 import { IconPicker } from '@/components/admin/icon-picker'
+import { MediaField } from '@/components/admin/media-input'
 import type { BlockData } from '@/components/public/blocks/block-renderer'
 import { Checkbox, Input, Select, Textarea } from '@/components/ui/field'
 import { EmptyState } from '@/components/ui/misc'
@@ -407,7 +406,13 @@ function BlockField({
       return (
         <div>
           {label}
-          <InlineImage value={String(value ?? '')} onChange={onChange} />
+          <MediaField
+            value={String(value ?? '')}
+            onChange={onChange}
+            accept={field.accept ?? 'media'}
+            height="h-24"
+          />
+          {field.help && <p className="mt-1 text-xs text-fg-subtle">{field.help}</p>}
         </div>
       )
 
@@ -562,101 +567,6 @@ function BlockField({
         </div>
       )
   }
-}
-
-/**
- * Champ image d'un bloc : téléverse et renvoie directement l'URL au bloc,
- * sans passer par un champ de formulaire nommé.
- */
-function InlineImage({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  async function upload(file: File) {
-    setUploading(true)
-    setError(null)
-    try {
-      const body = new FormData()
-      body.set('file', file)
-      body.set('bucket', 'public-media')
-
-      const response = await fetch('/api/admin/upload', { method: 'POST', body })
-      const payload = (await response.json()) as { url?: string; error?: string }
-
-      if (!response.ok || !payload.url) {
-        setError(payload.error ?? 'Téléversement impossible.')
-        return
-      }
-      onChange(payload.url)
-    } catch {
-      setError('Téléversement impossible. Vérifiez votre connexion.')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  return (
-    <div>
-      {value ? (
-        <div className="relative inline-block">
-          <img
-            src={value}
-            alt=""
-            className="h-24 w-auto max-w-full rounded-md border border-line object-cover"
-          />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute -right-2 -top-2 rounded-full bg-danger p-1 text-danger-fg shadow-e1 transition-opacity hover:opacity-90"
-            aria-label="Retirer l’image"
-          >
-            <X className="h-3 w-3" aria-hidden />
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-          className="flex h-24 w-full max-w-xs items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-canvas-subtle text-sm text-fg-subtle transition-colors hover:border-primary-text hover:bg-primary-subtle hover:text-primary-text disabled:opacity-60"
-        >
-          {uploading ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-              Téléversement…
-            </>
-          ) : (
-            <>
-              <ImagePlus className="h-5 w-5" aria-hidden />
-              Choisir une image
-            </>
-          )}
-        </button>
-      )}
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) void upload(file)
-          e.target.value = ''
-        }}
-      />
-
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="…ou collez une URL d’image"
-        className="mt-2 text-xs"
-      />
-
-      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
-    </div>
-  )
 }
 
 function IconButton({

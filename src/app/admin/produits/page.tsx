@@ -12,6 +12,7 @@ import { deleteProduct, duplicateProduct } from '@/app/actions/products'
 import { PRODUCT_KINDS } from '@/lib/products'
 import { formatPrice, payablePrice } from '@/lib/utils'
 import type { Product } from '@/lib/types'
+import { MediaView } from '@/components/ui/media-view'
 
 export const metadata: Metadata = { title: 'Boutique' }
 export const dynamic = 'force-dynamic'
@@ -117,7 +118,7 @@ export default async function AdminProductsPage() {
                   <Td>
                     <div className="flex items-center gap-3">
                       {product.cover_url ? (
-                        <img src={product.cover_url} alt="" className="h-11 w-16 shrink-0 rounded-sm object-cover" />
+                        <MediaView src={product.cover_url} alt="" className="h-11 w-16 shrink-0 rounded-sm object-cover" />
                       ) : (
                         <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded-sm bg-canvas-subtle">
                           <kind.icon className="h-4 w-4 text-fg-subtle" aria-hidden />

@@ -5,6 +5,7 @@ import { BlockRenderer } from '@/components/public/blocks/block-renderer'
 import { SiteFooter } from '@/components/public/site-footer'
 import { SiteHeader } from '@/components/public/site-header'
 import { ViewTracker } from '@/components/public/view-tracker'
+import { WhatsAppFloat } from '@/components/public/whatsapp-float'
 import { getCurrentUser } from '@/lib/auth'
 import { parseBlocks } from '@/lib/blocks'
 import {
@@ -90,6 +91,15 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
         <BlockRenderer blocks={parseBlocks(page.blocks)} context={{ ...context, data }} />
       </main>
       {!page.hide_footer && <SiteFooter settings={settings} />}
+      {/* Même bouton que le reste du site : une page de vente « nue » perd son
+          menu et son pied, pas le moyen le plus direct de poser une question
+          avant d'acheter. */}
+      <WhatsAppFloat
+        phone={settings.whatsapp}
+        enabled={settings.whatsapp_float_enabled !== false}
+        message={settings.whatsapp_float_message}
+        position={settings.whatsapp_float_position}
+      />
       <ViewTracker />
     </div>
   )

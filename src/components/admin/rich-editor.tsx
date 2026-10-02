@@ -150,7 +150,10 @@ export function RichEditor({
   const words = editor?.storage.characterCount?.words?.() ?? 0
 
   return (
-    <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-e1 focus-within:border-primary-text">
+    // Pas d'`overflow-hidden` ici : il rognait les menus de la barre d'outils
+    // (couleurs, liens) et tout contenu plus large que le cadre. Les coins
+    // arrondis sont portés par la barre et le pied eux-mêmes.
+    <div className="min-w-0 max-w-full rounded-lg border border-line bg-surface shadow-e1 focus-within:border-primary-text">
       {name && <input type="hidden" name={name} value={serialized} />}
 
       {editor && (
@@ -164,9 +167,9 @@ export function RichEditor({
         </div>
       )}
 
-      <EditorContent editor={editor} className="px-5 py-4" />
+      <EditorContent editor={editor} className="min-w-0 px-5 py-4" />
 
-      <div className="flex items-center justify-between border-t border-line bg-canvas-subtle px-4 py-1.5 text-xs text-fg-subtle">
+      <div className="flex items-center justify-between rounded-b-lg border-t border-line bg-canvas-subtle px-4 py-1.5 text-xs text-fg-subtle">
         <span>
           {words} mot{words > 1 ? 's' : ''} · ~{Math.max(1, Math.round(words / 200))} min de lecture
         </span>

@@ -12,6 +12,7 @@ import {
   StringListEditor,
 } from '@/components/admin/form-bits'
 import { ImageInput } from '@/components/admin/image-input'
+import { IconPicker } from '@/components/admin/icon-picker'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { asArray, slugify } from '@/lib/utils'
 import { parseRichContent } from '@/lib/rich-content'
@@ -21,6 +22,7 @@ export function ServiceForm({ service }: { service: Service | null }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveService, null)
   const [pricing, setPricing] = useState(service?.pricing ?? 'quote')
   const [slug, setSlug] = useState(service?.slug ?? '')
+  const [icon, setIcon] = useState(service?.icon ?? '')
 
   return (
     <form action={action} className="space-y-6">
@@ -61,12 +63,8 @@ export function ServiceForm({ service }: { service: Service | null }) {
           <ImageInput name="cover_url" defaultValue={service?.cover_url} />
         </Field>
 
-        <Field
-          label="Icône"
-          htmlFor="icon"
-          help="Nom d’icône Lucide, par exemple : stethoscope, trending-up, file-text."
-        >
-          <Input id="icon" name="icon" defaultValue={service?.icon ?? ''} placeholder="briefcase" />
+        <Field label="Icône" help="Affichée sur la carte du service.">
+          <IconPicker name="icon" value={icon} onChange={setIcon} />
         </Field>
       </FormSection>
 

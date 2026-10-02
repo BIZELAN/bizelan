@@ -3,6 +3,7 @@ import { ArrowRight, Clock, PlayCircle } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { PRODUCT_KINDS } from '@/lib/products'
+import { resolveIcon } from '@/lib/icons'
 import type { Course, Post, Product, Service } from '@/lib/types'
 import {
   cn,

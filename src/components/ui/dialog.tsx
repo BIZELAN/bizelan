@@ -36,6 +36,7 @@ const SIZES = {
   sm: 'max-w-sm',
   md: 'max-w-lg',
   lg: 'max-w-2xl',
+  xl: 'max-w-5xl',
 } as const
 
 /** Modale centrée. */

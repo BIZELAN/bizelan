@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { Editor } from '@tiptap/react'
 import {
   AlignCenter,
@@ -35,6 +35,7 @@ import {
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { ColorPicker } from '@/components/admin/color-picker'
 import { CALLOUT_TONES, CTA_VARIANTS, FONT_FAMILIES } from '@/lib/rich-content'
 
 /* ------------------------------------------------------------------ */
@@ -122,7 +123,20 @@ function Popover({
   children: (close: () => void) => ReactNode
 }) {
   const [open, setOpen] = useState(false)
+  const [alignRight, setAlignRight] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+
+  // Ancré à gauche par défaut ; s'il déborde de l'écran (bouton proche du
+  // bord droit, téléphone), il bascule à droite pour rester entier.
+  useLayoutEffect(() => {
+    if (!open) {
+      setAlignRight(false)
+      return
+    }
+    const rect = panel.current?.getBoundingClientRect()
+    if (rect && rect.right > window.innerWidth - 8) setAlignRight(true)
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -161,8 +175,10 @@ function Popover({
 
       {open && (
         <div
+          ref={panel}
           className={cn(
-            'absolute left-0 top-full z-30 mt-1 rounded-lg border border-line bg-surface p-3 shadow-e3',
+            'absolute top-full z-30 mt-1 max-w-[calc(100vw-1.5rem)] rounded-lg border border-line bg-surface p-3 shadow-e3',
+            alignRight ? 'right-0' : 'left-0',
             width,
           )}
         >
@@ -215,48 +231,6 @@ function UrlForm({
   )
 }
 
-const SWATCHES = [
-  '#1d2227', '#4d606e', '#8095a2',
-  '#227455', '#33916b', '#55ae87',
-  '#b86314', '#d3831a', '#e4a02f',
-  '#b91c1c', '#dc2626', '#f87171',
-]
-
-function ColorGrid({ onPick, onClear }: { onPick: (color: string) => void; onClear: () => void }) {
-  return (
-    <div className="space-y-2.5">
-      <div className="grid grid-cols-6 gap-1.5">
-        {SWATCHES.map((color) => (
-          <button
-            key={color}
-            type="button"
-            onClick={() => onPick(color)}
-            title={color}
-            aria-label={color}
-            className="h-6 w-6 rounded-md border border-line transition-transform hover:scale-110"
-            style={{ backgroundColor: color }}
-          />
-        ))}
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          onChange={(e) => onPick(e.target.value)}
-          className="h-7 w-10 cursor-pointer rounded border border-line bg-surface p-0.5"
-          title="Couleur personnalisée"
-        />
-        <button
-          type="button"
-          onClick={onClear}
-          className="text-xs font-medium text-fg-muted hover:text-fg"
-        >
-          Retirer la couleur
-        </button>
-      </div>
-    </div>
-  )
-}
-
 /* ------------------------------------------------------------------ */
 /* Barre d'outils                                                      */
 /* ------------------------------------------------------------------ */
@@ -295,7 +269,7 @@ export function RichEditorToolbar({
   const currentSize = (editor.getAttributes('textStyle').fontSize as string) ?? ''
 
   return (
-    <div className="sticky top-0 z-20 rounded-t-xl border-b border-line bg-canvas-subtle/95 backdrop-blur">
+    <div className="sticky top-0 z-20 rounded-t-lg border-b border-line bg-canvas-subtle/95 backdrop-blur">
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5">
         {/* Historique */}
         <ToolButton
@@ -410,11 +384,20 @@ export function RichEditorToolbar({
         <Popover
           title="Couleur du texte"
           active={Boolean(editor.getAttributes('textStyle').color)}
-          label={<Type className="h-4 w-4" aria-hidden />}
-          width="w-56"
+          label={
+            <span className="flex flex-col items-center leading-none">
+              <Type className="h-4 w-4" aria-hidden />
+              <span
+                className="mt-0.5 h-1 w-4 rounded-full"
+                style={{ backgroundColor: (editor.getAttributes('textStyle').color as string) || 'currentColor' }}
+              />
+            </span>
+          }
+          width="w-72"
         >
           {(close) => (
-            <ColorGrid
+            <ColorPicker
+              value={editor.getAttributes('textStyle').color as string | undefined}
               onPick={(color) => {
                 editor.chain().focus().setColor(color).run()
                 close()
@@ -430,13 +413,23 @@ export function RichEditorToolbar({
         <Popover
           title="Surlignage"
           active={editor.isActive('highlight')}
-          label={<Highlighter className="h-4 w-4" aria-hidden />}
-          width="w-56"
+          label={
+            <span className="flex flex-col items-center leading-none">
+              <Highlighter className="h-4 w-4" aria-hidden />
+              <span
+                className="mt-0.5 h-1 w-4 rounded-full"
+                style={{ backgroundColor: (editor.getAttributes('highlight').color as string) || 'transparent' }}
+              />
+            </span>
+          }
+          width="w-72"
         >
           {(close) => (
-            <ColorGrid
+            <ColorPicker
+              value={editor.getAttributes('highlight').color as string | undefined}
+              clearLabel="Retirer le surlignage"
               onPick={(color) => {
-                editor.chain().focus().toggleHighlight({ color }).run()
+                editor.chain().focus().setHighlight({ color }).run()
                 close()
               }}
               onClear={() => {

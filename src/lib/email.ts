@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { displayHost, getSiteUrl } from '@/lib/site-url'
+
 import { env, emailEnabled } from '@/lib/env'
 import { formatPrice } from '@/lib/utils'
 
@@ -71,7 +73,7 @@ function escapeMultiline(value: string | null | undefined): string {
   return escapeHtml(value).replace(/\r?\n/g, '<br>')
 }
 
-function layout(title: string, body: string): string {
+function layout(title: string, body: string, site: string): string {
   return `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title></head>
 <body style="margin:0;padding:24px;background:#f6f7f8;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#323a41;">
@@ -81,7 +83,7 @@ function layout(title: string, body: string): string {
     <hr style="border:none;border-top:1px solid #ebeef0;margin:32px 0 16px;">
     <p style="font-size:12px;color:#627887;margin:0;">
       BIZELAN — Cabinet d'accompagnement et de transformation<br>
-      <a href="${env.siteUrl}" style="color:#227455;">${env.siteUrl.replace(/^https?:\/\//, '')}</a>
+      <a href="${site}" style="color:#227455;">${displayHost(site)}</a>
     </p>
   </div>
 </body></html>`
@@ -110,6 +112,7 @@ export async function sendOrderConfirmation(args: {
   hasCourses?: boolean
   hasProducts?: boolean
 }): Promise<boolean> {
+  const site = await getSiteUrl()
   const rows = args.items
     .map(
       (i) =>
@@ -137,10 +140,11 @@ export async function sendOrderConfirmation(args: {
        </table>
        ${
          args.hasProducts && !args.hasCourses
-           ? button(`${env.siteUrl}/compte/produits`, 'Accéder à mes produits')
-           : button(`${env.siteUrl}/compte`, 'Accéder à mon espace')
+           ? button(`${site}/compte/produits`, 'Accéder à mes produits')
+           : button(`${site}/compte`, 'Accéder à mon espace')
        }
        <p style="margin:0;font-size:13px;color:#627887;">Référence : ${args.reference}</p>`,
+      site,
     ),
   })
 }
@@ -153,6 +157,7 @@ export async function sendPendingTransferNotice(args: {
   total: number
   instructions: string | null
 }): Promise<boolean> {
+  const site = await getSiteUrl()
   return send({
     to: args.to,
     subject: `Commande ${args.reference} — en attente de votre paiement`,
@@ -162,6 +167,7 @@ export async function sendPendingTransferNotice(args: {
        <p style="margin:0 0 16px;line-height:1.6;">Bonjour ${escapeHtml(args.customerName)}, votre commande de <strong>${formatPrice(args.total)}</strong> est enregistrée sous la référence <strong>${args.reference}</strong>.</p>
        ${args.instructions ? `<div style="background:#f0f9f4;border-left:3px solid #227455;padding:16px;border-radius:6px;line-height:1.6;font-size:14px;">${escapeMultiline(args.instructions)}</div>` : ''}
        <p style="margin:16px 0 0;line-height:1.6;">Dès réception de votre paiement, nous ouvrons votre accès et vous recevez un e-mail de confirmation.</p>`,
+      site,
     ),
   })
 }
@@ -175,6 +181,7 @@ export async function notifyAdminNewOrder(args: {
   method: string
   status: string
 }): Promise<boolean> {
+  const site = await getSiteUrl()
   if (!env.adminNotificationEmail) return false
   return send({
     to: env.adminNotificationEmail,
@@ -189,7 +196,8 @@ export async function notifyAdminNewOrder(args: {
          <strong>Moyen :</strong> ${escapeHtml(METHOD_LABELS[args.method] ?? args.method)}<br>
          <strong>Statut :</strong> ${escapeHtml(args.status)}
        </p>
-       ${button(`${env.siteUrl}/admin/commandes`, 'Voir dans l’admin')}`,
+       ${button(`${site}/admin/commandes`, 'Voir dans l’admin')}`,
+      site,
     ),
   })
 }
@@ -203,6 +211,7 @@ export async function notifyAdminNewLead(args: {
   message?: string | null
   service?: string | null
 }): Promise<boolean> {
+  const site = await getSiteUrl()
   if (!env.adminNotificationEmail) return false
   return send({
     to: env.adminNotificationEmail,
@@ -221,7 +230,8 @@ export async function notifyAdminNewLead(args: {
          ${args.service ? `<strong>Service :</strong> ${escapeHtml(args.service)}<br>` : ''}
        </p>
        ${args.message ? `<div style="background:#f6f7f8;padding:16px;border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(args.message)}</div>` : ''}
-       ${button(`${env.siteUrl}/admin/demandes`, 'Voir dans l’admin')}`,
+       ${button(`${site}/admin/demandes`, 'Voir dans l’admin')}`,
+      site,
     ),
   })
 }

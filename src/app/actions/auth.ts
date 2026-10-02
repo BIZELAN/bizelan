@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { env } from '@/lib/env'
+import { getSiteUrl } from '@/lib/site-url'
 
 export interface AuthState {
   ok: boolean
@@ -68,7 +68,7 @@ export async function signUp(_prev: AuthState | null, formData: FormData): Promi
     password,
     options: {
       data: { full_name: fullName, phone },
-      emailRedirectTo: `${env.siteUrl}/auth/callback?next=${encodeURIComponent(next)}`,
+      emailRedirectTo: `${await getSiteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   })
 
@@ -103,7 +103,7 @@ export async function requestPasswordReset(
 
   const supabase = await createClient()
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${env.siteUrl}/auth/callback?next=/compte/mot-de-passe`,
+    redirectTo: `${await getSiteUrl()}/auth/callback?next=/compte/mot-de-passe`,
   })
 
   if (error) return { ok: false, message: translate(error.message) }

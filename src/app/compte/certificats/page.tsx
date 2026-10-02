@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ButtonLink } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/misc'
 import { CopyButton } from '@/components/ui/copy-button'
-import { env } from '@/lib/env'
+import { getSiteUrl } from '@/lib/site-url'
 import { formatDate } from '@/lib/utils'
 import type { Course, Enrollment } from '@/lib/types'
 
@@ -27,7 +27,7 @@ export default async function CertificatesPage() {
   const rows = ((data ?? []) as (Enrollment & { course: Course | null })[]).filter((r) => r.course)
   const earned = rows.filter((r) => r.certificate_code)
   const pending = rows.filter((r) => !r.certificate_code && r.progress_percent >= 100)
-  const base = env.siteUrl.replace(/\/$/, '')
+  const base = await getSiteUrl()
 
   return (
     <div className="space-y-8">

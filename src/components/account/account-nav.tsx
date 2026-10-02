@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Award, BookOpen, LayoutDashboard, Package, Receipt, User } from 'lucide-react'
+import { Award, BookOpen, LayoutDashboard, MessageSquareHeart, Package, Receipt, User } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 

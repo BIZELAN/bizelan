@@ -859,6 +859,27 @@ export async function createReview(
   return { ok: true, message: 'Témoignage ajouté.' }
 }
 
+/**
+ * Réponse publique de l'équipe sous un avis (colonne ajoutée par 0014, sans
+ * écran jusqu'ici). Vide : la réponse est retirée.
+ */
+export async function replyToReview(
+  id: string,
+  _prev: AdminResult | null,
+  formData: FormData,
+): Promise<AdminResult> {
+  await requireAdmin()
+  const supabase = createAdminClient()
+  const reply = (str(formData, 'admin_reply') ?? '').slice(0, 2000) || null
+
+  const { error } = await supabase.from('reviews').update({ admin_reply: reply }).eq('id', id)
+  if (error) return { ok: false, message: mapError(error.message) }
+
+  revalidatePath('/admin/avis')
+  revalidatePath('/compte/avis')
+  return { ok: true, message: reply ? 'Réponse enregistrée.' : 'Réponse retirée.' }
+}
+
 export async function deleteReview(id: string): Promise<AdminResult> {
   await requireAdmin()
   const supabase = createAdminClient()

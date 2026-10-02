@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { MessageSquareHeart, ShoppingCart, UserRoundX } from 'lucide-react'
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { env } from '@/lib/env'
+import { getSiteUrl } from '@/lib/site-url'
 import { PageHeader, StatCard } from '@/components/admin/shell'
 import { FollowUpActions } from '@/components/admin/followup-actions'
 import { ORDER_STATUS_LABELS, StatusBadge } from '@/components/ui/badge'
@@ -45,7 +45,7 @@ function ago(date: string | null) {
  */
 export default async function FollowUpsPage() {
   const supabase = createAdminClient()
-  const base = env.siteUrl.replace(/\/$/, '')
+  const base = await getSiteUrl()
   const now = Date.now()
 
   /* ---------- Commandes abandonnées --------------------------------------- */
@@ -322,7 +322,7 @@ export default async function FollowUpsPage() {
         ) : (
           <ul className="space-y-3">
             {reviewAsks.map((e) => {
-              const message = `Bonjour ${firstName(e.profile!.full_name)}, bravo pour votre avancée sur « ${e.course!.title} » ! Votre avis compte beaucoup pour les prochains participants : pourriez-vous nous laisser quelques mots ici ? ${base}/compte/formations/${e.course!.slug} Merci !`
+              const message = `Bonjour ${firstName(e.profile!.full_name)}, bravo pour votre avancée sur « ${e.course!.title} » ! Votre avis compte beaucoup pour les prochains participants : pourriez-vous nous laisser quelques mots ici ? ${base}/compte/avis?formation=${encodeURIComponent(e.course!.slug)} Cela prend une minute. Merci !`
               return (
                 <li
                   key={e.id}

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState, Stars } from '@/components/ui/misc'
 import { ActionButton, DeleteButton } from '@/components/admin/form-bits'
 import { ReviewCreateForm } from '@/components/admin/review-create-form'
+import { ReviewReplyForm } from '@/components/admin/review-reply-form'
 import { deleteReview, moderateReview } from '@/app/actions/admin'
 import { formatDateTime } from '@/lib/utils'
 import type { Course, Review } from '@/lib/types'
@@ -17,13 +18,22 @@ export const dynamic = 'force-dynamic'
 export default async function AdminReviewsPage() {
   const supabase = createAdminClient()
 
-  const [{ data: reviews }, { data: courses }] = await Promise.all([
+  const [{ data: reviews }, { data: courses }, { data: products }] = await Promise.all([
     supabase.from('reviews').select('*').order('created_at', { ascending: false }),
     supabase.from('courses').select('id, title').order('title'),
+    supabase.from('products').select('id, title'),
   ])
 
   const list = (reviews as Review[]) ?? []
   const courseNames = new Map(((courses as Course[]) ?? []).map((c) => [c.id, c.title]))
+  const productNames = new Map(((products as { id: string; title: string }[]) ?? []).map((p) => [p.id, p.title]))
+  // Sujet de l'avis : formation, produit, ou le cabinet quand aucun des deux.
+  const subjectOf = (r: Review) =>
+    r.course_id
+      ? `Formation : ${courseNames.get(r.course_id) ?? '—'}`
+      : r.product_id
+        ? `Produit : ${productNames.get(r.product_id) ?? '—'}`
+        : 'Le cabinet'
   const pending = list.filter((r) => r.status === 'pending')
   const others = list.filter((r) => r.status !== 'pending')
 
@@ -44,7 +54,7 @@ export default async function AdminReviewsPage() {
                   <ReviewCard
                     key={review.id}
                     review={review}
-                    courseTitle={review.course_id ? courseNames.get(review.course_id) : undefined}
+                    courseTitle={subjectOf(review)}
                   />
                 ))}
               </div>
@@ -65,7 +75,7 @@ export default async function AdminReviewsPage() {
                   <ReviewCard
                     key={review.id}
                     review={review}
-                    courseTitle={review.course_id ? courseNames.get(review.course_id) : undefined}
+                    courseTitle={subjectOf(review)}
                   />
                 ))}
               </div>
@@ -119,6 +129,8 @@ function ReviewCard({ review, courseTitle }: { review: Review; courseTitle?: str
           « {review.comment} »
         </p>
       )}
+
+      <ReviewReplyForm id={review.id} initial={review.admin_reply ?? null} />
 
       <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
         {review.status !== 'approved' && (

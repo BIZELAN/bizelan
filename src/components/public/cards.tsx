@@ -4,6 +4,7 @@ import { ArrowRight, Clock, PlayCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { PRODUCT_KINDS } from '@/lib/products'
 import { resolveIcon } from '@/lib/icons'
+import { resolveIcon } from '@/lib/icons'
 import type { Course, Post, Product, Service } from '@/lib/types'
 import {
   cn,
@@ -187,8 +188,16 @@ export function CourseCard({ course }: { course: Course }) {
 }
 
 export function ServiceCard({ service }: { service: Service }) {
+  // L'icône choisie dans l'administration était enregistrée sans jamais être
+  // affichée. Elle ouvre désormais la carte.
+  const ServiceIcon = resolveIcon(service.icon)
   return (
     <Link href={`/services/${service.slug}`} className={cn(SHELL, 'p-6')}>
+      {ServiceIcon && (
+        <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-md bg-primary-subtle text-primary-text">
+          <ServiceIcon className="h-6 w-6" aria-hidden />
+        </span>
+      )}
       <h3 className="text-lg text-fg transition-colors group-hover:text-primary-text">
         {service.title}
       </h3>

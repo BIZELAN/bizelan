@@ -57,7 +57,25 @@ export interface FaqItem {
   answer: string
 }
 
-export interface Course {
+/**
+ * Rareté d'une offre (0015) : compte à rebours et quantité restante.
+ * Champs facultatifs — absents tant que la migration n'est pas appliquée.
+ */
+export interface Scarcity {
+  countdown_ends_at?: string | null
+  /** Texte au-dessus du compteur : « L'offre se termine dans ». */
+  countdown_label?: string | null
+  /** Vrai : l'offre n'est plus achetable une fois le délai écoulé. */
+  countdown_closes_sale?: boolean
+  /** Nul : quantité illimitée, rien n'est affiché. */
+  stock_remaining?: number | null
+  /** « places restantes », « exemplaires disponibles »… */
+  stock_label?: string | null
+  /** Présentation par blocs (0015). Vide : ancienne présentation riche. */
+  blocks?: unknown
+}
+
+export interface Course extends Scarcity {
   id: string
   slug: string
   title: string
@@ -66,6 +84,8 @@ export interface Course {
   description: string | null
   cover_url: string | null
   promo_video_url: string | null
+  /** Miniature de la vidéo de présentation (0015). */
+  promo_video_poster_url?: string | null
   category_id: string | null
   price_cents: number
   compare_at_price_cents: number | null
@@ -91,6 +111,8 @@ export interface Course {
   min_watch_ratio: number
   /** Exiger en plus la réussite des QCM actifs du parcours. */
   require_quiz_pass: boolean
+  /** Formation certifiante (0015). Faux : aucun certificat proposé. */
+  certificate_enabled?: boolean
 
   /**
    * Vestige de Chariow, conservé sans usage.
@@ -130,6 +152,8 @@ export interface Lesson {
   video_provider: VideoProvider | null
   video_id: string | null
   video_url: string | null
+  /** Miniature affichée avant la lecture (0015). */
+  video_poster_url?: string | null
   duration_seconds: number
   is_preview: boolean
   position: number
@@ -156,7 +180,7 @@ export interface ProcessStep {
   description: string
 }
 
-export interface Service {
+export interface Service extends Scarcity {
   id: string
   slug: string
   title: string
@@ -204,6 +228,8 @@ export interface Page {
 }
 
 export interface Post {
+  /** Présentation par blocs (0015). Vide : contenu riche historique. */
+  blocks?: unknown
   id: string
   slug: string
   title: string
@@ -294,6 +320,9 @@ export interface Enrollment {
   source: string
   progress_percent: number
   certificate_code: string | null
+  /** Nom imprimé, confirmé par l'apprenant lors de la demande (0015). */
+  certificate_name?: string | null
+  certificate_issued_at?: string | null
   started_at: string | null
   completed_at: string | null
   created_at: string
@@ -377,6 +406,8 @@ export interface MediaItem {
   width: number | null
   height: number | null
   alt: string | null
+  /** Miniature d'une vidéo (0015). */
+  poster_url?: string | null
   uploaded_by: string | null
   created_at: string
 }
@@ -427,6 +458,8 @@ export interface SiteSettings {
   announcement_active: boolean
   default_seo_title: string | null
   default_seo_description: string | null
+  /** Modèle du certificat (0015) — voir lib/certificate.ts. */
+  certificate?: Record<string, unknown>
   updated_at: string
 }
 
@@ -579,7 +612,7 @@ export interface CourseWatchCoverage {
 
 export type ProductKind = 'ebook' | 'video' | 'template' | 'audio' | 'bundle' | 'other'
 
-export interface Product {
+export interface Product extends Scarcity {
   id: string
   slug: string
   title: string

@@ -482,6 +482,14 @@
      --------------------------------------------------------------------- */
   .prose-bz {
     @apply text-reading text-fg-muted;
+    /* Même règle que dans l'éditeur : un lien ou un mot très long passe à la
+       ligne au lieu d'élargir la page sur téléphone. */
+    overflow-wrap: anywhere;
+  }
+  .prose-bz img,
+  .prose-bz video,
+  .prose-bz iframe {
+    max-width: 100%;
   }
   .prose-bz > * + * {
     @apply mt-5;
@@ -563,6 +571,26 @@
    texte d'invite — et les vues de nœud que ProseMirror rend en HTML brut.
    =========================================================================== */
 @layer components {
+
+  /* Tout ce qui est saisi doit rester VISIBLE dans le cadre : une adresse
+     web, un mot très long ou un contenu collé depuis Word (largeurs fixes en
+     ligne) débordaient à droite et disparaissaient sous le bord. On coupe les
+     mots trop longs, et aucun élément ne peut dépasser la largeur du cadre. */
+  .rich-surface {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
+  }
+  .rich-surface * {
+    max-width: 100%;
+  }
+  .rich-surface iframe,
+  .rich-surface video {
+    @apply w-full;
+  }
+  .rich-surface pre {
+    @apply whitespace-pre-wrap;
+  }
 
   .rich-surface img {
     @apply h-auto max-w-full rounded-lg;

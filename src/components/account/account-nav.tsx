@@ -11,6 +11,7 @@ const NAV = [
   { href: '/compte/formations', label: 'Mes formations', icon: BookOpen },
   { href: '/compte/produits', label: 'Mes produits', icon: Package },
   { href: '/compte/certificats', label: 'Mes certificats', icon: Award },
+  { href: '/compte/avis', label: 'Mes avis', icon: MessageSquareHeart },
   { href: '/compte/commandes', label: 'Mes commandes', icon: Receipt },
   { href: '/compte/profil', label: 'Mon profil', icon: User },
 ]

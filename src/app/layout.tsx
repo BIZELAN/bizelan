@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import './globals.css'
 import { getSiteSettings } from '@/lib/queries'
 import { env } from '@/lib/env'
 import { THEME_SCRIPT } from '@/lib/theme'
 import { buildThemeCss, parseTheme } from '@/lib/site-theme'
+import { NavigationProgress } from '@/components/ui/navigation-progress'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
@@ -57,7 +59,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             n'atteint la feuille de style. */}
         {themeCss && <style dangerouslySetInnerHTML={{ __html: themeCss }} />}
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Suspense : l'indicateur lit les paramètres d'URL, ce qui sans
+            frontière rendrait toutes les pages dynamiques. */}
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
+      </body>
     </html>
   )
 }

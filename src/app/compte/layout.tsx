@@ -5,7 +5,7 @@ import { getSiteSettings } from '@/lib/queries'
 import { signOut } from '@/app/actions/auth'
 import { AccountNav } from '@/components/account/account-nav'
 import { SiteLogo } from '@/components/ui/site-logo'
-import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { initials } from '@/lib/utils'
 
@@ -35,10 +35,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
               {initials(user.profile.full_name ?? user.email)}
             </span>
             <form action={signOut}>
-              <Button type="submit" variant="ghost" size="sm" aria-label="Se déconnecter">
+              <SubmitButton variant="ghost" size="sm" aria-label="Se déconnecter">
                 <LogOut className="h-4 w-4" aria-hidden />
                 <span className="hidden sm:inline">Déconnexion</span>
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         </div>

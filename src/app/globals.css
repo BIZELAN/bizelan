@@ -705,3 +705,22 @@ input[type='number']::-webkit-outer-spin-button {
     scroll-behavior: auto !important;
   }
 }
+
+/* Barre de navigation (voir `navigation-progress.tsx`) : elle avance vite
+   puis ralentit sans jamais atteindre le bout — c'est l'arrivée de la page
+   qui la termine. */
+@keyframes bz-nav-progress {
+  0% { width: 0; }
+  20% { width: 45%; }
+  60% { width: 75%; }
+  100% { width: 92%; }
+}
+.bz-nav-progress {
+  animation: bz-nav-progress 8s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bz-nav-progress {
+    animation: none;
+    width: 70%;
+  }
+}

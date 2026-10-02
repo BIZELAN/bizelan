@@ -3,12 +3,14 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useFormStatus } from 'react-dom'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import {
   ChevronRight,
   ExternalLink,
   LayoutGrid,
+  Loader2,
   LogOut,
   Menu,
   PanelLeftClose,
@@ -279,17 +281,16 @@ function SidebarFooter({
 
       <div className={cn('flex gap-1', collapsed ? 'flex-col items-center' : 'items-center')}>
         <form action={signOut} className={collapsed ? '' : 'flex-1'}>
-          <button
-            type="submit"
+          <PendingAwareButton
             className={cn(
-              'inline-flex items-center gap-2 rounded-sm border border-transparent text-sm text-danger transition-colors duration-fast hover:border-danger/30 hover:bg-danger-subtle',
+              'inline-flex items-center gap-2 rounded-sm border border-transparent text-sm text-danger disabled:opacity-60 transition-colors duration-fast hover:border-danger/30 hover:bg-danger-subtle',
               collapsed ? 'h-10 w-10 justify-center' : 'h-10 w-full px-3',
             )}
             title="Déconnexion"
           >
-            <LogOut className="h-4 w-4 shrink-0" aria-hidden />
+            <LogOutIcon className="h-4 w-4 shrink-0" />
             {collapsed ? <span className="sr-only">Déconnexion</span> : <span>Déconnexion</span>}
-          </button>
+          </PendingAwareButton>
         </form>
 
         {onToggle && (
@@ -357,17 +358,37 @@ function UserMenu({ userName, userRole }: { userName: string; userRole: string }
 
           <DropdownMenu.Item asChild>
             <form action={signOut}>
-              <button
-                type="submit"
-                className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-2.5 py-2 text-left text-sm text-danger outline-none transition-colors duration-fast data-[highlighted]:bg-danger-subtle"
+              <PendingAwareButton
+                className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-2.5 py-2 text-left text-sm text-danger disabled:opacity-60 outline-none transition-colors duration-fast data-[highlighted]:bg-danger-subtle"
               >
-                <LogOut className="h-4 w-4" aria-hidden />
+                <LogOutIcon className="h-4 w-4" />
                 Déconnexion
-              </button>
+              </PendingAwareButton>
             </form>
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
+  )
+}
+
+/* --- Déconnexion : bouton qui se bloque pendant l'envoi ------------------ */
+
+function PendingAwareButton({ className, title, children }: { className?: string; title?: string; children: ReactNode }) {
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" className={className} title={title} disabled={pending} aria-busy={pending}>
+      {children}
+    </button>
+  )
+}
+
+/** Icône de déconnexion, remplacée par un indicateur pendant l'envoi. */
+function LogOutIcon({ className }: { className?: string }) {
+  const { pending } = useFormStatus()
+  return pending ? (
+    <Loader2 className={cn(className, 'animate-spin')} aria-hidden />
+  ) : (
+    <LogOut className={className} aria-hidden />
   )
 }

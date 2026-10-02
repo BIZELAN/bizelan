@@ -28,6 +28,15 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '8mb',
     },
+    // Cache de navigation côté navigateur : une page déjà visitée se rouvre
+    // instantanément pendant 30 s (retour arrière, aller-retour entre deux
+    // écrans de l'administration). Toute action qui modifie des données
+    // appelle `revalidatePath`, qui vide ce cache : rien de périmé ne
+    // s'affiche après un enregistrement.
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
   },
 }
 

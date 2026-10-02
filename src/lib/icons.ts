@@ -540,6 +540,8 @@ export const BLOCK_TYPE_ICONS: Record<string, LucideIcon> = {
   'graduation-cap': GraduationCap,
   'help-circle': HelpCircle,
   image: Image,
+  images: Images,
+  timer: Timer,
   'layout-template': LayoutTemplate,
   'list-ordered': ListOrdered,
   mail: Mail,

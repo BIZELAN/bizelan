@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 
 import { resolveIcon } from '@/lib/icons'
-import type { Block } from '@/lib/blocks'
+import { blockTextTheme, type Block, type BlockStyle } from '@/lib/blocks'
 import type { Course, FaqItem, Post, Product, Review, Service } from '@/lib/types'
 import { Accordion } from '@/components/ui/accordion'
 import { ButtonLink } from '@/components/ui/button'
@@ -26,6 +26,9 @@ import { Badge } from '@/components/ui/badge'
 import { Scroller } from '@/components/ui/scroller'
 import { VideoPlayer } from '@/components/ui/video-player'
 import { MediaView } from '@/components/ui/media-view'
+import { Countdown } from '@/components/ui/countdown'
+import { Carousel, type CarouselSlide } from '@/components/public/blocks/carousel'
+import { WhatsAppIcon } from '@/components/ui/brand-icons'
 import { resolveVideoUrl, VIDEO_IFRAME_ALLOW } from '@/lib/video'
 import {
   CourseCard,
@@ -93,6 +96,8 @@ function themeOf(value: string): ThemeKey {
 export interface BlockContext {
   course?: Course | null
   service?: Service | null
+  /** Produit de la boutique dont la page présente les blocs. */
+  product?: Product | null
   /**
    * Contenus publiés, récupérés UNE fois par la page.
    *
@@ -134,9 +139,90 @@ export function BlockRenderer({
   return (
     <>
       {visible.map((block) => (
-        <BlockSwitch key={block.id} block={block} context={context} />
+        <BlockFrame key={block.id} style={block.style}>
+          <BlockSwitch block={block} context={context} />
+        </BlockFrame>
       ))}
     </>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Fond et mise en page d'un bloc                                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Enveloppe d'un bloc qui porte un fond choisi dans l'administration :
+ * couleur, dégradé, image ou vidéo en boucle, avec un voile réglable.
+ *
+ * Le bloc lui-même garde son rendu ; la classe `bz-block-frame` rend son fond
+ * propre transparent (voir `globals.css`) pour laisser voir celui-ci. Le
+ * thème de texte (`data-theme`) suit la luminosité du fond : sur une vidéo
+ * assombrie, tous les jetons — titres, textes, cartes — passent en version
+ * claire d'un coup, sans retoucher un seul bloc.
+ */
+function BlockFrame({ style, children }: { style?: BlockStyle; children: React.ReactNode }) {
+  if (!style) return <>{children}</>
+
+  const theme = blockTextTheme(style)
+  const type = style.bgType ?? 'none'
+  const hasBg = type !== 'none'
+  const overlay = (style.overlay ?? (type === 'image' || type === 'video' ? 45 : 0)) / 100
+  const spacing = style.spacing && style.spacing !== 'default' ? `bz-space-${style.spacing}` : null
+
+  if (!hasBg && !theme && !spacing && !style.fullHeight) return <>{children}</>
+
+  const background: React.CSSProperties =
+    type === 'color'
+      ? { backgroundColor: style.bgColor ?? 'transparent' }
+      : type === 'gradient'
+        ? {
+            backgroundImage: `linear-gradient(${style.bgAngle ?? 135}deg, ${style.bgColor ?? '#1c5d46'}, ${style.bgColor2 ?? '#0d1411'})`,
+          }
+        : type === 'image' && style.bgImage
+          ? {
+              backgroundImage: `url("${style.bgImage.replace(/"/g, '%22')}")`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: style.fixed ? 'fixed' : undefined,
+            }
+          : {}
+
+  return (
+    <div
+      data-theme={theme ?? undefined}
+      className={cn(
+        'relative isolate overflow-hidden',
+        hasBg && 'bz-block-frame',
+        spacing,
+        style.fullHeight && 'bz-full-height',
+        // Sans fond propre, l'îlot de thème a besoin de sa toile.
+        !hasBg && theme && 'bg-canvas',
+      )}
+      style={background}
+    >
+      {type === 'video' && style.bgVideo && (
+        <video
+          className="bz-frame-layer absolute inset-0 -z-10 h-full w-full object-cover"
+          src={style.bgVideo}
+          poster={style.bgPoster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
+        />
+      )}
+      {hasBg && overlay > 0 && (
+        <div
+          aria-hidden
+          className="bz-frame-layer absolute inset-0 -z-10"
+          style={{ backgroundColor: style.overlayColor ?? '#000000', opacity: overlay }}
+        />
+      )}
+      {children}
+    </div>
   )
 }
 
@@ -202,6 +288,20 @@ function BlockSwitch({ block, context }: { block: Block; context?: BlockContext 
       return <ContactFormBlock data={data} />
     case 'quoteForm':
       return <QuoteFormBlock data={data} service={context?.service ?? null} />
+    case 'carousel':
+      return <CarouselBlock data={data} />
+    case 'mediaText':
+      return <MediaTextBlock data={data} />
+    case 'gallery':
+      return <GalleryBlock data={data} />
+    case 'heading':
+      return <HeadingBlock data={data} />
+    case 'buttons':
+      return <ButtonsBlock data={data} />
+    case 'countdown':
+      return <CountdownBlock data={data} context={context} />
+    case 'spacer':
+      return <SpacerBlock data={data} />
     default:
       return null
   }
@@ -1258,5 +1358,186 @@ function QuoteFormBlock({
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Médias et mise en page                                              */
+/* ------------------------------------------------------------------ */
+
+function CarouselBlock({ data }: { data: Record<string, unknown> }) {
+  const f = d(data)
+  const slides = f.list<CarouselSlide>('items').filter((s) => s && (s.mediaUrl || s.title || s.text))
+  if (slides.length === 0) return null
+  const contained = f.str('width', 'full') === 'contained'
+
+  const carousel = (
+    <Carousel slides={slides} height={f.str('height', 'md')} autoplay={f.num('autoplay', 6)} rounded={contained} />
+  )
+  return contained ? (
+    <section className="section bg-canvas">
+      <div className="container-page">{carousel}</div>
+    </section>
+  ) : (
+    <section className="bg-canvas">{carousel}</section>
+  )
+}
+
+function MediaTextBlock({ data }: { data: Record<string, unknown> }) {
+  const f = d(data)
+  const media = f.str('mediaUrl')
+  const left = f.str('mediaPosition', 'right') === 'left'
+  const content = parseRichContent(data.content)
+
+  return (
+    <section className="section bg-canvas">
+      <div className={cn('container-page grid items-center gap-10 lg:gap-14', media && 'lg:grid-cols-2')}>
+        <div className={cn('min-w-0', left && media && 'lg:order-2')}>
+          {f.str('eyebrow') && <p className="eyebrow mb-3">{f.str('eyebrow')}</p>}
+          {f.str('title') && <h2 className="text-2xl text-fg sm:text-3xl">{f.str('title')}</h2>}
+          {content && (
+            <div className="mt-5">
+              <RichContentView content={content} />
+            </div>
+          )}
+          {f.str('ctaLabel') && (
+            <ButtonLink href={f.str('ctaHref', '#')} variant="accent" size="lg" className="mt-8">
+              {f.str('ctaLabel')}
+              <ArrowRight className="h-5 w-5" aria-hidden />
+            </ButtonLink>
+          )}
+        </div>
+        {media && (
+          <div className={cn('min-w-0', left && 'lg:order-1')}>
+            <MediaView src={media} alt={f.str('title')} className="w-full rounded-lg object-cover shadow-e2" />
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+function GalleryBlock({ data }: { data: Record<string, unknown> }) {
+  const f = d(data)
+  const items = f.list<{ mediaUrl?: string; caption?: string }>('items').filter((i) => i?.mediaUrl)
+  if (items.length === 0) return null
+  const cols = { '2': 'sm:grid-cols-2', '3': 'sm:grid-cols-2 lg:grid-cols-3', '4': 'sm:grid-cols-2 lg:grid-cols-4' }[
+    f.str('columns', '3')
+  ]
+
+  return (
+    <section className="section bg-canvas">
+      <div className="container-page">
+        {f.str('title') && <SectionHeading title={f.str('title')} />}
+        <div className={cn('grid gap-4', cols)}>
+          {items.map((item, i) => (
+            <figure key={i} className="overflow-hidden rounded-lg bg-canvas-subtle">
+              <MediaView
+                src={item.mediaUrl!}
+                alt={item.caption ?? ''}
+                loading="lazy"
+                className="aspect-[4/3] w-full object-cover"
+              />
+              {item.caption && <figcaption className="px-3 py-2 text-sm text-fg-muted">{item.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function HeadingBlock({ data }: { data: Record<string, unknown> }) {
+  const f = d(data)
+  return (
+    <section className="bg-canvas pb-4 pt-16 sm:pt-20">
+      <div className="container-page">
+        <SectionHeading
+          eyebrow={f.str('eyebrow') || undefined}
+          title={f.str('title')}
+          subtitle={f.str('subtitle') || undefined}
+          align={f.str('align', 'center') === 'left' ? 'left' : 'center'}
+          className="mb-0 [&_h2]:text-2xl sm:[&_h2]:text-4xl"
+        />
+      </div>
+    </section>
+  )
+}
+
+function ButtonsBlock({ data }: { data: Record<string, unknown> }) {
+  const f = d(data)
+  const items = f.list<{ label?: string; href?: string; variant?: string }>('items').filter((b) => b?.label)
+  if (items.length === 0) return null
+  return (
+    <section className="bg-canvas py-10">
+      <div
+        className={cn(
+          'container-page flex flex-col gap-3 sm:flex-row sm:flex-wrap',
+          f.str('align', 'center') === 'left' ? 'sm:justify-start' : 'sm:justify-center',
+        )}
+      >
+        {items.map((b, i) =>
+          b.variant === 'whatsapp' ? (
+            <a
+              key={i}
+              href={b.href || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md px-6 text-base font-semibold text-white shadow-e1 transition-[filter] hover:brightness-110"
+              style={{ backgroundColor: '#25D366' }}
+            >
+              <WhatsAppIcon size={20} aria-hidden />
+              {b.label}
+            </a>
+          ) : (
+            <ButtonLink
+              key={i}
+              href={b.href || '#'}
+              size="lg"
+              variant={b.variant === 'primary' ? 'primary' : b.variant === 'outline' ? 'outline' : 'accent'}
+            >
+              {b.label}
+            </ButtonLink>
+          ),
+        )}
+      </div>
+    </section>
+  )
+}
+
+function CountdownBlock({ data, context }: { data: Record<string, unknown>; context?: BlockContext }) {
+  const f = d(data)
+  // La date de l'offre liée (formation, service ou produit) l'emporte quand
+  // elle est demandée : un seul réglage pour la fiche et sa page de vente.
+  const offer = context?.course ?? context?.product ?? context?.service ?? null
+  const endsAt = (f.bool('useOffer', true) && offer?.countdown_ends_at) || f.str('endsAt')
+  if (!endsAt) return null
+
+  return (
+    <section className="section bg-canvas-subtle">
+      <div className="container-page flex flex-col items-center text-center">
+        {f.str('title') && <h2 className="mb-6 text-xl text-fg sm:text-2xl">{f.str('title')}</h2>}
+        <Countdown endsAt={endsAt} expiredText={f.str('expiredText')} size="lg" />
+        {f.str('ctaLabel') && (
+          <ButtonLink href={f.str('ctaHref', '#')} variant="accent" size="lg" className="mt-8">
+            {f.str('ctaLabel')}
+            <ArrowRight className="h-5 w-5" aria-hidden />
+          </ButtonLink>
+        )}
+      </div>
+    </section>
+  )
+}
+
+function SpacerBlock({ data }: { data: Record<string, unknown> }) {
+  const f = d(data)
+  const size = { sm: 'py-4', md: 'py-8', lg: 'py-16' }[f.str('size', 'md')] ?? 'py-8'
+  return (
+    <div className={cn('bg-canvas', size)}>
+      {f.bool('divider') && (
+        <div className="container-page" aria-hidden>
+          <hr className="border-line" />
+        </div>
+      )}
+    </div>
+  )
+}
 /* Réexport pour les pages qui composent leurs propres sections */
 export { Link }

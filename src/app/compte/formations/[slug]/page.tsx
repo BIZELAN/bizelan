@@ -21,6 +21,7 @@ import { ButtonLink } from '@/components/ui/button'
 import { ProgressBar } from '@/components/ui/misc'
 import { ResourceList } from '@/components/account/resource-list'
 import { ReviewForm } from '@/components/account/review-form'
+import { CertificateRequestForm } from '@/components/account/certificate-request-form'
 import { cn, formatDuration } from '@/lib/utils'
 import type { Enrollment } from '@/lib/types'
 import { MediaView } from '@/components/ui/media-view'
@@ -99,7 +100,10 @@ export default async function CourseOverviewPage({
   const allDone = allLessons.length > 0 && doneCount === allLessons.length
   // Toutes les leçons cochées mais pas de certificat : une condition manque.
   // Le dire évite la question « où est mon certificat ? » par WhatsApp.
-  const certificatePending = allDone && !enrollment.certificate_code
+  // Formation non certifiante : on félicite, sans promettre de certificat.
+  const certifying = course.certificate_enabled !== false
+  const certificatePending = certifying && allDone && !enrollment.certificate_code
+  const finishedWithoutCertificate = !certifying && allDone
   const currentModuleId = nextLesson?.module_id ?? course.modules[0]?.id
 
   return (
@@ -185,13 +189,43 @@ export default async function CourseOverviewPage({
         </div>
       )}
 
+      {finishedWithoutCertificate && (
+        <div className="flex gap-4 rounded-lg border border-success/30 bg-success-subtle p-6">
+          <Award className="h-10 w-10 shrink-0 text-success" aria-hidden />
+          <div>
+            <h2 className="font-semibold text-fg">Félicitations, formation terminée !</h2>
+            <p className="mt-0.5 text-sm text-fg-muted">
+              Vous avez suivi toutes les leçons. Cette formation ne délivre pas de certificat.
+            </p>
+          </div>
+        </div>
+      )}
+
       {certificatePending && (
+        <section className="overflow-hidden rounded-lg border border-success/30 bg-surface shadow-e1">
+          <div className="flex gap-4 bg-success-subtle p-6">
+            <Award className="h-10 w-10 shrink-0 text-success" aria-hidden />
+            <div>
+              <h2 className="font-semibold text-fg">Félicitations, formation terminée !</h2>
+              <p className="mt-0.5 text-sm text-fg-muted">
+                Votre certificat vous attend. Vérifiez le nom à y inscrire, puis obtenez-le : il est
+                téléchargeable en PDF et vérifiable en ligne par un employeur ou un financeur.
+              </p>
+            </div>
+          </div>
+          <div className="p-6">
+            <CertificateRequestForm courseId={course.id} defaultName={user.profile.full_name ?? ''} />
+          </div>
+        </section>
+      )}
+
+      {certificatePending && (course.min_watch_ratio > 0 || course.require_quiz_pass) && (
         <div className="flex gap-3 rounded-lg border border-info/30 bg-info-subtle p-5 text-sm text-fg">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-info" aria-hidden />
           <div>
-            <p className="font-semibold">Encore une étape avant votre certificat</p>
+            <p className="font-semibold">Conditions du certificat</p>
             <p className="mt-1 text-fg-muted">
-              Toutes les leçons sont terminées. Le certificat est délivré quand{' '}
+              Le certificat est délivré quand{' '}
               {[
                 course.min_watch_ratio > 0 &&
                   `au moins ${Math.round(course.min_watch_ratio * 100)} % de chaque vidéo a été regardé`,
@@ -199,7 +233,7 @@ export default async function CourseOverviewPage({
               ]
                 .filter(Boolean)
                 .join(' et ') || 'toutes les conditions de la formation sont remplies'}
-              . Revenez sur les leçons concernées pour compléter.
+              . Si une condition manque, la demande vous indiquera laquelle.
             </p>
           </div>
         </div>

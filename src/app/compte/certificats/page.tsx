@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ButtonLink } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/misc'
 import { CopyButton } from '@/components/ui/copy-button'
+import { CertificateRequestForm } from '@/components/account/certificate-request-form'
 import { getSiteUrl } from '@/lib/site-url'
 import { formatDate } from '@/lib/utils'
 import type { Course, Enrollment } from '@/lib/types'
@@ -19,14 +20,21 @@ export default async function CertificatesPage() {
 
   const { data } = await supabase
     .from('enrollments')
-    .select('*, course:courses(id, slug, title, cover_url, min_watch_ratio, require_quiz_pass)')
+    // `courses(*)` plutôt qu'une liste : `certificate_enabled` (0015) peut
+    // manquer sur une base pas encore migrée, et une colonne nommée absente
+    // ferait échouer toute la requête.
+    .select('*, course:courses(*)')
     .eq('user_id', user.id)
     .in('state', ['active', 'completed'])
     .order('completed_at', { ascending: false, nullsFirst: false })
 
   const rows = ((data ?? []) as (Enrollment & { course: Course | null })[]).filter((r) => r.course)
   const earned = rows.filter((r) => r.certificate_code)
-  const pending = rows.filter((r) => !r.certificate_code && r.progress_percent >= 100)
+  const certifying = (r: (typeof rows)[number]) => r.course?.certificate_enabled !== false
+  // Parcours terminé, certificat pas encore demandé.
+  const pending = rows.filter((r) => !r.certificate_code && r.progress_percent >= 100 && certifying(r))
+  // En cours : le certificat viendra.
+  const upcoming = rows.filter((r) => !r.certificate_code && r.progress_percent < 100 && certifying(r))
   const base = await getSiteUrl()
 
   return (
@@ -39,7 +47,7 @@ export default async function CertificatesPage() {
         </p>
       </header>
 
-      {earned.length === 0 && pending.length === 0 ? (
+      {earned.length === 0 && pending.length === 0 && upcoming.length === 0 ? (
         <EmptyState
           icon={Award}
           title="Pas encore de certificat"
@@ -64,7 +72,9 @@ export default async function CertificatesPage() {
                       <div className="min-w-0">
                         <p className="font-semibold leading-snug text-fg">{row.course!.title}</p>
                         <p className="mt-0.5 text-xs text-fg-subtle">
-                          {row.completed_at ? `Délivré le ${formatDate(row.completed_at)}` : 'Délivré'}
+                          {row.certificate_issued_at || row.completed_at
+                            ? `Délivré le ${formatDate(row.certificate_issued_at ?? row.completed_at)}`
+                            : 'Délivré'}
                           {' · '}
                           <span className="font-mono">{row.certificate_code}</span>
                         </p>
@@ -73,7 +83,7 @@ export default async function CertificatesPage() {
 
                     <div className="mt-5 flex flex-wrap items-center gap-2">
                       <ButtonLink href={`/compte/certificat/${row.certificate_code}`} size="sm">
-                        Voir et imprimer
+                        Voir et télécharger
                       </ButtonLink>
                       <CopyButton value={verifyUrl} label="Copier le lien de vérification" />
                       <Link
@@ -93,31 +103,46 @@ export default async function CertificatesPage() {
 
           {pending.length > 0 && (
             <section>
-              <h2 className="mb-3 text-lg font-semibold">En attente de validation</h2>
-              <ul className="space-y-3">
+              <h2 className="mb-3 text-lg font-semibold">Prêts à être délivrés</h2>
+              <ul className="space-y-4">
                 {pending.map((row) => (
+                  <li key={row.id} className="overflow-hidden rounded-lg border border-success/30 bg-surface shadow-e1">
+                    <div className="flex items-center gap-3 bg-success-subtle px-5 py-4">
+                      <Award className="h-6 w-6 shrink-0 text-success" aria-hidden />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-fg">{row.course!.title}</p>
+                        <p className="text-xs text-fg-muted">Formation terminée — confirmez votre nom pour obtenir le certificat.</p>
+                      </div>
+                    </div>
+                    <div className="p-5">
+                      <CertificateRequestForm courseId={row.course!.id} defaultName={user.profile.full_name ?? ''} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {upcoming.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-lg font-semibold">En cours</h2>
+              <ul className="space-y-3">
+                {upcoming.map((row) => (
                   <li
                     key={row.id}
                     className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface p-4"
                   >
-                    <span className="flex items-center gap-3">
-                      <GraduationCap className="h-5 w-5 text-fg-subtle" aria-hidden />
-                      <span>
+                    <span className="flex min-w-0 items-center gap-3">
+                      <GraduationCap className="h-5 w-5 shrink-0 text-fg-subtle" aria-hidden />
+                      <span className="min-w-0">
                         <span className="block font-medium text-fg">{row.course!.title}</span>
                         <span className="block text-xs text-fg-subtle">
-                          Leçons terminées : il reste{' '}
-                          {[
-                            row.course!.min_watch_ratio > 0 && 'le temps de visionnage',
-                            row.course!.require_quiz_pass && 'les questionnaires',
-                          ]
-                            .filter(Boolean)
-                            .join(' et ') || 'une condition'}{' '}
-                          à valider.
+                          {row.progress_percent} % terminé — le certificat sera disponible à la fin du parcours.
                         </span>
                       </span>
                     </span>
                     <ButtonLink href={`/compte/formations/${row.course!.slug}`} variant="outline" size="sm">
-                      Compléter
+                      Continuer
                     </ButtonLink>
                   </li>
                 ))}

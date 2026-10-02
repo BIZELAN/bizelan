@@ -35,6 +35,13 @@ export type BlockType =
   | 'image'
   | 'contactForm'
   | 'quoteForm'
+  | 'carousel'
+  | 'mediaText'
+  | 'gallery'
+  | 'heading'
+  | 'buttons'
+  | 'countdown'
+  | 'spacer'
 
 export interface Block<T = Record<string, unknown>> {
   id: string
@@ -42,9 +49,112 @@ export interface Block<T = Record<string, unknown>> {
   data: T
   /** Permet de masquer un bloc sans le supprimer. */
   hidden?: boolean
+  /** Fond et mise en page propres au bloc (couleur, image, vidéo en boucle…). */
+  style?: BlockStyle
+}
+
+/* ------------------------------------------------------------------ */
+/* Fond et mise en page d'un bloc                                      */
+/* ------------------------------------------------------------------ */
+
+export type BlockBackgroundType = 'none' | 'color' | 'gradient' | 'image' | 'video'
+
+export interface BlockStyle {
+  bgType?: BlockBackgroundType
+  /** Couleur unie, ou première couleur du dégradé. */
+  bgColor?: string
+  /** Seconde couleur du dégradé. */
+  bgColor2?: string
+  /** Angle du dégradé, en degrés. */
+  bgAngle?: number
+  bgImage?: string
+  bgVideo?: string
+  /** Image affichée pendant le chargement de la vidéo, et sur mobile économe. */
+  bgPoster?: string
+  /** Voile assombrissant (ou éclaircissant) posé sur l'image ou la vidéo, 0 à 90. */
+  overlay?: number
+  overlayColor?: string
+  /**
+   * Couleur du texte : `auto` la déduit du fond, `light` force un texte clair
+   * (fond sombre), `dark` un texte foncé (fond clair).
+   */
+  tone?: 'auto' | 'light' | 'dark'
+  /** Marges intérieures haut et bas. */
+  spacing?: 'default' | 'none' | 'sm' | 'lg'
+  /** Le bloc occupe au moins toute la hauteur de l'écran. */
+  fullHeight?: boolean
+  /** Fond figé pendant le défilement (effet parallaxe, image seulement). */
+  fixed?: boolean
+}
+
+const HEX_COLOR = /^#[0-9a-f]{6}$/i
+const SAFE_URL = /^(https?:\/\/|\/)[^\s"'<>]*$/i
+
+/** Nettoie un style venu de la base ou de l'éditeur : seules des valeurs sûres passent. */
+export function sanitizeBlockStyle(raw: unknown): BlockStyle | undefined {
+  if (!raw || typeof raw !== 'object') return undefined
+  const s = raw as Record<string, unknown>
+  const pick = <T,>(value: unknown, allowed: readonly T[]): T | undefined =>
+    allowed.includes(value as T) ? (value as T) : undefined
+  const color = (v: unknown) => (typeof v === 'string' && HEX_COLOR.test(v) ? v : undefined)
+  const url = (v: unknown) => (typeof v === 'string' && SAFE_URL.test(v.trim()) ? v.trim() : undefined)
+  const overlay = Number(s.overlay)
+  const angle = Number(s.bgAngle)
+
+  const style: BlockStyle = {
+    bgType: pick(s.bgType, ['none', 'color', 'gradient', 'image', 'video'] as const),
+    bgColor: color(s.bgColor),
+    bgColor2: color(s.bgColor2),
+    bgAngle: Number.isFinite(angle) ? Math.round(Math.min(360, Math.max(0, angle))) : undefined,
+    bgImage: url(s.bgImage),
+    bgVideo: url(s.bgVideo),
+    bgPoster: url(s.bgPoster),
+    overlay: Number.isFinite(overlay) ? Math.round(Math.min(90, Math.max(0, overlay))) : undefined,
+    overlayColor: color(s.overlayColor),
+    tone: pick(s.tone, ['auto', 'light', 'dark'] as const),
+    spacing: pick(s.spacing, ['default', 'none', 'sm', 'lg'] as const),
+    fullHeight: s.fullHeight === true ? true : undefined,
+    fixed: s.fixed === true ? true : undefined,
+  }
+  return Object.values(style).some((v) => v !== undefined) ? style : undefined
+}
+
+/** Luminance relative d'une couleur hexadécimale (0 noir, 1 blanc). */
+function luminance(hex: string): number {
+  const channel = (i: number) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5)
+}
+
+/**
+ * Thème de texte à appliquer sur le fond choisi : `dark` (texte clair) sur un
+ * fond sombre, `light` (texte foncé) sur un fond clair, `null` sans fond.
+ * Ce sont les valeurs de `data-theme`, qui redéclarent tous les jetons.
+ */
+export function blockTextTheme(style: BlockStyle | undefined): 'dark' | 'light' | null {
+  if (!style || !style.bgType || style.bgType === 'none') {
+    if (style?.tone === 'light') return 'dark'
+    if (style?.tone === 'dark') return 'light'
+    return null
+  }
+  if (style.tone === 'light') return 'dark'
+  if (style.tone === 'dark') return 'light'
+  if (style.bgType === 'color' || style.bgType === 'gradient') {
+    const colors = [style.bgColor, style.bgType === 'gradient' ? style.bgColor2 : undefined].filter(
+      (c): c is string => Boolean(c),
+    )
+    if (!colors.length) return null
+    const avg = colors.reduce((sum, c) => sum + luminance(c), 0) / colors.length
+    return avg < 0.4 ? 'dark' : 'light'
+  }
+  // Image ou vidéo : le voile par défaut est sombre, le texte clair.
+  return (style.overlayColor && luminance(style.overlayColor) > 0.5) ? 'light' : 'dark'
 }
 
 export type FieldType =
+  | 'datetime'
   | 'text'
   | 'textarea'
   | 'richtext'
@@ -79,7 +189,7 @@ export interface BlockDef {
   description: string
   icon: string
   /** Regroupement dans le sélecteur de blocs de l'admin. */
-  group: 'Structure' | 'Vente' | 'Contenu' | 'Listes' | 'Formulaires'
+  group: 'Structure' | 'Vente' | 'Contenu' | 'Médias' | 'Listes' | 'Formulaires'
   fields: FieldDef[]
   defaults: Record<string, unknown>
 }
@@ -657,6 +767,228 @@ export const BLOCK_DEFS: BlockDef[] = [
     ],
     defaults: { title: 'Demander un devis' },
   },
+
+  /* --- Médias et mise en page ------------------------------------------- */
+
+  {
+    type: 'carousel',
+    label: 'Carrousel',
+    description: 'Diapositives d’images ou de vidéos qui défilent, avec titre et bouton.',
+    icon: 'images',
+    group: 'Médias',
+    fields: [
+      {
+        key: 'height',
+        label: 'Hauteur',
+        type: 'select',
+        options: [
+          { value: 'md', label: 'Moyenne' },
+          { value: 'sm', label: 'Basse (bandeau)' },
+          { value: 'lg', label: 'Grande' },
+          { value: 'screen', label: 'Plein écran' },
+        ],
+      },
+      {
+        key: 'width',
+        label: 'Largeur',
+        type: 'select',
+        options: [
+          { value: 'full', label: 'Toute la largeur de l’écran' },
+          { value: 'contained', label: 'Dans la colonne du site' },
+        ],
+      },
+      { key: 'autoplay', label: 'Défilement automatique (secondes, 0 pour aucun)', type: 'number' },
+      {
+        key: 'items',
+        label: 'Diapositives',
+        type: 'objectList',
+        itemLabel: 'Diapositive',
+        fields: [
+          { key: 'mediaUrl', label: 'Image ou vidéo', type: 'image' },
+          { key: 'title', label: 'Titre', type: 'text' },
+          { key: 'text', label: 'Texte', type: 'textarea' },
+          { key: 'ctaLabel', label: 'Texte du bouton', type: 'text' },
+          { key: 'ctaHref', label: 'Lien du bouton', type: 'text' },
+        ],
+      },
+    ],
+    defaults: {
+      height: 'md',
+      width: 'full',
+      autoplay: 6,
+      items: [
+        { mediaUrl: '', title: 'Première diapositive', text: 'Un message court et clair.', ctaLabel: '', ctaHref: '' },
+        { mediaUrl: '', title: 'Deuxième diapositive', text: '', ctaLabel: '', ctaHref: '' },
+      ],
+    },
+  },
+  {
+    type: 'mediaText',
+    label: 'Texte et visuel',
+    description: 'Un texte mis en forme à côté d’une image ou d’une vidéo.',
+    icon: 'panels-top-left',
+    group: 'Médias',
+    fields: [
+      { key: 'eyebrow', label: 'Surtitre', type: 'text' },
+      { key: 'title', label: 'Titre', type: 'text' },
+      { key: 'content', label: 'Texte', type: 'richtext' },
+      { key: 'mediaUrl', label: 'Image ou vidéo', type: 'image' },
+      {
+        key: 'mediaPosition',
+        label: 'Position du visuel',
+        type: 'select',
+        options: [
+          { value: 'right', label: 'À droite' },
+          { value: 'left', label: 'À gauche' },
+        ],
+      },
+      { key: 'ctaLabel', label: 'Texte du bouton', type: 'text' },
+      { key: 'ctaHref', label: 'Lien du bouton', type: 'text' },
+    ],
+    defaults: { title: 'Un titre clair', content: '', mediaUrl: '', mediaPosition: 'right' },
+  },
+  {
+    type: 'gallery',
+    label: 'Galerie',
+    description: 'Une grille d’images ou de vidéos, avec légendes.',
+    icon: 'image',
+    group: 'Médias',
+    fields: [
+      { key: 'title', label: 'Titre (facultatif)', type: 'text' },
+      {
+        key: 'columns',
+        label: 'Colonnes',
+        type: 'select',
+        options: [
+          { value: '3', label: '3 colonnes' },
+          { value: '2', label: '2 colonnes' },
+          { value: '4', label: '4 colonnes' },
+        ],
+      },
+      {
+        key: 'items',
+        label: 'Éléments',
+        type: 'objectList',
+        itemLabel: 'Élément',
+        fields: [
+          { key: 'mediaUrl', label: 'Image ou vidéo', type: 'image' },
+          { key: 'caption', label: 'Légende', type: 'text' },
+        ],
+      },
+    ],
+    defaults: { columns: '3', items: [] },
+  },
+  {
+    type: 'heading',
+    label: 'Titre de section',
+    description: 'Un titre et une accroche, pour ouvrir une partie de la page.',
+    icon: 'text',
+    group: 'Structure',
+    fields: [
+      { key: 'eyebrow', label: 'Surtitre', type: 'text' },
+      { key: 'title', label: 'Titre', type: 'text' },
+      { key: 'subtitle', label: 'Accroche', type: 'textarea' },
+      {
+        key: 'align',
+        label: 'Alignement',
+        type: 'select',
+        options: [
+          { value: 'center', label: 'Centré' },
+          { value: 'left', label: 'À gauche' },
+        ],
+      },
+    ],
+    defaults: { title: 'Titre de la section', subtitle: '', align: 'center' },
+  },
+  {
+    type: 'buttons',
+    label: 'Boutons',
+    description: 'Un ou plusieurs boutons d’action, côte à côte.',
+    icon: 'megaphone',
+    group: 'Structure',
+    fields: [
+      {
+        key: 'align',
+        label: 'Alignement',
+        type: 'select',
+        options: [
+          { value: 'center', label: 'Centré' },
+          { value: 'left', label: 'À gauche' },
+        ],
+      },
+      {
+        key: 'items',
+        label: 'Boutons',
+        type: 'objectList',
+        itemLabel: 'Bouton',
+        fields: [
+          { key: 'label', label: 'Texte', type: 'text' },
+          { key: 'href', label: 'Lien', type: 'text', placeholder: '/contact ou #offre' },
+          {
+            key: 'variant',
+            label: 'Apparence',
+            type: 'select',
+            options: [
+              { value: 'accent', label: 'Principal (couleur d’accent)' },
+              { value: 'primary', label: 'Couleur de marque' },
+              { value: 'outline', label: 'Contour' },
+              { value: 'whatsapp', label: 'WhatsApp' },
+            ],
+          },
+        ],
+      },
+    ],
+    defaults: { align: 'center', items: [{ label: 'Je réserve ma place', href: '#offre', variant: 'accent' }] },
+  },
+  {
+    type: 'countdown',
+    label: 'Compte à rebours',
+    description: 'Un minuteur jusqu’à une date : fin d’offre, début de session…',
+    icon: 'timer',
+    group: 'Vente',
+    fields: [
+      { key: 'title', label: 'Titre', type: 'text' },
+      {
+        key: 'useOffer',
+        label: 'Reprendre la date de l’offre liée',
+        type: 'boolean',
+        help: 'Utilise le compte à rebours réglé sur la formation, le service ou le produit de la page.',
+      },
+      { key: 'endsAt', label: 'Date et heure de fin', type: 'datetime' },
+      { key: 'expiredText', label: 'Message une fois le délai écoulé', type: 'text' },
+      { key: 'ctaLabel', label: 'Texte du bouton', type: 'text' },
+      { key: 'ctaHref', label: 'Lien du bouton', type: 'text' },
+    ],
+    defaults: {
+      title: 'L’offre se termine dans',
+      useOffer: true,
+      endsAt: '',
+      expiredText: 'Cette offre est terminée.',
+      ctaLabel: 'J’en profite',
+      ctaHref: '#offre',
+    },
+  },
+  {
+    type: 'spacer',
+    label: 'Espacement',
+    description: 'Un espace vide, avec ou sans trait de séparation.',
+    icon: 'grid-3x3',
+    group: 'Structure',
+    fields: [
+      {
+        key: 'size',
+        label: 'Hauteur',
+        type: 'select',
+        options: [
+          { value: 'md', label: 'Moyenne' },
+          { value: 'sm', label: 'Petite' },
+          { value: 'lg', label: 'Grande' },
+        ],
+      },
+      { key: 'divider', label: 'Afficher un trait de séparation', type: 'boolean' },
+    ],
+    defaults: { size: 'md', divider: false },
+  },
 ]
 
 export const BLOCK_DEF_MAP = new Map<BlockType, BlockDef>(BLOCK_DEFS.map((d) => [d.type, d]))
@@ -678,8 +1010,35 @@ export function createBlock(type: BlockType): Block {
 /** Normalise le JSONB venu de la base en tableau de blocs exploitable. */
 export function parseBlocks(raw: unknown): Block[] {
   if (!Array.isArray(raw)) return []
-  return raw.filter(
-    (b): b is Block =>
-      typeof b === 'object' && b !== null && 'type' in b && typeof (b as Block).type === 'string',
-  )
+  return raw
+    .filter(
+      (b): b is Block =>
+        typeof b === 'object' && b !== null && 'type' in b && typeof (b as Block).type === 'string',
+    )
+    .map((b) => {
+      // Le style est toujours revalidé : il finit dans des attributs `style`.
+      const style = sanitizeBlockStyle(b.style)
+      const { style: _ignored, ...rest } = b
+      void _ignored
+      return style ? { ...rest, style } : rest
+    })
+}
+
+/**
+ * Présentation par blocs d'une fiche (formation, service, produit, article).
+ *
+ * Si la fiche n'a pas encore de blocs mais une présentation riche historique,
+ * celle-ci devient un premier bloc « Texte libre » : rien n'est perdu, et la
+ * page publique reste identique tant qu'on n'y touche pas.
+ */
+export function presentationBlocks(blocks: unknown, legacyContent?: string | null): Block[] {
+  const parsed = parseBlocks(blocks)
+  if (parsed.length > 0 || !legacyContent?.trim()) return parsed
+  return [
+    {
+      id: 'legacy-presentation',
+      type: 'richText',
+      data: { title: '', content: legacyContent, width: 'narrow' },
+    },
+  ]
 }

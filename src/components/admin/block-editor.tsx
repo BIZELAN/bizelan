@@ -9,6 +9,7 @@ import {
   EyeOff,
   GripVertical,
   LayoutTemplate,
+  Palette,
   Plus,
   Trash2,
   X,
@@ -21,6 +22,7 @@ import {
   createBlock,
   getBlockDef,
   type Block,
+  type BlockStyle,
   type BlockType,
   type FieldDef,
 } from '@/lib/blocks'
@@ -30,6 +32,8 @@ import { blockTypeIcon } from '@/lib/icons'
 import { BlockPreview } from '@/components/admin/block-preview'
 import { IconPicker } from '@/components/admin/icon-picker'
 import { MediaField } from '@/components/admin/media-input'
+import { BlockStyleEditor } from '@/components/admin/block-style-editor'
+import { isoToLocalInput, localInputToIso } from '@/lib/datetime'
 import type { BlockData } from '@/components/public/blocks/block-renderer'
 import { Checkbox, Input, Select, Textarea } from '@/components/ui/field'
 import { EmptyState } from '@/components/ui/misc'
@@ -56,6 +60,8 @@ export function BlockEditor({
 }) {
   const [blocks, setBlocks] = useState<Block[]>(defaultValue)
   const [openId, setOpenId] = useState<string | null>(defaultValue[0]?.id ?? null)
+  // Onglet ouvert dans le bloc déplié : son contenu, ou son fond.
+  const [tab, setTab] = useState<'content' | 'style'>('content')
   const [picker, setPicker] = useState(false)
   const [preview, setPreview] = useState(false)
 
@@ -78,6 +84,17 @@ export function BlockEditor({
 
   function update(id: string, data: Record<string, unknown>) {
     setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, data } : b)))
+  }
+
+  function updateStyle(id: string, style: BlockStyle | undefined) {
+    setBlocks((prev) =>
+      prev.map((b) => {
+        if (b.id !== id) return b
+        const { style: _old, ...rest } = b
+        void _old
+        return style ? { ...rest, style } : rest
+      }),
+    )
   }
 
   function move(index: number, direction: -1 | 1) {
@@ -163,7 +180,10 @@ export function BlockEditor({
 
                   <button
                     type="button"
-                    onClick={() => setOpenId(isOpen ? null : block.id)}
+                    onClick={() => {
+                      setOpenId(isOpen ? null : block.id)
+                      setTab('content')
+                    }}
                     className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
                     aria-expanded={isOpen}
                   >
@@ -179,6 +199,28 @@ export function BlockEditor({
                   </button>
 
                   <div className="flex shrink-0 items-center">
+                    <IconButton
+                      onClick={() => {
+                        setOpenId(block.id)
+                        setTab('style')
+                      }}
+                      label="Fond et mise en page"
+                    >
+                      <span className="relative">
+                        <Palette className="h-4 w-4" aria-hidden />
+                        {block.style?.bgType && block.style.bgType !== 'none' && (
+                          <span
+                            className="absolute -right-1 -top-1 h-2 w-2 rounded-full ring-1 ring-surface"
+                            style={{
+                              backgroundColor:
+                                block.style.bgType === 'color' || block.style.bgType === 'gradient'
+                                  ? (block.style.bgColor ?? 'rgb(var(--primary-text))')
+                                  : 'rgb(var(--primary-text))',
+                            }}
+                          />
+                        )}
+                      </span>
+                    </IconButton>
                     <IconButton
                       onClick={() => move(index, -1)}
                       disabled={index === 0}
@@ -225,20 +267,53 @@ export function BlockEditor({
                 </div>
 
                 {isOpen && def && (
-                  <div className="space-y-4 border-t border-line p-5">
-                    {def.description && (
-                      <p className="text-xs leading-relaxed text-fg-subtle">{def.description}</p>
+                  <div className="border-t border-line">
+                    <div className="flex gap-1 border-b border-line px-3 pt-2" role="tablist">
+                      {(
+                        [
+                          ['content', 'Contenu'],
+                          ['style', 'Fond et mise en page'],
+                        ] as const
+                      ).map(([key, label]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          role="tab"
+                          aria-selected={tab === key}
+                          onClick={() => setTab(key)}
+                          className={cn(
+                            '-mb-px rounded-t-md border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+                            tab === key
+                              ? 'border-primary-text text-primary-text'
+                              : 'border-transparent text-fg-muted hover:text-fg',
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {tab === 'content' ? (
+                      <div className="space-y-4 p-5">
+                        {def.description && (
+                          <p className="text-xs leading-relaxed text-fg-subtle">{def.description}</p>
+                        )}
+                        {def.fields.map((field) => (
+                          <BlockField
+                            key={field.key}
+                            field={field}
+                            value={block.data?.[field.key]}
+                            onChange={(value) =>
+                              update(block.id, { ...block.data, [field.key]: value })
+                            }
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-5">
+                        <BlockStyleEditor value={block.style} onChange={(style) => updateStyle(block.id, style)} />
+                      </div>
                     )}
-                    {def.fields.map((field) => (
-                      <BlockField
-                        key={field.key}
-                        field={field}
-                        value={block.data?.[field.key]}
-                        onChange={(value) =>
-                          update(block.id, { ...block.data, [field.key]: value })
-                        }
-                      />
-                    ))}
                   </div>
                 )}
               </div>
@@ -358,6 +433,22 @@ function BlockField({
             value={String(value ?? '')}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
+          />
+          {field.help && <p className="mt-1 text-xs text-fg-subtle">{field.help}</p>}
+        </div>
+      )
+
+    case 'datetime':
+      return (
+        <div>
+          {label}
+          <Input
+            type="datetime-local"
+            // La valeur stockée est une date ISO (UTC) ; le champ affiche et
+            // saisit l'heure locale de l'administrateur.
+            value={isoToLocalInput(String(value ?? ''))}
+            onChange={(e) => onChange(localInputToIso(e.target.value))}
+            className="max-w-xs"
           />
           {field.help && <p className="mt-1 text-xs text-fg-subtle">{field.help}</p>}
         </div>

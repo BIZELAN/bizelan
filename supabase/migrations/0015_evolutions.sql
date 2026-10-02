@@ -42,7 +42,7 @@ create index if not exists media_created_idx on public.media(created_at desc);
 alter table public.courses  add column if not exists blocks jsonb not null default '[]'::jsonb;
 alter table public.services add column if not exists blocks jsonb not null default '[]'::jsonb;
 alter table public.products add column if not exists blocks jsonb not null default '[]'::jsonb;
-alter table public.posts    add column if not exists blocks jsonb not null default '[]'::jsonb;
+alter table public.bz_posts add column if not exists blocks jsonb not null default '[]'::jsonb;
 
 
 -- ===========================================================================

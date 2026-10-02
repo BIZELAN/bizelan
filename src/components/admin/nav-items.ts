@@ -40,6 +40,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     title: 'Contenu',
     items: [
       { href: '/admin/formations', label: 'Formations', icon: 'GraduationCap', description: 'Catalogue, chapitres et leçons' },
+      { href: '/admin/certificats', label: 'Certificats', icon: 'Award', description: 'Modèle et certificats délivrés' },
       { href: '/admin/produits', label: 'Boutique', icon: 'Package', description: 'E-books, vidéos et modèles à vendre' },
       { href: '/admin/services', label: 'Services', icon: 'Briefcase', description: 'Prestations et demandes de devis' },
       { href: '/admin/pages', label: 'Pages de vente', icon: 'FileText', description: 'Pages composées par blocs' },

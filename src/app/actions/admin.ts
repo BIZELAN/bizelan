@@ -13,6 +13,7 @@ import { getRevision, restorablePayload, snapshot } from '@/lib/revisions'
 import { parseHex } from '@/lib/theme-tokens'
 import { RESERVED_PAGE_SLUGS } from '@/lib/reserved-slugs'
 import { logActivity } from '@/lib/activity'
+import { blocksField, missingColumnMessage, optionalBool, optionalText, scarcityFields } from '@/lib/form-extras'
 
 export interface AdminResult {
   ok: boolean
@@ -135,6 +136,11 @@ export async function saveCourse(_prev: AdminResult | null, formData: FormData):
     // côté client, et l'erreur de contrainte serait illisible pour l'admin.
     min_watch_ratio: Math.min(1, Math.max(0, Number(formData.get('min_watch_ratio') ?? 0) || 0)),
     require_quiz_pass: bool(formData, 'require_quiz_pass'),
+    // Champs de la migration 0015, envoyés seulement s'ils sont dans le formulaire.
+    ...optionalBool(formData, 'certificate_enabled'),
+    ...optionalText(formData, 'promo_video_poster_url'),
+    ...scarcityFields(formData),
+    ...blocksField(formData),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     og_image_url: nullable(formData, 'og_image_url'),
@@ -404,6 +410,8 @@ export async function saveService(_prev: AdminResult | null, formData: FormData)
     status,
     featured: bool(formData, 'featured'),
     position: int(formData, 'position'),
+    ...scarcityFields(formData),
+    ...blocksField(formData),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     published_at: await publicationDate('services', id, status),
@@ -577,6 +585,7 @@ export async function savePost(_prev: AdminResult | null, formData: FormData): P
       1,
       Math.round(richContentToText(parseRichContent(content)).split(/\s+/).filter(Boolean).length / 200) || 1,
     ),
+    ...blocksField(formData),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     published_at: await publicationDate('bz_posts', id, status, nullable(formData, 'published_at')),
@@ -1081,6 +1090,8 @@ function mapError(message: string): string {
   if (m.includes('duplicate key')) return 'Cet élément existe déjà.'
   if (m.includes('violates foreign key')) return 'Un élément lié est introuvable.'
   if (m.includes('violates not-null')) return 'Un champ obligatoire est vide.'
+  const migration = missingColumnMessage(message)
+  if (migration) return migration
   console.error('[admin] erreur base :', message)
   return 'L’enregistrement a échoué. Merci de réessayer.'
 }

@@ -113,6 +113,13 @@ export function CourseForm({
             placeholder="https://www.youtube.com/watch?v=…"
           />
         </Field>
+
+        <Field
+          label="Miniature de la vidéo"
+          help="Image affichée avant la lecture. Vide : celle de YouTube, ou l’image de couverture."
+        >
+          <ImageInput name="promo_video_poster_url" defaultValue={course?.promo_video_poster_url} accept="image" />
+        </Field>
       </FormSection>
 
       <FormSection title="Tarif" description="Les montants sont en FCFA, sans décimales.">
@@ -279,8 +286,17 @@ export function CourseForm({
 
       <FormSection
         title="Certificat"
-        description="Le certificat est délivré quand toutes les leçons sont terminées. Vous pouvez exiger en plus un temps de visionnage réel et la réussite des questionnaires."
+        description="En fin de parcours, l’apprenant demande son certificat depuis son espace et confirme le nom à imprimer. Vous pouvez exiger en plus un temps de visionnage réel et la réussite des questionnaires. Le modèle se règle dans « Certificats »."
       >
+        {/* Témoin : la case décochée n'envoie rien, il faut savoir qu'elle
+            faisait partie du formulaire pour enregistrer « non ». */}
+        <input type="hidden" name="certificate_enabled__present" value="1" />
+        <Checkbox
+          name="certificate_enabled"
+          defaultChecked={course?.certificate_enabled !== false}
+          label="Formation certifiante — délivrer un certificat à la fin de la formation"
+        />
+
         {/* Le réglage ne s'applique qu'aux leçons dont la lecture est
             observable. Une vidéo YouTube, Vimeo ou Bunny vit dans une iframe
             d'un autre domaine : rien n'en remonte, et exiger une part de

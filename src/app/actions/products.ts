@@ -8,6 +8,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { logActivity } from '@/lib/activity'
 import { isProductKind } from '@/lib/products'
 import { slugify } from '@/lib/utils'
+import { blocksField, missingColumnMessage, scarcityFields } from '@/lib/form-extras'
 
 /**
  * Administration de la boutique de produits digitaux.
@@ -60,6 +61,9 @@ function mapError(message: string): string {
     return 'Cette adresse (slug) est déjà utilisée. Choisissez-en une autre.'
   if (m.includes('duplicate key')) return 'Cet élément existe déjà.'
   if (m.includes('violates foreign key')) return 'Un élément lié est introuvable.'
+  // Colonne de la 0015 absente (table présente) : à distinguer d'une boutique
+  // pas installée du tout.
+  if (m.includes('column')) return missingColumnMessage(message) ?? 'L’enregistrement a échoué.'
   if (m.includes('does not exist') || m.includes('schema cache'))
     return 'La boutique n’est pas encore installée : appliquez la migration 0013 dans Supabase.'
   console.error('[boutique] erreur base :', message)
@@ -136,6 +140,8 @@ export async function saveProduct(
     status,
     featured: formData.get('featured') === 'on',
     position: int(formData, 'position'),
+    ...scarcityFields(formData),
+    ...blocksField(formData),
     seo_title: nullable(formData, 'seo_title'),
     seo_description: nullable(formData, 'seo_description'),
     og_image_url: nullable(formData, 'og_image_url'),

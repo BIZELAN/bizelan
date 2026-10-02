@@ -6,6 +6,9 @@ import { getSiteSettings } from '@/lib/queries'
 import { ButtonLink } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
 import { VerifyForm } from '@/components/public/verify-form'
+import { CertificateDocument } from '@/components/certificate/certificate-document'
+import { parseCertificateTemplate } from '@/lib/certificate'
+import { getSiteUrl } from '@/lib/site-url'
 
 export const metadata: Metadata = {
   title: 'Vérification de certificat',
@@ -42,34 +45,42 @@ export default async function VerifyCertificatePage({
 
   const settings = await getSiteSettings()
 
-  let found: { name: string; course: string; date: string | null } | null = null
+  let found: { name: string; course: string; date: string | null; duration: string | null } | null = null
   if (CODE_RE.test(code)) {
     const supabase = createAdminClient()
+    // `*` : `certificate_name` et `certificate_issued_at` (0015) sont lus
+    // s'ils existent, sans faire échouer la requête sur une base plus ancienne.
     const { data } = await supabase
       .from('enrollments')
-      .select('completed_at, profile:bz_profiles(full_name), course:courses(title)')
+      .select('*, profile:bz_profiles(full_name), course:courses(title, duration_label)')
       .eq('certificate_code', code)
       .in('state', ['active', 'completed'])
       .maybeSingle<{
         completed_at: string | null
+        certificate_name?: string | null
+        certificate_issued_at?: string | null
         profile: { full_name: string | null } | null
-        course: { title: string } | null
+        course: { title: string; duration_label: string | null } | null
       }>()
 
     if (data?.course) {
       found = {
-        name: data.profile?.full_name ?? 'Participant',
+        // Le nom imprimé sur le certificat fait foi, pas celui du profil.
+        name: data.certificate_name || data.profile?.full_name || 'Participant',
         course: data.course.title,
-        date: data.completed_at,
+        date: data.certificate_issued_at ?? data.completed_at,
+        duration: data.course.duration_label,
       }
     }
   }
+  const verifyUrl = `${await getSiteUrl()}/verifier/${code}`
 
   return (
     <div className="container-page flex min-h-[70vh] items-center justify-center py-16">
-      <div className="w-full max-w-lg">
+      <div className={found ? 'w-full max-w-4xl' : 'w-full max-w-lg'}>
         {found ? (
-          <div className="overflow-hidden rounded-lg border border-success/30 bg-surface shadow-e2">
+          <>
+          <div className="mx-auto max-w-lg overflow-hidden rounded-lg border border-success/30 bg-surface shadow-e2">
             <div className="flex items-center gap-3 border-b border-success/30 bg-success-subtle px-6 py-4">
               <BadgeCheck className="h-7 w-7 shrink-0 text-success" aria-hidden />
               <div>
@@ -98,6 +109,24 @@ export default async function VerifyCertificatePage({
               </div>
             </dl>
           </div>
+
+          {/* Le document tel que le titulaire l'a reçu. */}
+          <div className="mt-8 overflow-hidden rounded-lg shadow-e3 ring-1 ring-line">
+            <CertificateDocument
+              template={parseCertificateTemplate(settings.certificate)}
+              siteName={settings.site_name}
+              siteLogoUrl={settings.logo_url}
+              data={{
+                recipientName: found.name,
+                courseTitle: found.course,
+                issuedAt: found.date,
+                code,
+                durationLabel: found.duration,
+                verifyUrl,
+              }}
+            />
+          </div>
+          </>
         ) : (
           <div className="rounded-lg border border-line bg-surface p-6 text-center shadow-e1">
             <SearchX className="mx-auto h-12 w-12 text-fg-subtle" aria-hidden />

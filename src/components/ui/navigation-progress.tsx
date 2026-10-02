@@ -8,7 +8,7 @@ const SHOW_AFTER_MS = 120
 /** Au-delà, une pastille « Chargement… » confirme que le clic a été pris en compte. */
 const BADGE_AFTER_MS = 600
 /** Filet de sécurité : jamais d'écran bloqué si la navigation échoue en silence. */
-const GIVE_UP_AFTER_MS = 20000
+const GIVE_UP_AFTER_MS = 10000
 
 /** Démarre l'indicateur depuis du code (ex. `router.push` après une action). */
 export function startNavigationProgress() {

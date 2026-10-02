@@ -4,7 +4,7 @@ Assemble et vérifie `supabase/complet.sql`.
 
     python scripts/build-complet-sql.py
 
-Réunit les quatorze migrations, le contenu de départ et deux sections écrites à la
+Réunit les quinze migrations, le contenu de départ et deux sections écrites à la
 main (`supabase/_entete_complet.sql`, `supabase/_pied_complet.sql`) en un seul
 fichier destiné à un projet Supabase neuf.
 
@@ -39,6 +39,7 @@ MIGRATIONS = [
     ("0012_whatsapp_float.sql", "Bouton WhatsApp flottant, réglable"),
     ("0013_boutique_espace.sql", "Boutique, notes d'apprenant, durcissement"),
     ("0014_avis_carte.sql", "Lien Google Maps, avis clients sur tous les sujets"),
+    ("0015_evolutions.sql", "Médiathèque, blocs, rareté, miniatures, certificats"),
 ]
 
 # Ces six instructions de 0004 NE FONT RIEN : en PostgreSQL, un privilège
@@ -148,10 +149,10 @@ controle("aucun UUID code en dur",
          not re.search(r"'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'", complet))
 controle("aucun secret", not re.search(r"sk_live|sk_test|eyJhbGciOi", complet))
 
-# --- Section 15 : promotion de l administrateur ----------------------------
+# --- Section 17 : promotion de l administrateur ----------------------------
 
-print(NL + "  SECTION 16")
-depart = complet.index("SECTION 16 —")
+print(NL + "  SECTION 17")
+depart = complet.index("SECTION 17 —")
 i = complet.index("do $$", depart)
 bloc = complet[i:complet.index("end $$;", i) + 7]
 controle("bloc do ... end ferme", bloc.endswith("end $$;"))
@@ -162,10 +163,10 @@ controle("leve une erreur si le compte n existe pas", "raise exception" in bloc)
 controle("designe par adresse, pas par UUID",
          "lower(email)" in bloc and "uuid" not in bloc.lower())
 
-# --- Section 16 : verification ---------------------------------------------
+# --- Section 18 : verification ---------------------------------------------
 
-print(NL + "  SECTION 17")
-depart = complet.index("SECTION 17 —")
+print(NL + "  SECTION 18")
+depart = complet.index("SECTION 18 —")
 i = complet.index("with controles as (", depart)
 requete = complet[i:complet.index("order by ordre;", i)]
 

@@ -327,6 +327,12 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                       <span className="font-semibold text-fg">{r.author_name}</span>
                       {r.author_role && <span className="text-fg-subtle"> · {r.author_role}</span>}
                     </figcaption>
+                    {r.admin_reply && (
+                      <div className="mt-3 border-l-2 border-primary-text pl-3 text-sm">
+                        <p className="font-medium text-fg">Réponse de l’équipe</p>
+                        <p className="mt-0.5 text-fg-muted">{r.admin_reply}</p>
+                      </div>
+                    )}
                   </figure>
                 ))}
               </div>

@@ -40,7 +40,11 @@ Supabase (PostgreSQL, Auth, Storage) · SasPay (Mobile Money MTN, Moov, Celtiis)
   automatiquement**, questionnaire, sommaire (latéral ou replié sur mobile).
 - **Mes produits** : fichiers achetés, lecture PDF / vidéo / audio en ligne,
   téléchargement par lien signé.
-- **Mes certificats** : impression en PDF, lien de vérification à partager.
+- **Mes certificats** : demande du certificat en fin de parcours (le client
+  confirme le nom à imprimer), téléchargement en PDF A4 paysage, lien de
+  vérification à partager.
+- **Mes avis** : noter chaque formation, produit et le cabinet ; modifier son
+  avis ; lire la réponse de l’équipe.
 - Commandes, profil, mot de passe.
 
 ### Console d'administration (`/admin`)
@@ -51,7 +55,15 @@ Supabase (PostgreSQL, Auth, Storage) · SasPay (Mobile Money MTN, Moov, Celtiis)
   messages non traités, relances).
 - **Contenu** : formations (fiche, programme, supports, visionnage,
   questionnaires), **boutique**, services, pages de vente par blocs (avec
-  historique et retour arrière), blog, médiathèque.
+  historique et retour arrière), blog, **médiathèque tous fichiers**,
+  **certificats** (modèle professionnel réglable, liste des certificats
+  délivrés).
+- **Présentations par blocs** : formations, services, produits et articles se
+  composent comme une page de vente. Chaque bloc peut recevoir un fond
+  (couleur, dégradé, image, vidéo en boucle) avec voile de lisibilité ; blocs
+  carrousel, texte et visuel, galerie, compte à rebours, boutons, etc.
+- **Rareté** : compte à rebours et quantité restante sur chaque offre,
+  décomptée à chaque vente et contrôlée à l’achat.
 - **Commerce** : commandes (recherche, validation des dépôts, relance
   WhatsApp), clients (accès formations et produits, note interne, rôle),
   demandes, avis, codes promo (formation, produit ou tout le catalogue),
@@ -80,16 +92,17 @@ cp .env.example .env.local
 ### Étape 2 — Créer la base de données
 
 **Projet Supabase neuf** : ouvrez **SQL Editor**, collez tout le fichier
-`supabase/complet.sql` et exécutez-le. Il enchaîne les treize migrations, le
-contenu de départ, puis affiche un tableau de vérification (§16) : toutes les
+`supabase/complet.sql` et exécutez-le. Il enchaîne les quinze migrations, le
+contenu de départ, puis affiche un tableau de vérification (§18) : toutes les
 lignes doivent porter « OK », sauf « Administrateur désigné » tant que votre
 compte n'existe pas.
 
 **Projet existant** : exécutez seulement les migrations que la base n'a pas
 encore reçues, dans l'ordre (`supabase/migrations/00xx_*.sql`). Pour cette
-version, c'est `0013_boutique_espace.sql` : boutique, notes personnelles,
-reprise de lecture, et fermeture des vues de chiffre d'affaires au public.
-Toutes les migrations sont rejouables sans dommage.
+version, c'est `0015_evolutions.sql` : médiathèque tous fichiers (2 Go),
+présentations par blocs, compte à rebours et stock, miniatures vidéo,
+certificats demandés par l'apprenant et modèle réglable. Toutes les migrations
+sont rejouables sans dommage.
 
 > Après toute modification d'une migration, régénérez le fichier d'installation :
 > `python scripts/build-complet-sql.py` (il vérifie aussi sa fidélité).
@@ -122,7 +135,7 @@ Le site est accessible sur <http://localhost:3000>.
 ### Étape 5 — Devenir administrateur
 
 1. Créez votre compte sur `/inscription`.
-2. Dans Supabase → **SQL Editor**, exécutez la §15 de `complet.sql` avec votre
+2. Dans Supabase → **SQL Editor**, exécutez la §17 de `complet.sql` avec votre
    adresse, ou directement :
 
 ```sql

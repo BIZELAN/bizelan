@@ -13,22 +13,22 @@
 -- genre d'écart qui ne se découvre qu'en production. Le script vérifie au
 -- passage que chaque section est identique à sa migration d'origine.
 --
--- Les sections 16 et 17 sont écrites à la main, dans
+-- Les sections 17 et 18 sont écrites à la main, dans
 -- `supabase/_pied_complet.sql` ; cet en-tête dans `_entete_complet.sql`.
 --
 -- Il réunit, dans l'ordre :
 --
---   §1  à §14  les quatorze migrations, telles quelles
---   §15        le contenu de départ (formation, services, articles) — SUPPRIMABLE
---   §16        promotion de votre compte en administrateur
---   §17        vérification : ce que l'installation a réellement créé
+--   §1  à §15  les quinze migrations, telles quelles
+--   §16        le contenu de départ (formation, services, articles) — SUPPRIMABLE
+--   §17        promotion de votre compte en administrateur
+--   §18        vérification : ce que l'installation a réellement créé
 --
 --
 -- COMMENT L'EXÉCUTER
 -- ------------------
 --   1. Projet Supabase > SQL Editor > New query
 --   2. Collez TOUT ce fichier, puis « Run »
---   3. Lisez le tableau final de la §17 : il dit ce qui existe vraiment
+--   3. Lisez le tableau final de la §18 : il dit ce qui existe vraiment
 --
 -- Une exécution prend quelques secondes. Si l'éditeur refuse la taille, coupez
 -- aux barres `====` : chaque section est autonome, dans l'ordre.
@@ -52,7 +52,7 @@
 --   1. Reporter les trois valeurs ci-dessus dans `.env`
 --   2. Créer votre compte par la page d'inscription du site
 --      (un déclencheur crée le profil automatiquement)
---   3. Revenir exécuter la §16 avec votre adresse, pour devenir administrateur
+--   3. Revenir exécuter la §17 avec votre adresse, pour devenir administrateur
 --   4. Vérifier que les cinq espaces de stockage figurent bien dans
 --      Storage : public-media, resources, payment-proofs, lesson-videos,
 --      product-files
@@ -64,8 +64,8 @@
 --
 -- IDEMPOTENCE
 -- -----------
--- Les sections §1 à §14 se relancent sans dommage : `create ... if not exists`,
--- `create or replace`, `drop policy if exists` avant chaque politique. La §15,
+-- Les sections §1 à §15 se relancent sans dommage : `create ... if not exists`,
+-- `create or replace`, `drop policy if exists` avant chaque politique. La §16,
 -- elle, INSÈRE du contenu : la relancer créerait des doublons de formations et
 -- d'articles. Ne l'exécutez qu'une fois.
 --

@@ -3,7 +3,7 @@
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 16 — Devenir administrateur
+--   SECTION 17 — Devenir administrateur
 --
 -- =========================================================================
 -- =========================================================================
@@ -25,7 +25,7 @@ declare
   touches int;
 begin
   if cible = 'remplacez-moi@exemple.com' then
-    raise notice '§16 ignoree : remplacez d abord l adresse dans le bloc.';
+    raise notice '§17 ignoree : remplacez d abord l adresse dans le bloc.';
     return;
   end if;
 
@@ -47,7 +47,7 @@ end $$;
 -- =========================================================================
 -- =========================================================================
 --
---   SECTION 17 — Vérification
+--   SECTION 18 — Vérification
 --
 -- =========================================================================
 -- =========================================================================
@@ -166,7 +166,7 @@ with controles as (
   union all
   select 11,
          'Administrateur designe',
-         coalesce(string_agg(email, ', '), 'AUCUN — executez la §16'),
+         coalesce(string_agg(email, ', '), 'AUCUN — executez la §17'),
          count(*) >= 1
     from public.bz_profiles
    where role = 'admin'
@@ -232,10 +232,10 @@ select case when ok then 'OK' else '!!  A REGARDER' end as verdict,
 -- ###########################################################################
 --
 --   Toutes les lignes doivent porter « OK », sauf la 11 si vous n'avez pas
---   encore exécuté la §16 — ce qui est normal à ce stade, puisque votre compte
+--   encore exécuté la §17 — ce qui est normal à ce stade, puisque votre compte
 --   n'existe pas avant votre première inscription sur le site.
 --
---   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §15 a
+--   La ligne 13 n'a pas de verdict : elle compte simplement ce que la §16 a
 --   déposé, pour que vous sachiez si le site démarre avec du contenu ou vide.
 --
 -- ###########################################################################

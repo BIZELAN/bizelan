@@ -3,7 +3,8 @@ import 'server-only'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendOrderConfirmation, notifyAdminNewOrder } from '@/lib/email'
 import { payablePrice } from '@/lib/utils'
-import type { Coupon, Order, OrderItem } from '@/lib/types'
+import { offerState } from '@/lib/scarcity'
+import type { Coupon, Order, OrderItem, Scarcity } from '@/lib/types'
 
 /**
  * Logique métier des commandes, partagée par le tunnel d'achat, le webhook
@@ -24,6 +25,12 @@ export interface Sellable {
   /** Montant dû avant remise : 0 pour une offre gratuite. */
   priceCents: number
   currency: string
+  /**
+   * Raison pour laquelle l'offre ne peut plus être achetée (complet, délai
+   * écoulé), ou `null`. Contrôlée ici, côté serveur : masquer le bouton sur la
+   * page ne suffit pas, l'adresse du tunnel reste accessible.
+   */
+  unavailableReason: string | null
 }
 
 /** Offre publiée et achetable, ou `null`. */
@@ -32,19 +39,22 @@ export async function loadSellable(type: SellableType, slug: string): Promise<Se
   const supabase = createAdminClient()
   const table = type === 'course' ? 'courses' : 'products'
 
+  // `*` : les colonnes de rareté (0015) sont lues si elles existent.
   const { data } = await supabase
     .from(table)
-    .select('id, slug, title, pricing, price_cents, currency')
+    .select('*')
     .eq('slug', slug)
     .eq('status', 'published')
-    .maybeSingle<{
-      id: string
-      slug: string
-      title: string
-      pricing: string | null
-      price_cents: number | null
-      currency: string | null
-    }>()
+    .maybeSingle<
+      {
+        id: string
+        slug: string
+        title: string
+        pricing: string | null
+        price_cents: number | null
+        currency: string | null
+      } & Scarcity
+    >()
 
   if (!data) return null
   return {
@@ -54,6 +64,7 @@ export async function loadSellable(type: SellableType, slug: string): Promise<Se
     title: data.title,
     priceCents: payablePrice(data),
     currency: data.currency || 'XOF',
+    unavailableReason: offerState(data).unavailableReason,
   }
 }
 
@@ -306,6 +317,17 @@ export async function fulfillOrder(
   if (order.coupon_id) {
     const { error } = await supabase.rpc('bz_redeem_coupon', { p_coupon: order.coupon_id })
     if (error) console.error('[commande] compteur du code promo :', error.message)
+  }
+
+  // Quantités limitées : une unité de moins par offre vendue. Atomique en base,
+  // et sans effet sur une offre illimitée. Une erreur ici (migration 0015
+  // absente) ne doit pas bloquer une commande déjà encaissée.
+  for (const item of [...courseItems, ...productItems]) {
+    const kind = item.item_type === 'course' ? 'course' : 'product'
+    const id = item.item_type === 'course' ? item.course_id : item.product_id
+    if (!id) continue
+    const { error } = await supabase.rpc('bz_consume_stock', { p_kind: kind, p_id: id })
+    if (error) console.error('[commande] décompte du stock :', error.message)
   }
 
   const method = options?.method ?? order.payment_method

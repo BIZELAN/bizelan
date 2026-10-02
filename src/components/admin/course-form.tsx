@@ -6,7 +6,9 @@ import { ExternalLink } from 'lucide-react'
 
 import { saveCourse, type AdminResult } from '@/app/actions/admin'
 import { FormActions, FormSection } from '@/components/admin/shell'
-import { RichEditor } from '@/components/admin/rich-editor'
+import { PresentationEditor } from '@/components/admin/presentation-editor'
+import { ScarcityFields } from '@/components/admin/scarcity-fields'
+import type { BlockData } from '@/components/public/blocks/block-renderer'
 import {
   ActionFeedback,
   ObjectListEditor,
@@ -16,7 +18,6 @@ import {
 import { ImageInput } from '@/components/admin/image-input'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { asArray, slugify } from '@/lib/utils'
-import { parseRichContent } from '@/lib/rich-content'
 import { Alert } from '@/components/ui/misc'
 import type { Category, Course, CourseWatchCoverage, FaqItem } from '@/lib/types'
 
@@ -24,11 +25,14 @@ export function CourseForm({
   course,
   categories,
   coverage = null,
+  previewData,
 }: {
   course: Course | null
   categories: Category[]
   /** Absent à la création : la formation n'a pas encore de leçons. */
   coverage?: CourseWatchCoverage | null
+  /** Contenus publiés, pour l'aperçu en direct des blocs. */
+  previewData?: BlockData
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveCourse, null)
 
@@ -88,13 +92,6 @@ export function CourseForm({
           <Textarea id="summary" name="summary" rows={3} defaultValue={course?.summary ?? ''} />
         </Field>
 
-        <Field
-          label="Présentation détaillée"
-          htmlFor="description"
-          help="Titres, images, vidéos, tableaux et boutons : tout se compose ici."
-        >
-          <RichEditor name="description" defaultValue={parseRichContent(course?.description)} minHeight="min-h-[24rem]" />
-        </Field>
 
         <Field label="Image de couverture">
           <ImageInput name="cover_url" defaultValue={course?.cover_url} />
@@ -120,6 +117,18 @@ export function CourseForm({
         >
           <ImageInput name="promo_video_poster_url" defaultValue={course?.promo_video_poster_url} accept="image" />
         </Field>
+      </FormSection>
+
+      <FormSection
+        title="Présentation de la page"
+        description="Composez la présentation de la formation avec des blocs, comme une page de vente : texte, images, vidéos, carrousel, arguments, compte à rebours… Chaque bloc peut avoir son propre fond (couleur, image ou vidéo en boucle)."
+      >
+        <PresentationEditor
+          blocks={course?.blocks}
+          legacy={course?.description}
+          legacyName="description"
+          previewData={previewData}
+        />
       </FormSection>
 
       <FormSection title="Tarif" description="Les montants sont en FCFA, sans décimales.">
@@ -150,6 +159,13 @@ export function CourseForm({
             />
           </Field>
         </div>
+      </FormSection>
+
+      <FormSection
+        title="Compte à rebours et places limitées"
+        description="Créez l’urgence : une date limite affichée en direct, et le nombre de places restantes."
+      >
+        <ScarcityFields item={course} unitHint="places restantes" />
       </FormSection>
 
       <FormSection title="En pratique" description="Les mentions affichées dans l’encart d’achat.">

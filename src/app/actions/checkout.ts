@@ -120,6 +120,10 @@ export async function createOrder(
     redirect(ownedPath(type, item.slug))
   }
 
+  // Complet ou délai écoulé : refusé ici même si la page a été laissée
+  // ouverte, ou l'adresse du tunnel saisie directement.
+  if (item.unavailableReason) return { ok: false, message: item.unavailableReason }
+
   const supabase = createAdminClient()
 
   const { data: settings } = await supabase

@@ -5,6 +5,7 @@ import { CheckoutShell } from '@/components/checkout/checkout-shell'
 import { getCourseBySlug, getSiteSettings } from '@/lib/queries'
 import { getCurrentUser, hasCourseAccess } from '@/lib/auth'
 import { asArray, payablePrice } from '@/lib/utils'
+import { offerState } from '@/lib/scarcity'
 
 export const metadata: Metadata = { title: 'Commande', robots: { index: false } }
 
@@ -23,6 +24,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   if (await hasCourseAccess(user.id, course.id)) {
     redirect(`/compte/formations/${slug}`)
   }
+
+  // Complet ou délai écoulé : la page de la formation explique pourquoi.
+  if (!offerState(course).purchasable) redirect(`/formations/${slug}`)
 
   const settings = await getSiteSettings()
 

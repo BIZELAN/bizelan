@@ -12,6 +12,7 @@ import { getPostBySlug, getPublishedPosts } from '@/lib/queries'
 import { formatDate, truncate } from '@/lib/utils'
 import { MediaView } from '@/components/ui/media-view'
 import { isVideoUrl } from '@/lib/media'
+import { PresentationBlocks, hasPresentationBlocks } from '@/components/public/presentation-blocks'
 
 export const revalidate = 60
 
@@ -97,15 +98,23 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           )}
         </div>
 
-        <div className="bg-canvas-subtle pb-20 pt-14">
-          <div className="container-page">
-            <div className="mx-auto max-w-4xl rounded-lg border border-line bg-surface px-6 py-12 shadow-e2 sm:px-12 sm:py-16">
-              <div className="mx-auto max-w-reading">
-                <RichContentView content={parseRichContent(post.content)} />
+        {hasPresentationBlocks(post.blocks) ? (
+          // Article composé par blocs : chaque section porte sa propre mise en
+          // page et son propre fond, sans la « feuille » de lecture.
+          <div className="pt-10">
+            <PresentationBlocks blocks={post.blocks} />
+          </div>
+        ) : (
+          <div className="bg-canvas-subtle pb-20 pt-14">
+            <div className="container-page">
+              <div className="mx-auto max-w-4xl rounded-lg border border-line bg-surface px-6 py-12 shadow-e2 sm:px-12 sm:py-16">
+                <div className="mx-auto max-w-reading">
+                  <RichContentView content={parseRichContent(post.content)} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </article>
 
       {related.length > 0 && (

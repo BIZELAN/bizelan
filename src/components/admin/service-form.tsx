@@ -4,7 +4,9 @@ import { useActionState, useState } from 'react'
 
 import { saveService, type AdminResult } from '@/app/actions/admin'
 import { FormActions, FormSection } from '@/components/admin/shell'
-import { RichEditor } from '@/components/admin/rich-editor'
+import { PresentationEditor } from '@/components/admin/presentation-editor'
+import { ScarcityFields } from '@/components/admin/scarcity-fields'
+import type { BlockData } from '@/components/public/blocks/block-renderer'
 import {
   ActionFeedback,
   ObjectListEditor,
@@ -15,10 +17,9 @@ import { ImageInput } from '@/components/admin/image-input'
 import { IconPicker } from '@/components/admin/icon-picker'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { asArray, slugify } from '@/lib/utils'
-import { parseRichContent } from '@/lib/rich-content'
 import type { FaqItem, ProcessStep, Service } from '@/lib/types'
 
-export function ServiceForm({ service }: { service: Service | null }) {
+export function ServiceForm({ service, previewData }: { service: Service | null; previewData?: BlockData }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveService, null)
   const [pricing, setPricing] = useState(service?.pricing ?? 'quote')
   const [slug, setSlug] = useState(service?.slug ?? '')
@@ -55,9 +56,6 @@ export function ServiceForm({ service }: { service: Service | null }) {
           <Textarea id="summary" name="summary" rows={3} defaultValue={service?.summary ?? ''} />
         </Field>
 
-        <Field label="Description détaillée" help="Titres, images, vidéos, tableaux et boutons.">
-          <RichEditor name="description" defaultValue={parseRichContent(service?.description)} minHeight="min-h-[22rem]" />
-        </Field>
 
         <Field label="Image">
           <ImageInput name="cover_url" defaultValue={service?.cover_url} />
@@ -66,6 +64,18 @@ export function ServiceForm({ service }: { service: Service | null }) {
         <Field label="Icône" help="Affichée sur la carte du service.">
           <IconPicker name="icon" value={icon} onChange={setIcon} />
         </Field>
+      </FormSection>
+
+      <FormSection
+        title="Présentation de la page"
+        description="Composez la page du service avec des blocs : texte, images, vidéos, carrousel, étapes, témoignages… Chaque bloc peut avoir son propre fond."
+      >
+        <PresentationEditor
+          blocks={service?.blocks}
+          legacy={service?.description}
+          legacyName="description"
+          previewData={previewData}
+        />
       </FormSection>
 
       <FormSection title="Tarification">
@@ -101,6 +111,13 @@ export function ServiceForm({ service }: { service: Service | null }) {
         >
           <Input id="price_label" name="price_label" defaultValue={service?.price_label ?? ''} />
         </Field>
+      </FormSection>
+
+      <FormSection
+        title="Compte à rebours et places limitées"
+        description="Pour une session, un atelier ou une offre de lancement : la date limite et les places restantes s’affichent sur la page."
+      >
+        <ScarcityFields item={service} unitHint="places restantes" sellable={false} />
       </FormSection>
 
       <FormSection title="Contenu de la prestation">

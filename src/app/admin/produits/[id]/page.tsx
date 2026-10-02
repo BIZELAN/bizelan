@@ -6,6 +6,7 @@ import { Download, ShoppingBag, TrendingUp, Users } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { FormSection, PageHeader, StatCard } from '@/components/admin/shell'
 import { ProductForm } from '@/components/admin/product-form'
+import { getBlockData } from '@/lib/queries'
 import { ProductFilesManager } from '@/components/admin/product-files-manager'
 import { Alert } from '@/components/ui/misc'
 import { Badge } from '@/components/ui/badge'
@@ -26,7 +27,7 @@ export default async function EditProductPage({
   const { cree } = await searchParams
   const supabase = createAdminClient()
 
-  const [{ data: product }, { data: files }, { data: sales }, { data: downloads }, { data: buyers }] =
+  const [{ data: product }, { data: files }, { data: sales }, { data: downloads }, { data: buyers }, previewData] =
     await Promise.all([
       supabase.from('products').select('*').eq('id', id).maybeSingle<Product>(),
       supabase.from('product_files').select('*').eq('product_id', id).order('position').order('created_at'),
@@ -38,6 +39,7 @@ export default async function EditProductPage({
         .eq('product_id', id)
         .order('created_at', { ascending: false })
         .limit(50),
+      getBlockData(),
     ])
 
   if (!product) notFound()
@@ -104,7 +106,7 @@ export default async function EditProductPage({
             <ProductFilesManager productId={product.id} files={fileList} downloadsByFile={downloadsByFile} />
           </FormSection>
 
-          <ProductForm product={product} />
+          <ProductForm product={product} previewData={previewData} />
         </div>
 
         <aside className="space-y-6">

@@ -93,6 +93,37 @@ async function publicationDate(
   return (data?.published_at as string | null) ?? new Date().toISOString()
 }
 
+/**
+ * Nombre de mots d'un article, pour son temps de lecture : ceux des blocs
+ * quand l'article en a, sinon ceux du contenu riche historique.
+ */
+function postWordCount(content: string | null, formData: FormData): number {
+  const words = (text: string) => text.split(/\s+/).filter(Boolean).length
+  const raw = str(formData, 'blocks')
+  if (raw) {
+    try {
+      const blocks = JSON.parse(raw) as { data?: Record<string, unknown> }[]
+      let total = 0
+      const walk = (value: unknown) => {
+        if (typeof value === 'string') {
+          const rich = parseRichContent(value)
+          total += words(rich && typeof rich !== 'string' ? richContentToText(rich) : value)
+        } else if (Array.isArray(value)) value.forEach(walk)
+        else if (value && typeof value === 'object') {
+          // Un contenu riche déjà décodé (objet ProseMirror).
+          if ((value as { type?: string }).type === 'doc') total += words(richContentToText(parseRichContent(value)))
+          else Object.values(value).forEach(walk)
+        }
+      }
+      if (Array.isArray(blocks)) blocks.forEach((b) => walk(b?.data))
+      if (total > 0) return total
+    } catch {
+      // Blocs illisibles : on retombe sur le contenu historique.
+    }
+  }
+  return words(richContentToText(parseRichContent(content)))
+}
+
 /* ------------------------------------------------------------------ */
 /* Formations                                                          */
 /* ------------------------------------------------------------------ */
@@ -583,7 +614,7 @@ export async function savePost(_prev: AdminResult | null, formData: FormData): P
     // gonflerait le temps de lecture avec les noms de nœuds et d'attributs.
     reading_minutes: Math.max(
       1,
-      Math.round(richContentToText(parseRichContent(content)).split(/\s+/).filter(Boolean).length / 200) || 1,
+      Math.round(postWordCount(content, formData) / 200) || 1,
     ),
     ...blocksField(formData),
     seo_title: nullable(formData, 'seo_title'),

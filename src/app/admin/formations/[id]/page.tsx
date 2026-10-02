@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { PageHeader } from '@/components/admin/shell'
 import { ButtonLink } from '@/components/ui/button'
 import { CourseForm } from '@/components/admin/course-form'
+import { getBlockData } from '@/lib/queries'
 import type { Category, Course, CourseWatchCoverage } from '@/lib/types'
 
 export const metadata: Metadata = { title: 'Modifier la formation' }
@@ -15,7 +16,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
   const { id } = await params
   const supabase = createAdminClient()
 
-  const [{ data: course }, { data: categories }, { data: coverage }] = await Promise.all([
+  const [{ data: course }, { data: categories }, { data: coverage }, previewData] = await Promise.all([
     supabase.from('courses').select('*').eq('id', id).maybeSingle<Course>(),
     supabase.from('categories').select('*').eq('kind', 'course').order('position'),
     // Combien de leçons sont réellement mesurables : le réglage de visionnage
@@ -25,6 +26,8 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
       .select('*')
       .eq('course_id', id)
       .maybeSingle<CourseWatchCoverage>(),
+    // Contenus publiés : alimentent l'aperçu en direct des blocs.
+    getBlockData(),
   ])
 
   if (!course) notFound()
@@ -62,6 +65,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
           course={course}
           categories={(categories as Category[]) ?? []}
           coverage={coverage ?? null}
+          previewData={previewData}
         />
       </div>
     </>

@@ -39,6 +39,9 @@ import {
 import type { FaqItem } from '@/lib/types'
 import { MediaView } from '@/components/ui/media-view'
 import { isVideoUrl } from '@/lib/media'
+import { offerState } from '@/lib/scarcity'
+import { OfferUrgency } from '@/components/public/offer-urgency'
+import { PresentationBlocks, hasPresentationBlocks } from '@/components/public/presentation-blocks'
 
 export const revalidate = 60
 
@@ -80,6 +83,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   ])
 
   const enrolled = user ? await hasCourseAccess(user.id, course.id) : false
+  const offer = offerState(course)
+  const withBlocks = hasPresentationBlocks(course.blocks)
   const isFree = isFreeOffer(course)
   const discount = isFree ? null : discountPercent(course.price_cents, course.compare_at_price_cents)
   const faq = asArray<FaqItem>(course.faq)
@@ -178,7 +183,10 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
             {promo ? (
               <VideoSurface
                 playable={promo}
-                poster={course.cover_url}
+                poster={
+                  course.promo_video_poster_url ||
+                  (course.cover_url && !isVideoUrl(course.cover_url) ? course.cover_url : null)
+                }
                 title={course.title}
                 className="rounded-none ring-0"
               />
@@ -209,16 +217,22 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 <p className="mt-1.5 text-sm text-fg-subtle">{course.access_label}</p>
               )}
 
+              {!enrolled && <OfferUrgency state={offer} className="mt-5" />}
+
               <div className="mt-6">
                 {enrolled ? (
                   <ButtonLink href={`/compte/formations/${course.slug}`} size="lg" fullWidth>
                     Continuer la formation
                     <ArrowRight className="h-5 w-5" aria-hidden />
                   </ButtonLink>
-                ) : (
+                ) : offer.purchasable ? (
                   <ButtonLink href={`/commande/${course.slug}`} size="lg" variant="accent" fullWidth>
                     {isFree ? 'Accéder gratuitement' : 'Rejoindre la formation'}
                     <ArrowRight className="h-5 w-5" aria-hidden />
+                  </ButtonLink>
+                ) : (
+                  <ButtonLink href="/contact" size="lg" variant="outline" fullWidth>
+                    Être prévenu de la prochaine session
                   </ButtonLink>
                 )}
               </div>
@@ -247,9 +261,12 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         </div>
       </section>
 
+      {/* Présentation composée par blocs, pleine largeur comme une page de vente. */}
+      <PresentationBlocks blocks={course.blocks} context={{ course }} />
+
       <div className="container-page grid gap-12 py-16 lg:grid-cols-[1.4fr_1fr]">
         <div className="min-w-0 space-y-14">
-          {course.description && (
+          {!withBlocks && course.description && (
             <section>
               <h2 className="mb-5 text-2xl">Présentation</h2>
               <RichContentView content={parseRichContent(course.description)} />
@@ -381,7 +398,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
       </div>
 
       {/* Rappel de conversion */}
-      {!enrolled && (
+      {!enrolled && offer.purchasable && (
         <section className="bg-primary py-14 text-primary-fg">
           <div className="container-page text-center">
             <SectionHeading

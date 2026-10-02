@@ -6,13 +6,21 @@ import { savePost, type AdminResult } from '@/app/actions/admin'
 import { FormActions, FormSection } from '@/components/admin/shell'
 import { ActionFeedback, SaveButton } from '@/components/admin/form-bits'
 import { ImageInput } from '@/components/admin/image-input'
-import { RichEditor } from '@/components/admin/rich-editor'
+import { PresentationEditor } from '@/components/admin/presentation-editor'
+import type { BlockData } from '@/components/public/blocks/block-renderer'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
-import { parseRichContent } from '@/lib/rich-content'
 import { slugify } from '@/lib/utils'
 import type { Category, Post } from '@/lib/types'
 
-export function PostForm({ post, categories }: { post: Post | null; categories: Category[] }) {
+export function PostForm({
+  post,
+  categories,
+  previewData,
+}: {
+  post: Post | null
+  categories: Category[]
+  previewData?: BlockData
+}) {
   const [state, action] = useActionState<AdminResult | null, FormData>(savePost, null)
   const [slug, setSlug] = useState(post?.slug ?? '')
 
@@ -46,15 +54,13 @@ export function PostForm({ post, categories }: { post: Post | null; categories: 
           <ImageInput name="cover_url" defaultValue={post?.cover_url} />
         </Field>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-fg">Contenu</label>
-          <RichEditor
-            name="content"
-            defaultValue={parseRichContent(post?.content)}
-            minHeight="min-h-[30rem]"
-            placeholder="Rédigez votre article. Insérez images, vidéos et tableaux depuis la barre d’outils."
-          />
-        </div>
+      </FormSection>
+
+      <FormSection
+        title="Contenu de l’article"
+        description="Composez l’article par blocs : texte libre (titres, images, tableaux), visuels, vidéos, carrousel, citations, appels à l’action… Chaque bloc peut avoir son propre fond."
+      >
+        <PresentationEditor blocks={post?.blocks} legacy={post?.content} legacyName="content" previewData={previewData} />
       </FormSection>
 
       <FormSection title="Classement et publication">

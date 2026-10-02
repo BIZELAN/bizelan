@@ -6,7 +6,9 @@ import { ExternalLink } from 'lucide-react'
 
 import { saveProduct, type ProductResult } from '@/app/actions/products'
 import { FormActions, FormSection } from '@/components/admin/shell'
-import { RichEditor } from '@/components/admin/rich-editor'
+import { PresentationEditor } from '@/components/admin/presentation-editor'
+import { ScarcityFields } from '@/components/admin/scarcity-fields'
+import type { BlockData } from '@/components/public/blocks/block-renderer'
 import {
   ActionFeedback,
   ObjectListEditor,
@@ -16,11 +18,10 @@ import {
 import { ImageInput } from '@/components/admin/image-input'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { PRODUCT_KINDS, PRODUCT_KIND_ORDER } from '@/lib/products'
-import { parseRichContent } from '@/lib/rich-content'
 import { asArray, cn, discountPercent, formatPrice, slugify } from '@/lib/utils'
 import type { FaqItem, Product, ProductKind } from '@/lib/types'
 
-export function ProductForm({ product }: { product: Product | null }) {
+export function ProductForm({ product, previewData }: { product: Product | null; previewData?: BlockData }) {
   const [state, action] = useActionState<ProductResult | null, FormData>(saveProduct, null)
   const [kind, setKind] = useState<ProductKind>(product?.kind ?? 'ebook')
   const [free, setFree] = useState(product?.pricing === 'free')
@@ -112,17 +113,22 @@ export function ProductForm({ product }: { product: Product | null }) {
           <Textarea id="summary" name="summary" rows={3} defaultValue={product?.summary ?? ''} />
         </Field>
 
-        <Field label="Présentation détaillée" help="Sommaire, extraits, captures, vidéos de démonstration…">
-          <RichEditor
-            name="description"
-            defaultValue={parseRichContent(product?.description)}
-            minHeight="min-h-[20rem]"
-          />
-        </Field>
 
         <Field label="Image de couverture" help="Format paysage 16:9 conseillé (ex. 1600 × 900).">
           <ImageInput name="cover_url" defaultValue={product?.cover_url} />
         </Field>
+      </FormSection>
+
+      <FormSection
+        title="Présentation de la page"
+        description="Sommaire, extraits, captures, vidéos de démonstration, témoignages… composés par blocs, chacun avec son fond."
+      >
+        <PresentationEditor
+          blocks={product?.blocks}
+          legacy={product?.description}
+          legacyName="description"
+          previewData={previewData}
+        />
       </FormSection>
 
       <FormSection title="Prix" description="Montants en FCFA, sans décimales.">
@@ -173,6 +179,13 @@ export function ProductForm({ product }: { product: Product | null }) {
             Prix affiché : <strong className="text-fg">{formatPrice(Number(price))}</strong>
           </p>
         )}
+      </FormSection>
+
+      <FormSection
+        title="Compte à rebours et quantité limitée"
+        description="Une offre de lancement datée, ou un nombre d’exemplaires limité : affichés en direct sur la page du produit."
+      >
+        <ScarcityFields item={product} unitHint="exemplaires disponibles" />
       </FormSection>
 
       <FormSection title="En pratique" description="Les mentions affichées dans l’encart d’achat.">

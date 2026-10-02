@@ -26,6 +26,9 @@ import {
 } from '@/lib/utils'
 import type { FaqItem } from '@/lib/types'
 import { MediaView } from '@/components/ui/media-view'
+import { offerState } from '@/lib/scarcity'
+import { OfferUrgency } from '@/components/public/offer-urgency'
+import { PresentationBlocks, hasPresentationBlocks } from '@/components/public/presentation-blocks'
 
 export const revalidate = 60
 
@@ -81,6 +84,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const previews = product.files.filter((f) => f.is_preview)
   const related = others.filter((p) => p.id !== product.id).slice(0, 3)
   const totalSize = (contents ?? []).reduce((sum, f) => sum + Number(f.file_size ?? 0), 0)
+  const offer = offerState(product)
+  const withBlocks = hasPresentationBlocks(product.blocks)
 
   return (
     <>
@@ -144,11 +149,17 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   {product.delivery_label ?? 'Accès immédiat depuis votre espace personnel'}
                 </p>
 
+                {!owned && <OfferUrgency state={offer} className="mt-5" />}
+
                 <div className="mt-6">
                   {owned ? (
                     <ButtonLink href={`/compte/produits#${product.slug}`} size="lg" fullWidth>
                       <Download className="h-5 w-5" aria-hidden />
                       Accéder à mes fichiers
+                    </ButtonLink>
+                  ) : !offer.purchasable ? (
+                    <ButtonLink href="/contact" size="lg" variant="outline" fullWidth>
+                      Être prévenu du retour
                     </ButtonLink>
                   ) : (
                     <ButtonLink href={`/commande/produit/${product.slug}`} size="lg" variant="accent" fullWidth>
@@ -210,7 +221,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      <div className="container-page grid gap-12 pb-16 lg:grid-cols-[1.4fr_1fr]">
+      {/* Présentation composée par blocs, pleine largeur. */}
+      <PresentationBlocks blocks={product.blocks} context={{ product }} />
+
+      <div className="container-page grid gap-12 py-16 lg:grid-cols-[1.4fr_1fr]">
         <div className="min-w-0 space-y-14">
           {previews.length > 0 && !owned && (
             <section className="rounded-lg border border-primary-text/30 bg-primary-subtle/50 p-6">
@@ -225,7 +239,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </section>
           )}
 
-          {product.description && (
+          {!withBlocks && product.description && (
             <section>
               <h2 className="mb-5 text-2xl">Présentation</h2>
               <RichContentView content={parseRichContent(product.description)} />

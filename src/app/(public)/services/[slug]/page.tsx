@@ -9,6 +9,9 @@ import { QuoteForm } from '@/components/public/quote-form'
 import { getServiceBySlug } from '@/lib/queries'
 import { asArray, formatPrice, truncate } from '@/lib/utils'
 import type { FaqItem, ProcessStep } from '@/lib/types'
+import { offerState } from '@/lib/scarcity'
+import { OfferUrgency } from '@/components/public/offer-urgency'
+import { PresentationBlocks, hasPresentationBlocks } from '@/components/public/presentation-blocks'
 
 export const revalidate = 60
 
@@ -37,6 +40,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const steps = asArray<ProcessStep>(service.process_steps)
   const deliverables = asArray<string>(service.deliverables)
   const faq = asArray<FaqItem>(service.faq)
+  const offer = offerState(service)
+  const withBlocks = hasPresentationBlocks(service.blocks)
 
   return (
     <>
@@ -58,13 +63,17 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 ? (service.price_label ?? 'Sur devis')
                 : formatPrice(service.price_cents, service.currency)}
             </p>
+            <OfferUrgency state={offer} className="mt-6 max-w-md" />
           </div>
         </div>
       </section>
 
+      {/* Présentation composée par blocs, pleine largeur. */}
+      <PresentationBlocks blocks={service.blocks} context={{ service }} />
+
       <div className="container-page grid gap-12 py-16 lg:grid-cols-[1.4fr_1fr]">
         <div className="min-w-0 space-y-12">
-          {service.description && (
+          {!withBlocks && service.description && (
             <section>
               <h2 className="mb-5 text-2xl">En quoi consiste cette prestation</h2>
               <RichContentView content={parseRichContent(service.description)} />

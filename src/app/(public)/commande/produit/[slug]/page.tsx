@@ -6,6 +6,7 @@ import { getProductBySlug, getSiteSettings, hasProductAccess } from '@/lib/queri
 import { getCurrentUser } from '@/lib/auth'
 import { PRODUCT_KINDS } from '@/lib/products'
 import { asArray, payablePrice } from '@/lib/utils'
+import { offerState } from '@/lib/scarcity'
 
 export const metadata: Metadata = { title: 'Commande', robots: { index: false } }
 
@@ -23,6 +24,9 @@ export default async function ProductCheckoutPage({ params }: { params: Promise<
   if (await hasProductAccess(user.id, product.id)) {
     redirect(`/compte/produits#${slug}`)
   }
+
+  // Complet ou délai écoulé : la page du produit explique pourquoi.
+  if (!offerState(product).purchasable) redirect(`/boutique/${slug}`)
 
   const settings = await getSiteSettings()
   const kind = PRODUCT_KINDS[product.kind] ?? PRODUCT_KINDS.other

@@ -757,3 +757,31 @@ input[type='number']::-webkit-outer-spin-button {
 .bz-full-height > :not(.bz-frame-layer) {
   width: 100%;
 }
+/* Barre de progression du lecteur YouTube maison (`youtube-player.tsx`). */
+.bz-yt-range {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    rgb(var(--primary)) 0,
+    rgb(var(--primary)) var(--bz-progress, 0%),
+    rgba(255, 255, 255, 0.35) var(--bz-progress, 0%)
+  );
+}
+.bz-yt-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgb(var(--primary));
+}
+.bz-yt-range::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border: 0;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgb(var(--primary));
+}

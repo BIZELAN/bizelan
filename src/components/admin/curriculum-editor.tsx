@@ -9,6 +9,8 @@ import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
 import { ActionFeedback, DeleteButton, SaveButton } from '@/components/admin/form-bits'
 import { FileUploader } from '@/components/admin/file-uploader'
+import { MediaField } from '@/components/admin/media-input'
+import { VideoPreview } from '@/components/admin/video-preview'
 import { UPLOAD_TARGETS } from '@/lib/uploads'
 import { parseStorageUri, toStorageUri } from '@/lib/video'
 import { RichEditor } from '@/components/admin/rich-editor'
@@ -305,6 +307,28 @@ function LessonForm({
   )
   /** Chemin du fichier fraîchement déposé, tant que la leçon n'est pas enregistrée. */
   const [videoPath, setVideoPath] = useState<string | null>(null)
+  const [minutes, setMinutes] = useState(lesson ? Math.round(lesson.duration_seconds / 60) : 0)
+  /** Durée lue dans le fichier par l'aperçu, à la seconde près. */
+  const [exactSeconds, setExactSeconds] = useState(0)
+  const [poster, setPoster] = useState(lesson?.video_poster_url ?? '')
+  /** Identifiant ou lien saisi, pour l'aperçu en direct. */
+  const [typedId, setTypedId] = useState(lesson?.video_id ?? '')
+  const [typedUrl, setTypedUrl] = useState(lesson?.video_url ?? '')
+
+  const previewSource =
+    mode === 'file'
+      ? videoPath
+        ? { src: toStorageUri(VIDEO_BUCKET, videoPath) }
+        : storedVideo
+          ? { src: lesson!.video_url! }
+          : null
+      : mode === 'url'
+        ? typedUrl.trim()
+          ? { src: typedUrl.trim() }
+          : null
+        : typedId.trim()
+          ? { provider: mode, id: typedId.trim() }
+          : null
 
   if (state?.ok) setTimeout(onDone, 300)
 
@@ -350,8 +374,13 @@ function LessonForm({
             name="duration_minutes"
             type="number"
             min={0}
-            defaultValue={lesson ? Math.round(lesson.duration_seconds / 60) : 0}
+            value={minutes}
+            onChange={(e) => {
+              setMinutes(Number(e.target.value) || 0)
+              setExactSeconds(0)
+            }}
           />
+          <input type="hidden" name="duration_seconds_exact" value={exactSeconds || ''} />
         </Field>
       </div>
 
@@ -391,7 +420,12 @@ function LessonForm({
         </div>
       ) : mode === 'url' ? (
         <Field label="URL de la vidéo" help="Lien direct vers le fichier MP4.">
-          <Input name="video_url" defaultValue={lesson?.video_url ?? ''} placeholder="https://…/video.mp4" />
+          <Input
+            name="video_url"
+            value={typedUrl}
+            onChange={(e) => setTypedUrl(e.target.value)}
+            placeholder="https://…/video.mp4"
+          />
         </Field>
       ) : (
         <Field
@@ -404,10 +438,29 @@ function LessonForm({
                 : 'L’identifiant GUID fourni par Bunny Stream.'
           }
         >
-          <Input name="video_id" defaultValue={lesson?.video_id ?? ''} />
+          <Input name="video_id" value={typedId} onChange={(e) => setTypedId(e.target.value)} />
           <input type="hidden" name="video_url" value={lesson?.video_url ?? ''} />
         </Field>
       )}
+
+      {/* Aperçu de la vidéo telle que l'apprenant la verra, et sa miniature. */}
+      <VideoPreview
+        source={previewSource}
+        poster={poster || null}
+        onDuration={(seconds) => {
+          setExactSeconds(seconds)
+          setMinutes(Math.max(1, Math.round(seconds / 60)))
+        }}
+        onPosterCaptured={setPoster}
+      />
+
+      <Field
+        label="Miniature de la vidéo"
+        help="Image affichée avant la lecture. Choisissez-en une, ou capturez une image de la vidéo dans l’aperçu ci-dessus. Vide : la première image de la vidéo (ou celle de YouTube)."
+      >
+        <input type="hidden" name="video_poster_url" value={poster} />
+        <MediaField value={poster} onChange={setPoster} accept="image" height="h-24" />
+      </Field>
 
       <Field label="Notes de la leçon" help="Affichées sous la vidéo. Images, tableaux et liens acceptés.">
         <RichEditor name="content" defaultValue={parseRichContent(lesson?.content)} minHeight="min-h-[16rem]" />

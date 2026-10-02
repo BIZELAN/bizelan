@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react'
 import { Play } from 'lucide-react'
-import { VIDEO_IFRAME_ALLOW, type PlayableVideo } from '@/lib/video'
+import { VIDEO_IFRAME_ALLOW, youtubeIdFromEmbed, type PlayableVideo } from '@/lib/video'
+import { YouTubePlayer } from '@/components/ui/youtube-player'
 import { cn } from '@/lib/utils'
 
 /**
@@ -120,6 +121,10 @@ export function VideoSurface({
   if (!playable) return null
 
   if (playable.kind === 'embed') {
+    const youtube = youtubeIdFromEmbed(playable.url)
+    if (youtube) {
+      return <YouTubePlayer videoId={youtube} poster={poster} title={title} className={className} />
+    }
     return (
       <div
         className={cn(

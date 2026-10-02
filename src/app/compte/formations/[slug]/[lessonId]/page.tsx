@@ -185,6 +185,7 @@ export default async function LessonPage({
           courseId={course.id}
           resumeAt={lesson.progress?.last_position_seconds ?? 0}
           playable={playable}
+          poster={lesson.video_poster_url}
         />
 
         {/* ---------- Un seul panneau de contenu ---------------------------

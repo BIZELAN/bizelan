@@ -385,3 +385,13 @@ export function resolveVideoUrl(value: string | null | undefined): VideoTarget |
 
   return null
 }
+
+/**
+ * Identifiant YouTube d'une adresse d'intégration produite ici
+ * (`youtubeEmbedUrl`). Sert au lecteur maison, qui pilote YouTube lui-même
+ * au lieu d'afficher son interface.
+ */
+export function youtubeIdFromEmbed(url: string): string | null {
+  const match = /youtube(?:-nocookie)?\.com\/embed\/([\w-]{11})/.exec(url)
+  return match ? match[1] : null
+}

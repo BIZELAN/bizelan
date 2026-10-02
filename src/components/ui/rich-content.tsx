@@ -16,7 +16,8 @@ import {
   type RichMark,
   type RichNode,
 } from '@/lib/rich-content'
-import { VIDEO_IFRAME_ALLOW } from '@/lib/video'
+import { VIDEO_IFRAME_ALLOW, youtubeIdFromEmbed } from '@/lib/video'
+import { YouTubePlayer } from '@/components/ui/youtube-player'
 
 /**
  * Rendu public du contenu riche.
@@ -183,6 +184,16 @@ function renderImage(node: RichNode): ReactNode {
 function renderYoutube(node: RichNode): ReactNode {
   const src = safeYoutubeSrc(node.attrs?.src)
   if (!src) return null
+
+  // Lecteur maison : ni titre cliquable, ni logo, ni suggestions YouTube.
+  const id = youtubeIdFromEmbed(src)
+  if (id) {
+    return (
+      <div className="my-7">
+        <YouTubePlayer videoId={id} />
+      </div>
+    )
+  }
 
   return (
     <div className="my-7 overflow-hidden rounded-lg bg-canvas ring-1 ring-line">

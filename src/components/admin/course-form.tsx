@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
 
@@ -16,6 +16,8 @@ import {
   StringListEditor,
 } from '@/components/admin/form-bits'
 import { ImageInput } from '@/components/admin/image-input'
+import { MediaField } from '@/components/admin/media-input'
+import { VideoPreview } from '@/components/admin/video-preview'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { asArray, slugify } from '@/lib/utils'
 import { Alert } from '@/components/ui/misc'
@@ -35,6 +37,8 @@ export function CourseForm({
   previewData?: BlockData
 }) {
   const [state, action] = useActionState<AdminResult | null, FormData>(saveCourse, null)
+  const [promoUrl, setPromoUrl] = useState(course?.promo_video_url ?? '')
+  const [promoPoster, setPromoPoster] = useState(course?.promo_video_poster_url ?? '')
 
   return (
     <form action={action} className="space-y-6">
@@ -106,16 +110,24 @@ export function CourseForm({
         >
           <Input
             name="promo_video_url"
-            defaultValue={course?.promo_video_url ?? ''}
+            value={promoUrl}
+            onChange={(e) => setPromoUrl(e.target.value)}
             placeholder="https://www.youtube.com/watch?v=…"
           />
         </Field>
+
+        <VideoPreview
+          source={promoUrl.trim() ? { src: promoUrl.trim() } : null}
+          poster={promoPoster || null}
+          onPosterCaptured={setPromoPoster}
+        />
 
         <Field
           label="Miniature de la vidéo"
           help="Image affichée avant la lecture. Vide : celle de YouTube, ou l’image de couverture."
         >
-          <ImageInput name="promo_video_poster_url" defaultValue={course?.promo_video_poster_url} accept="image" />
+          <input type="hidden" name="promo_video_poster_url" value={promoPoster} />
+          <MediaField value={promoPoster} onChange={setPromoPoster} accept="image" height="h-24" />
         </Field>
       </FormSection>
 

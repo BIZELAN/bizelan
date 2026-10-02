@@ -6,7 +6,8 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { saveVideoPosition, setLessonCompleted } from '@/app/actions/learning'
 import { Button } from '@/components/ui/button'
-import { VIDEO_IFRAME_ALLOW, type PlayableVideo } from '@/lib/video'
+import { VIDEO_IFRAME_ALLOW, youtubeIdFromEmbed, type PlayableVideo } from '@/lib/video'
+import { YouTubePlayer } from '@/components/ui/youtube-player'
 import { cn } from '@/lib/utils'
 
 /**
@@ -24,12 +25,15 @@ export function VideoFrame({
   lessonId,
   courseId,
   resumeAt = 0,
+  poster = null,
 }: {
   playable: PlayableVideo | null
   title: string
   lessonId?: string
   courseId?: string
   resumeAt?: number
+  /** Miniature choisie dans l'administration (0015). */
+  poster?: string | null
 }) {
   const isDirectFile = playable?.kind === 'file'
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -131,6 +135,20 @@ export function VideoFrame({
     )
   }
 
+  // YouTube : lecteur maison, sans aucune sortie possible vers YouTube.
+  const youtube = playable.kind === 'embed' ? youtubeIdFromEmbed(playable.url) : null
+  if (youtube) {
+    return (
+      <YouTubePlayer
+        videoId={youtube}
+        poster={poster}
+        title={title}
+        resumeAt={resumeAt}
+        onEnded={() => window.dispatchEvent(new CustomEvent('bz:lesson-ended', { detail: { lessonId } }))}
+      />
+    )
+  }
+
   return (
     <div className="aspect-video overflow-hidden rounded-lg bg-canvas">
       {playable.kind === 'file' ? (
@@ -142,6 +160,7 @@ export function VideoFrame({
           controlsList="nodownload"
           playsInline
           preload="metadata"
+          poster={poster ?? undefined}
           className="h-full w-full"
         >
           Votre navigateur ne peut pas lire cette vidéo.

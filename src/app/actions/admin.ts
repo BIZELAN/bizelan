@@ -361,9 +361,15 @@ export async function saveLesson(_prev: AdminResult | null, formData: FormData):
     video_provider: provider ? provider : null,
     video_id: nullable(formData, 'video_id'),
     video_url: nullable(formData, 'video_url'),
-    duration_seconds: int(formData, 'duration_minutes') * 60,
+    // Durée exacte quand l'aperçu a pu la lire dans le fichier ; sinon les
+    // minutes saisies. Le seuil de visionnage du certificat s'y mesure.
+    duration_seconds:
+      int(formData, 'duration_seconds_exact') > 0
+        ? int(formData, 'duration_seconds_exact')
+        : int(formData, 'duration_minutes') * 60,
     is_preview: bool(formData, 'is_preview'),
     position: int(formData, 'position'),
+    ...optionalText(formData, 'video_poster_url'),
   }
 
   const { error } = id

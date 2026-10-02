@@ -29,7 +29,8 @@ import { MediaView } from '@/components/ui/media-view'
 import { Countdown } from '@/components/ui/countdown'
 import { Carousel, type CarouselSlide } from '@/components/public/blocks/carousel'
 import { WhatsAppIcon } from '@/components/ui/brand-icons'
-import { resolveVideoUrl, VIDEO_IFRAME_ALLOW } from '@/lib/video'
+import { resolveVideoUrl, VIDEO_IFRAME_ALLOW, youtubeIdFromEmbed } from '@/lib/video'
+import { YouTubePlayer } from '@/components/ui/youtube-player'
 import {
   CourseCard,
   FeaturedCourseCard,
@@ -992,7 +993,15 @@ function VideoBlock({ data }: { data: Record<string, unknown> }) {
       <div className="container-page">
         {f.str('title') && <SectionHeading title={f.str('title')} />}
         <div className="mx-auto max-w-4xl">
-          {embed ? (
+          {embed && youtubeIdFromEmbed(embed) ? (
+            // YouTube : lecteur maison, sans titre cliquable ni suggestions.
+            <YouTubePlayer
+              videoId={youtubeIdFromEmbed(embed)!}
+              poster={f.str('poster') || null}
+              title={f.str('title')}
+              className="shadow-e3"
+            />
+          ) : embed ? (
             <div className="aspect-video overflow-hidden rounded-lg bg-canvas shadow-e3 ring-1 ring-line">
               <iframe
                 src={embed}
